@@ -1,4 +1,7 @@
 
+#include <thorin/thorin.hpp>
+
 int main() {
-    return 0;
+    auto app = thorin::Thorin();
+    return app.run();
 }
