@@ -10,7 +10,10 @@ set(THORIN_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(
     THORIN_SOURCES
     ${THORIN_SOURCE_DIR}/thorin.cpp
+    ${THORIN_SOURCE_DIR}/windowmanager.cpp
 )
+
+find_package(glfw REQUIRED)
 
 add_library(
     thorin
@@ -18,6 +21,11 @@ add_library(
     ${THORIN_SOURCES}
 )
 
+target_link_libraries(
+        thorin
+        PUBLIC
+        glfw::glfw
+)
 target_include_directories(
     thorin
     PUBLIC

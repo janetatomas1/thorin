@@ -11,7 +11,7 @@ namespace thorin {
     int Thorin::run() {
         init();
 
-        while(!shouldExit_) {
+        while(!shouldExit_ && windowManager_.count() > 0) {
             update();
         }
 
