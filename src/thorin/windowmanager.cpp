@@ -5,7 +5,6 @@
 
 namespace thorin {
     void WindowManager::init() {
-        // glfwSetErrorCallback(glfw_error_callback);
         if(glfwInit() == GLFW_FALSE) {
 
         }

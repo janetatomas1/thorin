@@ -11,9 +11,11 @@ set(
     THORIN_SOURCES
     ${THORIN_SOURCE_DIR}/thorin.cpp
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
+    ${THORIN_SOURCE_DIR}/glwindow.cpp
 )
 
 find_package(glfw REQUIRED)
+find_package(glbinding REQUIRED)
 
 add_library(
     thorin
@@ -22,9 +24,10 @@ add_library(
 )
 
 target_link_libraries(
-        thorin
-        PUBLIC
-        glfw::glfw
+    thorin
+    PUBLIC
+    glfw::glfw
+    glbinding::glbinding
 )
 target_include_directories(
     thorin

@@ -6,16 +6,28 @@ namespace thorin {
 
     void Thorin::update() {}
 
-    void Thorin::destroy() {}
+    void Thorin::destroy() {
+        windowManager_.destroy();
+    }
 
     int Thorin::run() {
         init();
 
         while(!shouldExit_ && windowManager_.count() > 0) {
             update();
+
+            frame_ += 1;
         }
 
         destroy();
         return exitCode_;
+    }
+
+    uint64_t Thorin::random() {
+        return randomGenerator_.random();
+    }
+
+    uint64_t Thorin::frame() const {
+        return frame_;
     }
 }
