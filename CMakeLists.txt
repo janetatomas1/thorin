@@ -12,10 +12,14 @@ set(
     ${THORIN_SOURCE_DIR}/thorin.cpp
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
     ${THORIN_SOURCE_DIR}/glwindow.cpp
+    ${THORIN_SOURCE_DIR}/actionmanager.cpp
+    ${THORIN_SOURCE_DIR}/widget.cpp
 )
 
-find_package(glfw REQUIRED)
+find_package(sdl REQUIRED)
 find_package(glbinding REQUIRED)
+find_package(concurrentqueue REQUIRED)
+find_package(imgui REQUIRED)
 
 add_library(
     thorin
@@ -26,8 +30,10 @@ add_library(
 target_link_libraries(
     thorin
     PUBLIC
-    glfw::glfw
+    sdl::sdl
     glbinding::glbinding
+    concurrentqueue::concurrentqueue
+    imgui::imgui
 )
 target_include_directories(
     thorin

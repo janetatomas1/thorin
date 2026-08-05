@@ -2,7 +2,9 @@
 #include "thorin/thorin.hpp"
 
 namespace thorin {
-    void Thorin::init() {}
+    void Thorin::init() {
+        windowManager_.init();
+    }
 
     void Thorin::update() {}
 
@@ -21,10 +23,6 @@ namespace thorin {
 
         destroy();
         return exitCode_;
-    }
-
-    uint64_t Thorin::random() {
-        return randomGenerator_.random();
     }
 
     uint64_t Thorin::frame() const {

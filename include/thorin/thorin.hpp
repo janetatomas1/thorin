@@ -3,6 +3,7 @@
 
 #include "thorin/windowmanager.hpp"
 #include "thorin/randomgenerator.hpp"
+#include "thorin/actionmanager.hpp"
 
 namespace thorin {
     class Thorin {
@@ -11,7 +12,8 @@ namespace thorin {
         bool shouldExit_ = false;
 
         WindowManager windowManager_;
-        RandomGenerator randomGenerator_;
+        static RandomGenerator randomGenerator_;
+        ActionManager actionManager_;
 
         void init();
         void destroy();
@@ -21,7 +23,9 @@ namespace thorin {
         int run();
         void exit();
 
-        uint64_t random();
+        static uint64_t random() {
+            return randomGenerator_.random();
+        }
         uint64_t frame() const;
     };
 }

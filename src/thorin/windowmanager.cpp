@@ -1,17 +1,19 @@
 
 #include "thorin/windowmanager.hpp"
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL.h>
+#include "thorin/glwindow.hpp"
 
 namespace thorin {
     void WindowManager::init() {
-        if(glfwInit() == GLFW_FALSE) {
+        // TODO: take care of failure case
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
 
-        }
+        windows_.push_back(std::make_unique<GLWindow>());
     }
 
     void WindowManager::destroy() {
-        glfwTerminate();
+        SDL_Quit();
     }
 
     void WindowManager::update() {

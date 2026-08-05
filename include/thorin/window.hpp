@@ -1,7 +1,7 @@
 
 #pragma once
 
-class GLFWwindow;
+#include <SDL3/SDL.h>
 
 namespace thorin {
     struct WindowConfig {
@@ -12,10 +12,12 @@ namespace thorin {
 
     class Window {
     protected:
-        GLFWwindow *handle_ = nullptr;
+        SDL_WindowFlags window_flags;
+        SDL_Window* window;
         WindowConfig config_;
 
     public:
+        Window() = default;
         Window(const WindowConfig &config): config_(config) {};
         virtual void init() = 0;
         virtual void destroy() = 0;
