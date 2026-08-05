@@ -4,9 +4,12 @@
 #include <SDL3/SDL.h>
 
 namespace thorin {
+    class Thorin;
+    class WindowManager;
+
     struct WindowConfig {
         int width = 1920, height = 1080;
-        std::string title;
+        std::string title = "Thorin";
         bool maximized = false;
     };
 
@@ -16,7 +19,9 @@ namespace thorin {
         SDL_Window* handle_;
         WindowConfig config_;
 
+        WindowManager *manager_;
     public:
+        virtual ~Window() = default;
         Window() = default;
         Window(const WindowConfig &config): config_(config) {};
         virtual void init() = 0;

@@ -9,7 +9,7 @@ namespace thorin {
         }
     }
 
-    void ActionManager::push(std::move_only_function<void()> fn, uint32_t delay) {
+    void ActionManager::add_action(std::move_only_function<void()> fn, uint64_t delay) {
         immediate_.enqueue({std::move(fn), delay});
     }
 

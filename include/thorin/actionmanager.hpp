@@ -11,7 +11,7 @@ namespace thorin {
 
     public:
         ActionManager(uint64_t maxDelayFrames = 256);
-        void push(std::move_only_function<void()> fn, uint32_t delay = 1);
+        void add_action(std::move_only_function<void()> fn, uint64_t delay = 1);
         void dispatch();
     };
 

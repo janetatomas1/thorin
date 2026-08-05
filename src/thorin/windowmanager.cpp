@@ -3,14 +3,14 @@
 
 #include <SDL3/SDL.h>
 #include "thorin/glwindow.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
+    WindowManager::WindowManager(Thorin &app) : app_(app) {}
+
     void WindowManager::init() {
         // TODO: take care of failure case
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
-
-        windows_.push_back(std::make_unique<GLWindow>());
-        windows_[0]->init();
     }
 
     void WindowManager::destroy() {
@@ -37,5 +37,19 @@ namespace thorin {
 
     size_t WindowManager::count() const {
         return windows_.size();
+    }
+
+    Thorin& WindowManager::app() {
+        return app_;
+    }
+
+    Window* WindowManager::add_window(std::unique_ptr<Window> window) {
+        auto ptr = window.get();
+        app_.add_action(std::move([window = std::move(window), this] () mutable {
+            window->init();
+            windows_.push_back(std::move(window));
+        }));
+
+        return ptr;
     }
 }

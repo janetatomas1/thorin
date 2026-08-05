@@ -11,7 +11,7 @@ namespace thorin {
         uint64_t frame_ = 0;
         bool shouldExit_ = false;
 
-        WindowManager windowManager_;
+        WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
 
@@ -19,7 +19,7 @@ namespace thorin {
         void destroy();
         void update();
     public:
-        Thorin() = default;
+        Thorin(int argc, char** argv);
         int run();
         void exit();
 
@@ -27,5 +27,11 @@ namespace thorin {
             return randomGenerator_.random();
         }
         uint64_t frame() const;
+        void add_action(
+            std::move_only_function<void()> fn,
+            uint64_t delay = 1
+        );
+        Window *add_window(std::unique_ptr<Window> window);
+        Window *add_window();
     };
 }
