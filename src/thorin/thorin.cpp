@@ -6,7 +6,9 @@ namespace thorin {
         windowManager_.init();
     }
 
-    void Thorin::update() {}
+    void Thorin::update() {
+        windowManager_.update();
+    }
 
     void Thorin::destroy() {
         windowManager_.destroy();

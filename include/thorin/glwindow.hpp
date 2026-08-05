@@ -6,6 +6,7 @@
 namespace thorin {
     class GLWindow: public Window {
         SDL_GLContext gl_context;
+        std::string glsl_version = "#version 330 core";
 
     public:
         void init() override;

@@ -1,5 +1,7 @@
 
 #include <glbinding/gl/gl.h>
+#include <glbinding/glbinding.h>
+
 #include <SDL3/SDL.h>
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
@@ -17,54 +19,55 @@ namespace thorin {
         float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
 
         window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-        window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(800 * main_scale), window_flags);
-        gl_context = SDL_GL_CreateContext(window);
+        handle_ = SDL_CreateWindow(
+            "Dear ImGui SDL3+OpenGL3 example",
+            config_.width,
+            config_.height,
+            window_flags
+        );
+        gl_context = SDL_GL_CreateContext(handle_);
+        SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", this);
 
-        SDL_GL_MakeCurrent(window, gl_context);
-        SDL_GL_SetSwapInterval(1); // Enable vsync
-        SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-        SDL_ShowWindow(window);
+        SDL_GL_MakeCurrent(handle_, gl_context);
+        SDL_GL_SetSwapInterval(1);
+        SDL_SetWindowPosition(handle_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_ShowWindow(handle_);
 
-        // Setup Dear ImGui context
+        glbinding::initialize(
+            [](const char* name) {
+                return SDL_GL_GetProcAddress(name);
+            }
+        );
+
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-        // Setup Dear ImGui style
         ImGui::StyleColorsDark();
-        //ImGui::StyleColorsLight();
-
-        // Setup scaling
         ImGuiStyle& style = ImGui::GetStyle();
-        style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-        style.FontScaleDpi = main_scale;        // Set initial font scale. (in docking branch: using io.ConfigDpiScaleFonts=true automatically overrides this for every window depending on the current monitor)
+        style.ScaleAllSizes(main_scale);
+        style.FontScaleDpi = main_scale;
 
-        const char *glsl_version = "#version 330 core";
-        ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
-        ImGui_ImplOpenGL3_Init(glsl_version);
+        ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
+        ImGui_ImplOpenGL3_Init(glsl_version.c_str());
     }
 
     void GLWindow::destroy() {
     }
 
     void GLWindow::update() {
-        SDL_Event event;
-        SDL_ShowWindow(window);
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL3_ProcessEvent(&event);
-        }
+        SDL_ShowWindow(handle_);
 
-        // [If using SDL_MAIN_USE_CALLBACKS: all code below would likely be your SDL_AppIterate() function]
-        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
-        {
-            SDL_Delay(10);
-        }
-
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
+        ImGui::Render();
+        glViewport(0, 0, config_.width, config_.height);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        SDL_GL_SwapWindow(handle_);
     }
 }
