@@ -1,4 +1,6 @@
 
+#include <string>
+
 #include "thorin/window.hpp"
 
 #include <SDL3/SDL.h>
@@ -12,5 +14,6 @@ namespace thorin {
         void init() override;
         void destroy() override;
         void update() override;
+        void make_current();
     };
 }

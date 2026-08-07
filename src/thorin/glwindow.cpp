@@ -55,6 +55,8 @@ namespace thorin {
     }
 
     void GLWindow::destroy() {
+        SDL_GL_DestroyContext(gl_context);
+        SDL_DestroyWindow(handle_);
     }
 
     void GLWindow::update() {
@@ -69,5 +71,9 @@ namespace thorin {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(handle_);
+    }
+
+    void GLWindow::make_current() {
+        SDL_GL_MakeCurrent(handle_, gl_context);
     }
 }

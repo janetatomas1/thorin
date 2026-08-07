@@ -45,11 +45,34 @@ namespace thorin {
 
     Window* WindowManager::add_window(std::unique_ptr<Window> window) {
         auto ptr = window.get();
+        window->set_window_manager(this);
         app_.add_action(std::move([window = std::move(window), this] () mutable {
             window->init();
             windows_.push_back(std::move(window));
         }));
 
         return ptr;
+    }
+
+    Window* WindowManager::get_window(const size_t index) {
+        return windows_[index].get();
+    }
+
+    Window* WindowManager::get_window_by_id(uint64_t id) {
+        auto window = std::find_if(windows_.begin(), windows_.end(), [id](const auto& window){
+            return id == window->id();
+        });
+
+        if (window != windows_.end()) {
+            return window->get();
+        }
+
+        return nullptr;
+    }
+
+    void WindowManager::remove_window(uint64_t id) {
+        app().add_action([this, id](){
+            windows_.erase(windows_.begin() + id);
+        });
     }
 }

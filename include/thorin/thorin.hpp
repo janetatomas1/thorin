@@ -20,7 +20,7 @@ namespace thorin {
         void update();
     public:
         Thorin(int argc, char** argv);
-        int run();
+        int exec();
         void exit();
 
         static uint64_t random() {

@@ -19,13 +19,13 @@ namespace thorin {
         windowManager_.destroy();
     }
 
-    int Thorin::run() {
+    int Thorin::exec() {
         init();
 
         while(!shouldExit_) {
             update();
             frame_ += 1;
-            shouldExit_ &= windowManager_.count() == 0;
+            shouldExit_ |= windowManager_.count() == 0;
         }
 
         destroy();

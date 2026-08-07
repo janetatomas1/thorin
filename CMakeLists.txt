@@ -13,6 +13,7 @@ set(
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
     ${THORIN_SOURCE_DIR}/glwindow.cpp
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
+    ${THORIN_SOURCE_DIR}/window.cpp
     ${THORIN_SOURCE_DIR}/widget.cpp
 )
 

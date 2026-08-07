@@ -2,6 +2,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <string>
 
 namespace thorin {
     class Thorin;
@@ -15,11 +16,13 @@ namespace thorin {
 
     class Window {
     protected:
+        uint64_t id_;
         SDL_WindowFlags window_flags;
         SDL_Window* handle_;
         WindowConfig config_;
 
         WindowManager *manager_;
+        void close_();
     public:
         virtual ~Window() = default;
         Window() = default;
@@ -27,12 +30,12 @@ namespace thorin {
         virtual void init() = 0;
         virtual void destroy() = 0;
         virtual void update() = 0;
-        virtual bool event(const SDL_Event *event);
+        virtual void event(const SDL_Event *event);
+        void close();
+        void maximize();
+        void minimize();
+        Thorin &app();
+        uint64_t id();
+        void set_window_manager(WindowManager *manager);
     };
-
-    inline bool Window::event(const SDL_Event *event) {
-        if (event != nullptr && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-            // SDL_DestroyWindow(handle_);
-        }
-    }
 }
