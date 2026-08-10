@@ -1,9 +1,10 @@
 
 #include "thorin/window.hpp"
-
 #include "thorin/thorin.hpp"
 
 namespace thorin {
+    Window::Window(): id_(Thorin::random()) {}
+
     void Window::event(const SDL_Event *event) {
         if (event != nullptr && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
             close();
@@ -11,20 +12,19 @@ namespace thorin {
     }
 
     void Window::close() {
-        app().add_action(std::move(
-            [this]() {
-                destroy();
-                manager_->remove_window(id_);
-            }
-        ));
+        manager_->remove_window(id_);
     }
 
     void Window::maximize() {
-        SDL_MaximizeWindow(handle_);
+        app().add_action([this]() {
+            SDL_MinimizeWindow(handle_);
+        });
     }
 
     void Window::minimize() {
-        SDL_MinimizeWindow(handle_);
+        app().add_action([this]() {
+            SDL_MaximizeWindow(handle_);
+        });
     }
 
     Thorin& Window::app() {

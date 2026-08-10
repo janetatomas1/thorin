@@ -4,11 +4,16 @@
 #include "thorin/glwindow.hpp"
 
 namespace thorin {
+    RandomGenerator Thorin::randomGenerator_{};
+
     void Thorin::init() {}
 
     void Thorin::update() {
         actionManager_.dispatch();
         windowManager_.update();
+
+        frame_ += 1;
+        shouldExit_ |= windowManager_.count() == 0;
     }
 
     Thorin::Thorin(int argc, char** argv) {
@@ -24,8 +29,6 @@ namespace thorin {
 
         while(!shouldExit_) {
             update();
-            frame_ += 1;
-            shouldExit_ |= windowManager_.count() == 0;
         }
 
         destroy();
@@ -48,5 +51,21 @@ namespace thorin {
 
     Window* Thorin::add_window() {
         return windowManager_.add_window(std::make_unique<GLWindow>());
+    }
+
+    Window* Thorin::get_window_at(size_t index) {
+        return windowManager_.get_window_at(index);
+    }
+
+    Window* Thorin::get_window(uint64_t id) {
+        return windowManager_.get_window(id);
+    }
+
+    void Thorin::remove_window_at(size_t index) {
+        windowManager_.remove_window_at(index);
+    }
+
+    void Thorin::remove_window(uint64_t id) {
+        windowManager_.remove_window(id);
     }
 }

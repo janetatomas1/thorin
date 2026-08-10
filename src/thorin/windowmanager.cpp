@@ -1,5 +1,6 @@
 
 #include "thorin/windowmanager.hpp"
+#include <iostream>
 
 #include <SDL3/SDL.h>
 #include "thorin/glwindow.hpp"
@@ -54,12 +55,13 @@ namespace thorin {
         return ptr;
     }
 
-    Window* WindowManager::get_window(const size_t index) {
+    Window* WindowManager::get_window_at(const size_t index) {
         return windows_[index].get();
     }
 
-    Window* WindowManager::get_window_by_id(uint64_t id) {
-        auto window = std::find_if(windows_.begin(), windows_.end(), [id](const auto& window){
+    Window* WindowManager::get_window(uint64_t id) {
+        auto window = std::find_if(windows_.begin(), windows_.end(),
+        [id](const auto& window){
             return id == window->id();
         });
 
@@ -70,9 +72,23 @@ namespace thorin {
         return nullptr;
     }
 
-    void WindowManager::remove_window(uint64_t id) {
-        app().add_action([this, id](){
-            windows_.erase(windows_.begin() + id);
+    void WindowManager::remove_window_at(size_t index) {
+        app().add_action([this, index](){
+            windows_[index]->destroy();
+            windows_.erase(windows_.begin() + index);
         });
+    }
+
+
+    void WindowManager::remove_window(uint64_t id) {
+        auto it = std::find_if(
+            windows_.begin(),
+            windows_.end(),
+            [id](const auto& win) {
+                return win->id() == id;
+            }
+        );
+        auto dist = std::distance(windows_.begin(), it);
+        remove_window_at(dist);
     }
 }

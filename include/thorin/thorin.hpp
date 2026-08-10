@@ -26,12 +26,16 @@ namespace thorin {
         static uint64_t random() {
             return randomGenerator_.random();
         }
-        uint64_t frame() const;
+        [[nodiscard]] uint64_t frame() const;
         void add_action(
             std::move_only_function<void()> fn,
             uint64_t delay = 1
         );
         Window *add_window(std::unique_ptr<Window> window);
         Window *add_window();
+        Window* get_window_at(size_t index);
+        Window* get_window(uint64_t id);
+        void remove_window_at(size_t index);
+        void remove_window(uint64_t id);
     };
 }

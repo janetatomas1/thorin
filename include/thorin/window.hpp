@@ -16,16 +16,15 @@ namespace thorin {
 
     class Window {
     protected:
-        uint64_t id_;
-        SDL_WindowFlags window_flags;
-        SDL_Window* handle_;
+        uint64_t id_ = 0;
+        SDL_WindowFlags window_flags = 0;
+        SDL_Window* handle_ = nullptr;
         WindowConfig config_;
 
-        WindowManager *manager_;
-        void close_();
+        WindowManager *manager_ = nullptr;
     public:
         virtual ~Window() = default;
-        Window() = default;
+        Window();
         Window(const WindowConfig &config): config_(config) {};
         virtual void init() = 0;
         virtual void destroy() = 0;
