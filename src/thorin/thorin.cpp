@@ -41,7 +41,7 @@ namespace thorin {
         return frame_;
     }
 
-    void Thorin::add_action(std::move_only_function<void()> fn, uint64_t delay) {
+    void Thorin::add_action(action &&fn, uint64_t delay) {
         actionManager_.add_action(std::move(fn), delay);
     }
 

@@ -1,6 +1,5 @@
 
 #include "thorin/windowmanager.hpp"
-#include <iostream>
 
 #include <SDL3/SDL.h>
 #include "thorin/glwindow.hpp"
@@ -78,7 +77,6 @@ namespace thorin {
             windows_.erase(windows_.begin() + index);
         });
     }
-
 
     void WindowManager::remove_window(uint64_t id) {
         auto it = std::find_if(

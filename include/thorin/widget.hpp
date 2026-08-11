@@ -4,6 +4,6 @@
 
 namespace thorin {
     class Widget {
-        uint64_t id_;
+        uint64_t id_ = 0;
     };
 }

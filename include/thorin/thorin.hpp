@@ -28,7 +28,7 @@ namespace thorin {
         }
         [[nodiscard]] uint64_t frame() const;
         void add_action(
-            std::move_only_function<void()> fn,
+            action &&fn,
             uint64_t delay = 1
         );
         Window *add_window(std::unique_ptr<Window> window);

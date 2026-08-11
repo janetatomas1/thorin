@@ -9,12 +9,12 @@ namespace thorin {
         }
     }
 
-    void ActionManager::add_action(std::move_only_function<void()> fn, uint64_t delay) {
+    void ActionManager::add_action(action &&fn, uint64_t delay) {
         immediate_.enqueue({std::move(fn), delay});
     }
 
     void ActionManager::dispatch() {
-        std::pair<std::move_only_function<void()>, uint64_t> action;
+        std::pair<action, uint64_t> action;
         while (immediate_.try_dequeue(action)) {
             if(action.second <= 1) {
                 action.first();
@@ -26,8 +26,8 @@ namespace thorin {
 
         // run delayed actions
         auto& bucket = ring_[frameIndex_];
-        for (auto& action : bucket) {
-            action();
+        for (auto& act : bucket) {
+            act();
         }
         bucket.clear();
 
