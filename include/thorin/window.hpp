@@ -1,8 +1,12 @@
 
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <string>
+#include <memory>
+
+#include <SDL3/SDL.h>
+
+#include "thorin/widget.hpp"
 
 namespace thorin {
     class Thorin;
@@ -22,6 +26,7 @@ namespace thorin {
         WindowConfig config_;
 
         WindowManager *manager_ = nullptr;
+        std::unique_ptr<Widget> mainWidget_ = std::make_unique<Widget>();
     public:
         virtual ~Window() = default;
         Window();
@@ -29,12 +34,13 @@ namespace thorin {
         virtual void init() = 0;
         virtual void destroy() = 0;
         virtual void update() = 0;
-        virtual void event(const SDL_Event *event);
         void close();
         void maximize();
         void minimize();
         Thorin &app();
         uint64_t id();
         void set_window_manager(WindowManager *manager);
+        void set_main_widget(std::unique_ptr<Widget> widget);
+        Widget* main_widget();
     };
 }

@@ -8,6 +8,9 @@
 
 #include "thorin/glwindow.hpp"
 
+#include <iostream>
+#include <ostream>
+
 using namespace gl;
 
 namespace thorin {
@@ -65,6 +68,19 @@ namespace thorin {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(config_.width, config_.height));
+        ImGui::Begin("Hello, world!", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        ImGui::SetCursorPos({800, 500});
+
+
+        if (ImGui::Button("hello", {200, 100})) {
+            std::cout << "Hello, world!" << std::endl;
+        }
+
+        ImGui::End();
 
         ImGui::Render();
         glViewport(0, 0, config_.width, config_.height);

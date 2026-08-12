@@ -5,12 +5,6 @@
 namespace thorin {
     Window::Window(): id_(Thorin::random()) {}
 
-    void Window::event(const SDL_Event *event) {
-        if (event != nullptr && event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-            close();
-        }
-    }
-
     void Window::close() {
         manager_->remove_window(id_);
     }
@@ -37,5 +31,13 @@ namespace thorin {
 
     void Window::set_window_manager(WindowManager* manager) {
         manager_ = manager;
+    }
+
+    void Window::set_main_widget(std::unique_ptr<Widget> widget) {
+        mainWidget_ = std::move(widget);
+    }
+
+    Widget* Window::main_widget() {
+        return mainWidget_.get();
     }
 }

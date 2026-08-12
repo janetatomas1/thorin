@@ -15,7 +15,6 @@ set(
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
     ${THORIN_SOURCE_DIR}/window.cpp
     ${THORIN_SOURCE_DIR}/widget.cpp
-    include/thorin/action.hpp
 )
 
 find_package(sdl REQUIRED)
@@ -23,6 +22,7 @@ find_package(glbinding REQUIRED)
 find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
 find_package(function2 REQUIRED)
+find_package(yoga REQUIRED)
 
 add_library(
     thorin
@@ -38,6 +38,7 @@ target_link_libraries(
     concurrentqueue::concurrentqueue
     imgui::imgui
     function2::function2
+    yoga::yoga
 )
 target_include_directories(
     thorin

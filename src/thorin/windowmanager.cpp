@@ -1,7 +1,9 @@
 
-#include "thorin/windowmanager.hpp"
+#include <imgui_impl_sdl3.h>
 
 #include <SDL3/SDL.h>
+
+#include "thorin/windowmanager.hpp"
 #include "thorin/glwindow.hpp"
 #include "thorin/thorin.hpp"
 
@@ -22,15 +24,23 @@ namespace thorin {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL3_ProcessEvent(&event);
             Window* win = static_cast<Window*>(
-                SDL_GetPointerProperty(SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)), "WRAPPER", nullptr)
+                SDL_GetPointerProperty(
+                    SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)),
+                    "WRAPPER",
+                    nullptr
+                )
             );
 
-            if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED &&  win != nullptr) {
-                win->event(&event);
+            if (win != nullptr && event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+                win->close();
             }
+
+            ImGui_ImplSDL3_ProcessEvent(&event);
         }
         for (auto &window: windows_) {
+            SDL_Delay(20);
             window->update();
         }
     }
