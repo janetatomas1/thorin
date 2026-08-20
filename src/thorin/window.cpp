@@ -5,6 +5,18 @@
 namespace thorin {
     Window::Window(): id_(Thorin::random()) {}
 
+    void Window::init() {
+        backend_->init();
+    }
+
+    void Window::destroy() {
+        backend_->destroy();
+    }
+
+    void Window::update() {
+        backend_->update();
+    }
+
     void Window::close() {
         manager_->remove_window(id_);
     }

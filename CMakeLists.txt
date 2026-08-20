@@ -15,6 +15,7 @@ set(
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
     ${THORIN_SOURCE_DIR}/window.cpp
     ${THORIN_SOURCE_DIR}/widget.cpp
+    ${THORIN_SOURCE_DIR}/gpubackend.cpp
 )
 
 find_package(sdl REQUIRED)
