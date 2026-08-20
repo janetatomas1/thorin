@@ -13,7 +13,7 @@ namespace thorin {
         const std::string glsl_version = "#version 330 core";
 
     public:
-        GLBackend(Window *window);
+        GLBackend(Window *window, const WindowConfig &config = {});
         void init() override;
         void destroy() override;
         void update() override;

@@ -15,7 +15,6 @@ namespace thorin {
     class Window {
     protected:
         uint64_t id_ = 0;
-        WindowConfig config_;
         SDL_Window *handle_;
 
         WindowManager *manager_ = nullptr;
@@ -23,12 +22,11 @@ namespace thorin {
         std::unique_ptr<GPUBackend> backend_;
     public:
         virtual ~Window() = default;
-        Window();
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
         Window(Window &&window) noexcept = default;
         Window& operator=(Window &&window) noexcept = default;
-        Window(const WindowConfig &config): config_(config) {};
+        Window(const WindowConfig &config ={});
         void init();
         void destroy();
         void update();

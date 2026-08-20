@@ -5,7 +5,10 @@
 #include "thorin/window.hpp"
 
 namespace thorin {
-    GPUBackend::GPUBackend(Window *window): window_(window) {}
+    GPUBackend::GPUBackend(
+        Window *window,
+        const WindowConfig &config
+    ): window_(window), config_(config) {}
 
     void GPUBackend::maximize() {
         window_->app().add_action([this]() {

@@ -23,7 +23,7 @@ namespace thorin {
         WindowConfig config_;
 
     public:
-        GPUBackend(Window *window);
+        GPUBackend(Window *window, const WindowConfig &config);
         virtual ~GPUBackend() = default;
         virtual void init() {}
         virtual void update() {}

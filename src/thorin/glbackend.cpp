@@ -9,13 +9,14 @@
 #include "thorin/glbackend.hpp"
 #include "thorin/window.hpp"
 
-#include <iostream>
-#include <ostream>
 
 using namespace gl;
 
 namespace thorin {
-    GLBackend::GLBackend(Window *window) : GPUBackend(window), gl_context(nullptr){}
+    GLBackend::GLBackend(
+        Window *window,
+        const WindowConfig &config
+    ) : GPUBackend(window, config), gl_context(nullptr){}
 
     void GLBackend::init() {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -81,7 +82,6 @@ namespace thorin {
 
 
         if (ImGui::Button("hello", {200, 100})) {
-            std::cout << "Hello, world!" << std::endl;
         }
 
         ImGui::End();
