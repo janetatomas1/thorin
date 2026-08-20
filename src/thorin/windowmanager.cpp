@@ -4,9 +4,7 @@
 #include <SDL3/SDL.h>
 
 #include "thorin/windowmanager.hpp"
-#include "thorin/glbackend.hpp"
 #include "thorin/thorin.hpp"
-#include <iostream>
 
 
 namespace thorin {

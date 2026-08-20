@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <string>
 
 #include "thorin/gpubackend.hpp"
@@ -8,7 +10,7 @@
 namespace thorin {
     class GLBackend: public GPUBackend {
         SDL_GLContext gl_context;
-        std::string glsl_version = "#version 330 core";
+        const std::string glsl_version = "#version 330 core";
 
     public:
         GLBackend(Window *window);

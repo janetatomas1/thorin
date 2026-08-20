@@ -1,8 +1,6 @@
 
 #include "thorin/thorin.hpp"
 
-#include "thorin/glbackend.hpp"
-
 namespace thorin {
     RandomGenerator Thorin::randomGenerator_{};
 

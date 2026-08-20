@@ -20,19 +20,7 @@ namespace thorin {
     }
 
     void Window::close() {
-        manager_->remove_window_at(0);
-    }
-
-    void Window::maximize() {
-        app().add_action([this]() {
-            SDL_MinimizeWindow(handle_);
-        });
-    }
-
-    void Window::minimize() {
-        app().add_action([this]() {
-            SDL_MaximizeWindow(handle_);
-        });
+        manager_->remove_window(id_);
     }
 
     Thorin& Window::app() {
@@ -53,5 +41,37 @@ namespace thorin {
 
     Widget* Window::main_widget() {
         return mainWidget_.get();
+    }
+
+    GPUBackend* Window::backend() {
+        return backend_.get();
+    }
+
+    void Window::maximize() {
+        backend_->maximize();
+    }
+
+    void Window::minimize() {
+        backend_->minimize();
+    }
+
+    void Window::set_size(int width, int height) {
+        backend_->set_size(width, height);
+    }
+
+    void Window::set_title(const std::string &title) {
+        backend_->set_title(title);
+    }
+
+    const std::string& Window::title() const {
+        return backend_->title();
+    }
+
+    int Window::height() const {
+        return backend_->height();
+    }
+
+    int Window::width() const {
+        return backend_->width();
     }
 }

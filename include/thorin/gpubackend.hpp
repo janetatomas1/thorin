@@ -28,5 +28,12 @@ namespace thorin {
         virtual void init() {}
         virtual void update() {}
         virtual void destroy() {}
+        void maximize();
+        void minimize();
+        void set_size(int width, int height);
+        void set_title(const std::string& title);
+        const std::string& title() const;
+        [[nodiscard]] int height() const;
+        [[nodiscard]] int width() const;
     };
 }
