@@ -6,9 +6,16 @@
 
 namespace thorin {
     GPUBackend::GPUBackend(
-        Window *window,
         const WindowConfig &config
-    ): window_(window), config_(config) {}
+    ): window_(nullptr), config_(config) {}
+
+    void GPUBackend::set_window(Window* window) {
+        window_ = window;
+    }
+
+    Window* GPUBackend::window() {
+        return window_;
+    }
 
     void GPUBackend::maximize() {
         window_->app().add_action([this]() {

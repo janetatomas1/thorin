@@ -15,8 +15,6 @@ namespace thorin {
     class Window {
     protected:
         uint64_t id_ = 0;
-        SDL_Window *handle_;
-
         WindowManager *manager_ = nullptr;
         std::unique_ptr<Widget> mainWidget_ = std::make_unique<Widget>();
         std::unique_ptr<GPUBackend> backend_;
@@ -41,7 +39,7 @@ namespace thorin {
         void minimize();
         void set_size(int width, int height);
         void set_title(const std::string &title);
-        const std::string& title() const;
+        [[nodiscard]] const std::string& title() const;
         [[nodiscard]] int height() const;
         [[nodiscard]] int width() const;
     };

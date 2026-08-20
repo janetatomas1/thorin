@@ -14,9 +14,8 @@ using namespace gl;
 
 namespace thorin {
     GLBackend::GLBackend(
-        Window *window,
         const WindowConfig &config
-    ) : GPUBackend(window, config), gl_context(nullptr){}
+    ) : GPUBackend(config), gl_context(nullptr){}
 
     void GLBackend::init() {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
