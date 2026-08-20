@@ -20,7 +20,7 @@ namespace thorin {
     }
 
     void Window::update() {
-        backend_->update();
+        backend_->update(rootWidget_.get());
     }
 
     void Window::close() {
@@ -39,12 +39,12 @@ namespace thorin {
         manager_ = manager;
     }
 
-    void Window::set_main_widget(std::unique_ptr<Widget> widget) {
-        mainWidget_ = std::move(widget);
+    void Window::set_root_widget(std::unique_ptr<Widget> widget) {
+        rootWidget_ = std::move(widget);
     }
 
-    Widget* Window::main_widget() {
-        return mainWidget_.get();
+    Widget* Window::root_widget() {
+        return rootWidget_.get();
     }
 
     GPUBackend* Window::backend() {

@@ -16,7 +16,7 @@ namespace thorin {
         GLBackend(const WindowConfig &config = {});
         void init() override;
         void destroy() override;
-        void update() override;
+        void update(Widget *rootWidget) override;
         void make_current();
     };
 }

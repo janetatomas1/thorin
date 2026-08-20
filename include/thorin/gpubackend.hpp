@@ -9,6 +9,7 @@
 
 namespace thorin {
     class Window;
+    class Widget;
 
     class GPUBackend {
     protected:
@@ -20,7 +21,7 @@ namespace thorin {
         GPUBackend(const WindowConfig &config);
         virtual ~GPUBackend() = default;
         virtual void init() = 0;
-        virtual void update() = 0;
+        virtual void update(Widget *rootWidget) = 0;
         virtual void destroy() = 0;
         void set_window(Window *window);
         Window* window();

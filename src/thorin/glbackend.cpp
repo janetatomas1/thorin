@@ -71,7 +71,7 @@ namespace thorin {
         SDL_DestroyWindow(handle_);
     }
 
-    void GLBackend::update() {
+    void GLBackend::update(Widget *rootWidget) {
         SDL_ShowWindow(handle_);
         SDL_GetWindowSize(handle_, &config_.width, &config_.height);
 
@@ -87,13 +87,9 @@ namespace thorin {
             config_.windowFlags
         );
 
-        ImGui::SetCursorPos({800, 500});
-
-        if (ImGui::Button("hello", {200, 100})) {
-        }
+        rootWidget->render();
 
         ImGui::End();
-
         ImGui::Render();
         glViewport(0, 0, config_.width, config_.height);
         glClear(GL_COLOR_BUFFER_BIT);
