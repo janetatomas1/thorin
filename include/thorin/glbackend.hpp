@@ -2,10 +2,10 @@
 #pragma once
 
 #include <string>
+#include <SDL3/SDL.h>
 
 #include "thorin/gpubackend.hpp"
 
-#include <SDL3/SDL.h>
 
 namespace thorin {
     class GLBackend: public GPUBackend {

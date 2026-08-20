@@ -31,10 +31,7 @@ namespace thorin {
 
     void GPUBackend::set_size(int width, int height) {
         window_->app().add_action([this, width, height]() {
-            if(SDL_SetWindowSize(handle_, width, height)) {
-                config_.width = width;
-                config_.height = height;
-            }
+            SDL_SetWindowSize(handle_, width, height);
         });
     }
 

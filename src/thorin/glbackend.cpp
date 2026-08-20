@@ -24,14 +24,19 @@ namespace thorin {
 
         float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
 
-        window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         handle_ = SDL_CreateWindow(
-            "Dear ImGui SDL3+OpenGL3 example",
+            config_.title.c_str(),
             config_.width,
             config_.height,
-            window_flags
+            config_.sdlFlags
         );
         gl_context = SDL_GL_CreateContext(handle_);
+
+        if (config_.windowState == WindowState::MAXIMIZED) {
+            maximize();
+        } else if (config_.windowState == WindowState::MINIMIZED) {
+            minimize();
+        }
 
         SDL_SetNumberProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_->id());
 
@@ -68,6 +73,7 @@ namespace thorin {
 
     void GLBackend::update() {
         SDL_ShowWindow(handle_);
+        SDL_GetWindowSize(handle_, &config_.width, &config_.height);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
@@ -75,10 +81,13 @@ namespace thorin {
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(config_.width, config_.height));
-        ImGui::Begin("Hello, world!", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin(
+            config_.title.c_str(),
+            nullptr,
+            config_.windowFlags
+        );
 
         ImGui::SetCursorPos({800, 500});
-
 
         if (ImGui::Button("hello", {200, 100})) {
         }
