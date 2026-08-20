@@ -25,7 +25,7 @@ namespace thorin {
         return manager_->app();
     }
 
-    uint64_t Window::id() {
+    uint64_t Window::id() const {
         return id_;
     }
 

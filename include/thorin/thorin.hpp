@@ -31,7 +31,7 @@ namespace thorin {
             action &&fn,
             uint64_t delay = 1
         );
-        Window *add_window(std::unique_ptr<Window> window);
+        Window *add_window(Window &&window);
         Window *add_window();
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);

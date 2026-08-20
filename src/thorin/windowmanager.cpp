@@ -41,7 +41,7 @@ namespace thorin {
         }
         for (auto &window: windows_) {
             SDL_Delay(20);
-            window->update();
+            window.update();
         }
     }
 
@@ -53,29 +53,28 @@ namespace thorin {
         return app_;
     }
 
-    Window* WindowManager::add_window(std::unique_ptr<Window> window) {
-        auto ptr = window.get();
-        window->set_window_manager(this);
+    Window* WindowManager::add_window(Window &&window) {
+        window.set_window_manager(this);
         app_.add_action(std::move([window = std::move(window), this] () mutable {
-            window->init();
+            window.init();
             windows_.push_back(std::move(window));
         }));
 
-        return ptr;
+        return nullptr;
     }
 
     Window* WindowManager::get_window_at(const size_t index) {
-        return windows_[index].get();
+        return &windows_[index];
     }
 
     Window* WindowManager::get_window(uint64_t id) {
         auto window = std::find_if(windows_.begin(), windows_.end(),
         [id](const auto& window){
-            return id == window->id();
+            return id == window.id();
         });
 
         if (window != windows_.end()) {
-            return window->get();
+            return &(*window);
         }
 
         return nullptr;
@@ -83,7 +82,7 @@ namespace thorin {
 
     void WindowManager::remove_window_at(size_t index) {
         app().add_action([this, index](){
-            windows_[index]->destroy();
+            windows_[index].destroy();
             windows_.erase(windows_.begin() + index);
         });
     }
@@ -93,7 +92,7 @@ namespace thorin {
             windows_.begin(),
             windows_.end(),
             [id](const auto& win) {
-                return win->id() == id;
+                return win.id() == id;
             }
         );
         auto dist = std::distance(windows_.begin(), it);

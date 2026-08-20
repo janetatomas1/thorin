@@ -30,15 +30,17 @@ namespace thorin {
     public:
         virtual ~Window() = default;
         Window();
+        Window(Window &&window) noexcept = default;
+        Window& operator=(Window &&window) noexcept = default;
         Window(const WindowConfig &config): config_(config) {};
-        virtual void init() = 0;
-        virtual void destroy() = 0;
-        virtual void update() = 0;
+        virtual void init() {};
+        virtual void destroy() {};
+        virtual void update() {};
         void close();
         void maximize();
         void minimize();
         Thorin &app();
-        uint64_t id();
+        uint64_t id() const;
         void set_window_manager(WindowManager *manager);
         void set_main_widget(std::unique_ptr<Widget> widget);
         Widget* main_widget();
