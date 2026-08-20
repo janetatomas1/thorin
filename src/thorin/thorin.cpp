@@ -1,7 +1,7 @@
 
 #include "thorin/thorin.hpp"
 
-#include "thorin/glwindow.hpp"
+#include "thorin/glbackend.hpp"
 
 namespace thorin {
     RandomGenerator Thorin::randomGenerator_{};
@@ -66,6 +66,6 @@ namespace thorin {
     }
 
     void Thorin::remove_window(uint64_t id) {
-        windowManager_.remove_window(id);
+        windowManager_.remove_window_at(id);
     }
 }

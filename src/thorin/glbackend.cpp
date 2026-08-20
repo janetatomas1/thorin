@@ -3,10 +3,11 @@
 #include <glbinding/glbinding.h>
 
 #include <SDL3/SDL.h>
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_opengl3.h>
 
-#include "thorin/glwindow.hpp"
+#include "thorin/glbackend.hpp"
+#include "thorin/window.hpp"
 
 #include <iostream>
 #include <ostream>
@@ -14,7 +15,9 @@
 using namespace gl;
 
 namespace thorin {
-    void GLWindow::init() {
+    GLBackend::GLBackend(Window *window) : GPUBackend(window), gl_context(nullptr){}
+
+    void GLBackend::init() {
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -29,7 +32,8 @@ namespace thorin {
             window_flags
         );
         gl_context = SDL_GL_CreateContext(handle_);
-        SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", this);
+
+        SDL_SetNumberProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_->id());
 
         SDL_GL_MakeCurrent(handle_, gl_context);
         SDL_GL_SetSwapInterval(1);
@@ -57,12 +61,12 @@ namespace thorin {
         ImGui_ImplOpenGL3_Init(glsl_version.c_str());
     }
 
-    void GLWindow::destroy() {
+    void GLBackend::destroy() {
         SDL_GL_DestroyContext(gl_context);
         SDL_DestroyWindow(handle_);
     }
 
-    void GLWindow::update() {
+    void GLBackend::update() {
         SDL_ShowWindow(handle_);
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -89,7 +93,7 @@ namespace thorin {
         SDL_GL_SwapWindow(handle_);
     }
 
-    void GLWindow::make_current() {
+    void GLBackend::make_current() {
         SDL_GL_MakeCurrent(handle_, gl_context);
     }
 }

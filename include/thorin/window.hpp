@@ -13,12 +13,6 @@ namespace thorin {
     class Thorin;
     class WindowManager;
 
-    struct WindowConfig {
-        int width = 1920, height = 1080;
-        std::string title = "Thorin";
-        bool maximized = false;
-    };
-
     class Window {
     protected:
         uint64_t id_ = 0;
@@ -28,7 +22,7 @@ namespace thorin {
 
         WindowManager *manager_ = nullptr;
         std::unique_ptr<Widget> mainWidget_ = std::make_unique<Widget>();
-        std::unique_ptr<GPUBackend> backend_ = std::make_unique<GPUBackend>();
+        std::unique_ptr<GPUBackend> backend_;
     public:
         virtual ~Window() = default;
         Window();

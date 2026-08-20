@@ -4,8 +4,10 @@
 #include <SDL3/SDL.h>
 
 #include "thorin/windowmanager.hpp"
-#include "thorin/glwindow.hpp"
+#include "thorin/glbackend.hpp"
 #include "thorin/thorin.hpp"
+#include <iostream>
+
 
 namespace thorin {
     WindowManager::WindowManager(Thorin &app) : app_(app) {}
@@ -25,16 +27,17 @@ namespace thorin {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
-            Window* win = static_cast<Window*>(
-                SDL_GetPointerProperty(
-                    SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)),
-                    "WRAPPER",
-                    nullptr
-                )
-            );
 
-            if (win != nullptr && event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-                win->close();
+            if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+                uint64_t id = static_cast<uint64_t>(
+                    SDL_GetNumberProperty(
+                        SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)),
+                        "WRAPPER",
+                        0
+                    )
+                );
+                auto window = get_window(id);
+                window->close();
             }
 
             ImGui_ImplSDL3_ProcessEvent(&event);

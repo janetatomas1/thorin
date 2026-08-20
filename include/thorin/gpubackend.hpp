@@ -1,16 +1,29 @@
 
 #pragma once
 
-class SDL_Window;
-class Window;
+#include <string>
+
+#include <SDL3/SDL.h>
+
+struct WindowConfig {
+    int width = 1920, height = 1080;
+    std::string title = "Thorin";
+    bool maximized = false;
+};
 
 namespace thorin {
+    class Window;
+
     class GPUBackend {
+    protected:
+        SDL_WindowFlags window_flags = 0;
+        SDL_Window* handle_ = nullptr;
         Window *window_;
         SDL_Window *sdlWindow_;
+        WindowConfig config_;
 
     public:
-        GPUBackend(Window *window = nullptr);
+        GPUBackend(Window *window);
         virtual ~GPUBackend() = default;
         virtual void init() {}
         virtual void update() {}

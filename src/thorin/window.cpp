@@ -1,11 +1,13 @@
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
+#include "thorin/glbackend.hpp"
 
 namespace thorin {
     Window::Window(): id_(Thorin::random()) {}
 
     void Window::init() {
+        backend_ = std::make_unique<GLBackend>(this);
         backend_->init();
     }
 
@@ -18,7 +20,7 @@ namespace thorin {
     }
 
     void Window::close() {
-        manager_->remove_window(id_);
+        manager_->remove_window_at(0);
     }
 
     void Window::maximize() {
