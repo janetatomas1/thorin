@@ -34,7 +34,9 @@ namespace thorin {
         Window* add_window(Window &&window);
         Window* add_window(const WindowConfig &config = {});
         template<WidgetConcept W, typename... Args>
-        Window* add_window(const WindowConfig &config = {}, Args &&... args);
+        Window* add_window(const WindowConfig &config, Args &&... args);
+        template<WidgetConcept W, typename... Args>
+        Window* add_window(Args &&... args);
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);
@@ -46,5 +48,10 @@ namespace thorin {
         auto widget = std::make_unique<W>(std::forward<Args>(args)...);
         auto window = Window(config, std::move(widget));
         return add_window(std::move(window));
+    }
+
+    template <WidgetConcept W, typename ... Args>
+    Window* Thorin::add_window(Args&&... args) {
+        return add_window<W>({}, std::forward<Args>(args)...);
     }
 }

@@ -27,7 +27,7 @@ namespace thorin {
         [[nodiscard]] std::string title() const;
         [[nodiscard]] std::string title_id() const;
         bool render();
-        bool show();
+        virtual bool show();
         Window* window();
         void set_window(Window* window);
         Widget* parent();
