@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <concepts>
 
 #include "thorin/layout.hpp"
 
@@ -34,4 +35,7 @@ namespace thorin {
         Thorin& app();
         Layout& layout();
     };
+
+    template <class W>
+    concept WidgetConcept = std::derived_from<W, Widget> || std::is_same_v<W, Widget>;
 }
