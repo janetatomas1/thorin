@@ -40,7 +40,9 @@ namespace thorin {
     }
 
     void Window::set_root_widget(std::unique_ptr<Widget> widget) {
-        rootWidget_ = std::move(widget);
+        app().add_action([this, widget = std::move(widget)]() mutable  {
+            rootWidget_ = std::move(widget);
+        });
     }
 
     Widget* Window::root_widget() {
