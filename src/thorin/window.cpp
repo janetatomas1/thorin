@@ -3,8 +3,6 @@
 #include "thorin/thorin.hpp"
 #include "thorin/glbackend.hpp"
 
-#include <iostream>
-
 namespace thorin {
     Window::Window(const WindowConfig &config): id_(Thorin::random()) {
         backend_ = std::make_unique<GLBackend>(config);

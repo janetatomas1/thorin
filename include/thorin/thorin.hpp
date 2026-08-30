@@ -31,8 +31,8 @@ namespace thorin {
             action &&fn,
             uint64_t delay = 1
         );
-        Window *add_window(Window &&window);
-        Window *add_window();
+        Window* add_window(Window &&window);
+        Window* add_window(const WindowConfig &config = {});
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);

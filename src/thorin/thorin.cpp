@@ -47,8 +47,8 @@ namespace thorin {
         return windowManager_.add_window(std::move(window));
     }
 
-    Window* Thorin::add_window() {
-        return windowManager_.add_window(Window());
+    Window* Thorin::add_window(const WindowConfig &config) {
+        return windowManager_.add_window(Window(config));
     }
 
     Window* Thorin::get_window_at(size_t index) {
