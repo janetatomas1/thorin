@@ -24,13 +24,13 @@ namespace thorin {
         Window& operator=(const Window&) = delete;
         Window(Window &&window) noexcept = default;
         Window& operator=(Window &&window) noexcept = default;
-        Window(const WindowConfig &config ={});
+        Window(const WindowConfig &config ={}, std::unique_ptr<Widget> widget = nullptr);
         void init();
         void destroy();
         void update();
         void close();
         Thorin &app();
-        uint64_t id() const;
+        [[nodiscard]] uint64_t id() const;
         void set_window_manager(WindowManager *manager);
         void set_root_widget(std::unique_ptr<Widget> widget);
         Widget* root_widget();

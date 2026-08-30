@@ -4,7 +4,8 @@
 #include "thorin/glbackend.hpp"
 
 namespace thorin {
-    Window::Window(const WindowConfig &config): id_(Thorin::random()) {
+    Window::Window(const WindowConfig &config, std::unique_ptr<Widget> widget)
+    : id_(Thorin::random()), rootWidget_(widget == nullptr ? std::make_unique<Widget>() : std::move(widget)) {
         backend_ = std::make_unique<GLBackend>(config);
     }
 
