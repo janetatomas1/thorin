@@ -5,16 +5,18 @@
 #include "thorin/thorin.hpp"
 
 namespace thorin {
-    Widget::Widget(const std::string& title):
+    Widget::Widget(const std::string& title, Widget* parent):
     id_(Thorin::random()),
     title_(title),
-    titleID_(std::format("{}##{}", title, id_)) {
+    titleID_(std::format("{}##{}", title, id_)), parent_(parent) {
+        if (parent != nullptr) {
+            parent->layout().add_child(layout());
+        }
     }
 
     uint64_t Widget::id() const {
         return id_;
     }
-
 
     std::string Widget::title() const {
         return title_;
@@ -30,5 +32,33 @@ namespace thorin {
 
     bool Widget::show() {
         return false;
+    }
+
+    Window* Widget::window() {
+        return window_;
+    }
+
+    void Widget::set_window(Window* window) {
+        window_ = window;
+    }
+
+    Widget* Widget::parent() {
+        return parent_;
+    }
+
+    void Widget::set_parent(Widget* parent) {
+        parent_ = parent;
+    }
+
+    Thorin& Widget::app() {
+        if (window_ != nullptr) {
+            return window_->app();
+        }
+
+        return parent_->app();
+    }
+
+    Layout& Widget::layout() {
+        return layout_;
     }
 }
