@@ -8,7 +8,11 @@ namespace thorin {
 
     Layout::~Layout() {
         auto parent = YGNodeGetParent(node_);
-        YGNodeRemoveChild(parent, node_);
+
+        if (parent != nullptr) {
+            YGNodeRemoveChild(parent, node_);
+        }
+        
         YGNodeFree(node_);
     }
 
