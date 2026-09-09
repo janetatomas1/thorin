@@ -35,7 +35,11 @@ namespace thorin {
     }
 
     Window* Widget::window() {
-        return window_;
+        if (window_ != nullptr) {
+            return window_;
+        }
+
+        return parent_->window();
     }
 
     void Widget::set_window(Window* window) {

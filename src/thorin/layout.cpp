@@ -7,12 +7,10 @@ namespace thorin {
     }
 
     Layout::~Layout() {
-        auto parent = YGNodeGetParent(node_);
-
-        if (parent != nullptr) {
-            YGNodeRemoveChild(parent, node_);
+        if (parent_ != nullptr) {
+            YGNodeRemoveChild(parent_->node(), node_);
         }
-        
+
         YGNodeFree(node_);
     }
 
@@ -31,5 +29,21 @@ namespace thorin {
 
     void Layout::calculate_layout(float width, float height) {
         YGNodeCalculateLayout(node_, width, height, YGDirectionLTR);
+    }
+
+    float Layout::x() {
+        return position_.x;
+    }
+
+    float Layout::y() {
+        return position_.y;
+    }
+
+    const ImVec2& Layout::position() {
+        return position_;
+    }
+
+    Layout* Layout::parent() {
+        return parent_;
     }
 }

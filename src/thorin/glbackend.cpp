@@ -7,6 +7,9 @@
 #include <imgui_impl_opengl3.h>
 
 #include "thorin/glbackend.hpp"
+
+#include <iostream>
+
 #include "thorin/window.hpp"
 
 
@@ -87,6 +90,7 @@ namespace thorin {
             config_.windowFlags
         );
 
+        rootWidget->layout().calculate_layout(config_.width, config_.height);
         rootWidget->render();
 
         ImGui::End();
