@@ -35,6 +35,8 @@ namespace thorin {
 
         position_.x = YGNodeLayoutGetLeft(node_);
         position_.y = YGNodeLayoutGetTop(node_);
+        size_.x = YGNodeLayoutGetWidth(node_);
+        size_.y = YGNodeLayoutGetHeight(node_);
 
         if (parentLayout != nullptr) {
             position_.x += parentLayout->position().x;
@@ -61,6 +63,18 @@ namespace thorin {
 
     const ImVec2& Layout::position() {
         return position_;
+    }
+
+    float Layout::width() {
+        return size_.x;
+    }
+
+    float Layout::height() {
+        return size_.y;
+    }
+
+    const ImVec2& Layout::size() {
+        return size_;
     }
 
     Layout* Layout::parent() {
@@ -164,5 +178,148 @@ namespace thorin {
     Layout& Layout::set_position_type(YGPositionType type) {
         YGNodeStyleSetPositionType(node_, type);
         return *this;
+    }
+
+    Layout& Layout::set_flex_grow(float value) {
+        YGNodeStyleSetFlexGrow(node_, value);
+        return *this;
+    }
+
+    Layout& Layout::set_flex_shrink(float value) {
+        YGNodeStyleSetFlexShrink(node_, value);
+        return *this;
+    }
+
+    Layout& Layout::set_flex_basis(LayoutValue value) {
+        switch (value.unit) {
+        case YGUnitPoint:   YGNodeStyleSetFlexBasis(node_, value.value); break;
+        case YGUnitPercent: YGNodeStyleSetFlexBasisPercent(node_, value.value); break;
+        case YGUnitAuto:    YGNodeStyleSetFlexBasisAuto(node_); break;
+        default: break;
+        }
+        return *this;
+    }
+
+    Layout& Layout::set_flex_basis(float points) {
+        return set_flex_basis(thorin::points(points));
+    }
+
+    Layout& Layout::set_flex(float value) {
+        YGNodeStyleSetFlex(node_, value);
+        return *this;
+    }
+
+    Layout& Layout::set_flex_wrap(YGWrap wrap) {
+        YGNodeStyleSetFlexWrap(node_, wrap);
+        return *this;
+    }
+
+    Layout& Layout::set_align_items(YGAlign align) {
+        YGNodeStyleSetAlignItems(node_, align);
+        return *this;
+    }
+
+    Layout& Layout::set_align_self(YGAlign align) {
+        YGNodeStyleSetAlignSelf(node_, align);
+        return *this;
+    }
+
+    Layout& Layout::set_align_content(YGAlign align) {
+        YGNodeStyleSetAlignContent(node_, align);
+        return *this;
+    }
+
+    Layout& Layout::set_justify_content(YGJustify justify) {
+        YGNodeStyleSetJustifyContent(node_, justify);
+        return *this;
+    }
+
+    Layout& Layout::set_min_width(LayoutValue value) {
+        switch (value.unit) {
+        case YGUnitPoint:   YGNodeStyleSetMinWidth(node_, value.value); break;
+        case YGUnitPercent: YGNodeStyleSetMinWidthPercent(node_, value.value); break;
+        default: break;
+        }
+        return *this;
+    }
+
+    Layout& Layout::set_min_width(float points) {
+        return set_min_width(thorin::points(points));
+    }
+
+    Layout& Layout::set_min_height(LayoutValue value) {
+        switch (value.unit) {
+        case YGUnitPoint:   YGNodeStyleSetMinHeight(node_, value.value); break;
+        case YGUnitPercent: YGNodeStyleSetMinHeightPercent(node_, value.value); break;
+        default: break;
+        }
+        return *this;
+    }
+
+    Layout& Layout::set_min_height(float points) {
+        return set_min_height(thorin::points(points));
+    }
+
+    Layout& Layout::set_max_width(LayoutValue value) {
+        switch (value.unit) {
+        case YGUnitPoint:   YGNodeStyleSetMaxWidth(node_, value.value); break;
+        case YGUnitPercent: YGNodeStyleSetMaxWidthPercent(node_, value.value); break;
+        default: break;
+        }
+        return *this;
+    }
+
+    Layout& Layout::set_max_width(float points) {
+        return set_max_width(thorin::points(points));
+    }
+
+    Layout& Layout::set_max_height(LayoutValue value) {
+        switch (value.unit) {
+        case YGUnitPoint:   YGNodeStyleSetMaxHeight(node_, value.value); break;
+        case YGUnitPercent: YGNodeStyleSetMaxHeightPercent(node_, value.value); break;
+        default: break;
+        }
+        return *this;
+    }
+
+    Layout& Layout::set_max_height(float points) {
+        return set_max_height(thorin::points(points));
+    }
+
+    Layout& Layout::set_border(float width, YGEdge edge) {
+        YGNodeStyleSetBorder(node_, edge, width);
+        return *this;
+    }
+
+    Layout& Layout::set_display(YGDisplay display) {
+        YGNodeStyleSetDisplay(node_, display);
+        return *this;
+    }
+
+    Layout& Layout::set_overflow(YGOverflow overflow) {
+        YGNodeStyleSetOverflow(node_, overflow);
+        return *this;
+    }
+
+    Layout& Layout::set_aspect_ratio(float ratio) {
+        YGNodeStyleSetAspectRatio(node_, ratio);
+        return *this;
+    }
+
+    Layout& Layout::set_direction(YGDirection direction) {
+        YGNodeStyleSetDirection(node_, direction);
+        return *this;
+    }
+
+    float Layout::computed_margin(YGEdge edge) {
+        return YGNodeLayoutGetMargin(node_, edge);
+    }
+
+    float Layout::computed_padding(YGEdge edge) {
+        return YGNodeLayoutGetPadding(node_, edge);
+    }
+
+    float Layout::computed_border(YGEdge edge) {
+        return YGNodeLayoutGetBorder(node_, edge);
     }
 }

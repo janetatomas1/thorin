@@ -27,6 +27,7 @@ namespace thorin {
     }
 
     bool Widget::render() {
+        ImGui::SetCursorPos(layout().position());
         return show();
     }
 
