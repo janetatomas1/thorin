@@ -83,6 +83,11 @@ namespace thorin {
         Layout& set_aspect_ratio(float ratio);
         Layout& set_direction(YGDirection direction);
 
+        Layout& fill_parent();
+        Layout& row(float gap = 0.0f);
+        Layout& column(float gap = 0.0f);
+        Layout& center();
+
         float computed_margin(YGEdge edge);
         float computed_padding(YGEdge edge);
         float computed_border(YGEdge edge);

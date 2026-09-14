@@ -311,6 +311,22 @@ namespace thorin {
         return *this;
     }
 
+    Layout& Layout::fill_parent() {
+        return set_width(thorin::percent(100)).set_height(thorin::percent(100));
+    }
+
+    Layout& Layout::row(float gap) {
+        return set_flex_direction(YGFlexDirectionRow).set_gap(gap);
+    }
+
+    Layout& Layout::column(float gap) {
+        return set_flex_direction(YGFlexDirectionColumn).set_gap(gap);
+    }
+
+    Layout& Layout::center() {
+        return set_align_items(YGAlignCenter).set_justify_content(YGJustifyCenter);
+    }
+
     float Layout::computed_margin(YGEdge edge) {
         return YGNodeLayoutGetMargin(node_, edge);
     }
