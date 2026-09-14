@@ -1,17 +1,33 @@
 
 #include <thorin/thorin.hpp>
+#include <iostream>
 
-struct HelloWidget: public thorin::Widget {
-    HelloWidget(const std::string& title): Widget(title) {};
+using namespace thorin;
+using namespace literals;
 
+struct Button: public Widget {
     bool show() override {
-        ImGui::Button(title().c_str());
-        return false;
+        return ImGui::Button("Hello, Thorin", size());
+    }
+
+    Button(Widget* parent) : Widget("", parent) {
+        set_width(10_pcts)
+        .set_height(15_pcts);
     }
 };
 
+struct HelloWidget: public Widget {
+    Button button = Button(this);
+    HelloWidget(const std::string& title): Widget(title) {};
+
+    bool show() override {
+        center();
+        return button.render();
+    }
+};
+    
 int main(const int argc, char **argv) {
-    auto app = thorin::Thorin(argc, argv);
+    auto app = Thorin(argc, argv);
     app.add_window<HelloWidget>(std::string("Hello, Thorin"));
     return app.exec();
 }

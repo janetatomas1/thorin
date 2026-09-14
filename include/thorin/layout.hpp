@@ -8,9 +8,34 @@
 namespace thorin {
     using LayoutValue = YGValue;
 
-    constexpr LayoutValue points(float v)  { return LayoutValue{v, YGUnitPoint}; }
-    constexpr LayoutValue percent(float v) { return LayoutValue{v, YGUnitPercent}; }
-    constexpr LayoutValue auto_()          { return LayoutValue{0.0f, YGUnitAuto}; }
+    constexpr LayoutValue points(float v){
+        return LayoutValue{v, YGUnitPoint};
+    }
+
+    constexpr LayoutValue percent(float v) {
+        return LayoutValue{v, YGUnitPercent};
+    }
+    constexpr LayoutValue auto_() {
+        return LayoutValue{0.0f, YGUnitAuto};
+    }
+
+    namespace literals {
+        constexpr LayoutValue operator""_pts(long double v) {
+            return points(static_cast<float>(v));
+        }
+
+        constexpr LayoutValue operator""_pts(unsigned long long v) {
+            return points(static_cast<float>(v));
+        }
+
+        constexpr LayoutValue operator""_pcts(long double v) {
+            return percent(static_cast<float>(v));
+        }
+
+        constexpr LayoutValue operator""_pcts(unsigned long long v) {
+            return percent(static_cast<float>(v));
+        }
+    }
 
     class Layout {
         YGNodeRef node_ = nullptr;
