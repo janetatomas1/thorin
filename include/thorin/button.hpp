@@ -20,5 +20,6 @@ namespace thorin {
             Widget *parent = nullptr
         );
         bool show() override;
+        void set_callback(fu2::unique_function<void()> callback);
     };
 }

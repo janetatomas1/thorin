@@ -1,6 +1,8 @@
 
 #include "thorin/button.hpp"
 
+#include <algorithm>
+
 namespace thorin {
     Button::Button(const std::string &title, Widget *parent)
     : Widget(title, parent) {}
@@ -18,5 +20,9 @@ namespace thorin {
         }
 
         return false;
+    }
+
+    void Button::set_callback(fu2::unique_function<void()> callback) {
+        callback_ = std::move(callback);
     }
 }
