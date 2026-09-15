@@ -53,27 +53,33 @@ namespace thorin {
         }
     }
 
-    float Layout::x() {
+    float Layout::x() const
+    {
         return position_.x;
     }
 
-    float Layout::y() {
+    float Layout::y() const
+    {
         return position_.y;
     }
 
-    const ImVec2& Layout::position() {
+    const ImVec2& Layout::position() const
+    {
         return position_;
     }
 
-    float Layout::width() {
+    float Layout::width() const
+    {
         return size_.x;
     }
 
-    float Layout::height() {
+    float Layout::height() const
+    {
         return size_.y;
     }
 
-    const ImVec2& Layout::size() {
+    const ImVec2& Layout::size() const
+    {
         return size_;
     }
 

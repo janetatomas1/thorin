@@ -18,6 +18,7 @@ set(
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
     ${THORIN_SOURCE_DIR}/glbackend.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
+    ${THORIN_SOURCE_DIR}/checkbox.cpp
 )
 
 find_package(sdl REQUIRED)

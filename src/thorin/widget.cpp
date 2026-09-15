@@ -272,19 +272,33 @@ namespace thorin {
         return *this;
     }
 
-    float Widget::width() {
+    float Widget::x() const
+    {
+        return layout_.x();
+    }
+
+    float Widget::y() const
+    {
+        return layout_.y();
+    }
+
+    float Widget::width() const
+    {
         return layout_.width();
     }
 
-    float Widget::height() {
+    float Widget::height() const
+    {
         return layout_.height();
     }
 
-    const ImVec2& Widget::position() {
+    const ImVec2& Widget::position() const
+    {
         return layout_.position();
     }
 
-    const ImVec2& Widget::size() {
+    const ImVec2& Widget::size() const
+    {
         return layout_.size();
     }
 }

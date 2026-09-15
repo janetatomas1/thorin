@@ -51,13 +51,13 @@ namespace thorin {
         void calculate_layout(float width, float height);
         void calculate_position();
 
-        float x();
-        float y();
-        const ImVec2 &position();
+        [[nodiscard]] float x() const;
+        [[nodiscard]] float y() const;
+        [[nodiscard]] const ImVec2 &position() const;
 
-        float width();
-        float height();
-        const ImVec2 &size();
+        [[nodiscard]] float width() const;
+        [[nodiscard]] float height() const;
+        [[nodiscard]] const ImVec2 &size() const;
 
         Layout *parent();
 

@@ -89,11 +89,13 @@ namespace thorin {
         Widget& row(float gap = 0.0f);
         Widget& column(float gap = 0.0f);
         Widget& center();
-        
-        float width();
-        float height();
-        const ImVec2& position();
-        const ImVec2& size();
+
+        [[nodiscard]] float x() const;
+        [[nodiscard]] float y() const;
+        [[nodiscard]] float width() const;
+        [[nodiscard]] float height() const;
+        [[nodiscard]] const ImVec2& position() const;
+        [[nodiscard]] const ImVec2& size() const;
     };
 
 
