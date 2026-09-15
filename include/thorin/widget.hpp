@@ -22,7 +22,11 @@ namespace thorin {
         Layout layout_;
     public:
         Widget(const std::string &title = "", Widget *parent = nullptr);
+        Widget(const Widget& widget) = delete;
+        Widget &operator=(const Widget& widget) = delete;
         virtual ~Widget() = default;
+        virtual void init() {}
+        virtual void destroy() {}
         [[nodiscard]] uint64_t id() const;
         [[nodiscard]] std::string title() const;
         [[nodiscard]] std::string title_id() const;
@@ -92,6 +96,7 @@ namespace thorin {
         const ImVec2& size();
     };
 
+
     template <class W>
-    concept WidgetConcept = std::derived_from<W, Widget> || std::is_same_v<W, Widget>;
+    concept WidgetConcept = std::derived_from<W, Widget>;
 }

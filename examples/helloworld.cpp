@@ -1,27 +1,24 @@
 
 #include <thorin/thorin.hpp>
+#include <thorin/button.hpp>
 #include <iostream>
 
 using namespace thorin;
 using namespace literals;
 
-struct Button: public Widget {
-    bool show() override {
-        return ImGui::Button("Hello, Thorin", size());
-    }
+struct HelloWidget: Widget {
+    Button button = Button("Hey, this is neato !!!", [this]() {
+        std::cout << title_id() << std::endl;
+    }, this);
 
-    Button(Widget* parent) : Widget("", parent) {
-        set_width(10_pcts)
-        .set_height(15_pcts);
-    }
-};
-
-struct HelloWidget: public Widget {
-    Button button = Button(this);
-    HelloWidget(const std::string& title): Widget(title) {};
-
-    bool show() override {
+    HelloWidget(const std::string& title): Widget(title) {
         center();
+        button
+        .set_width(10_pcts)
+        .set_height(10_pcts);
+    };
+
+    bool show() override {
         return button.render();
     }
 };

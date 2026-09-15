@@ -17,6 +17,7 @@ set(
     ${THORIN_SOURCE_DIR}/layout.cpp
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
     ${THORIN_SOURCE_DIR}/glbackend.cpp
+    ${THORIN_SOURCE_DIR}/button.cpp
 )
 
 find_package(sdl REQUIRED)
