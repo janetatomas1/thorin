@@ -1,3 +1,4 @@
+#include <libassert/assert.hpp>
 
 #include "thorin/thorin.hpp"
 
@@ -15,6 +16,9 @@ namespace thorin {
     }
 
     Thorin::Thorin(int argc, char** argv) {
+        DEBUG_ASSERT(argc >= 0, "argc is negative", argc);
+        DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
+
         windowManager_.init();
     }
 
@@ -40,6 +44,7 @@ namespace thorin {
     }
 
     void Thorin::add_action(action &&fn, uint64_t delay) {
+        DEBUG_ASSERT(fn != nullptr, "add_action called with an empty/null action");
         actionManager_.add_action(std::move(fn), delay);
     }
 
@@ -64,6 +69,6 @@ namespace thorin {
     }
 
     void Thorin::remove_window(uint64_t id) {
-        windowManager_.remove_window_at(id);
+        windowManager_.remove_window(id);
     }
 }
