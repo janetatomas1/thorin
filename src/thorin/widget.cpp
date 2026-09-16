@@ -1,6 +1,8 @@
 
 #include <format>
 
+#include <libassert/assert.hpp>
+
 #include "thorin/widget.hpp"
 #include "thorin/thorin.hpp"
 
@@ -40,6 +42,7 @@ namespace thorin {
             return window_;
         }
 
+        DEBUG_ASSERT(parent_ != nullptr, "Widget::window: no window_ and no parent to fall back to", title_);
         return parent_->window();
     }
 
@@ -52,6 +55,7 @@ namespace thorin {
     }
 
     void Widget::set_parent(Widget* parent) {
+        DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
         parent_ = parent;
     }
 
@@ -60,6 +64,7 @@ namespace thorin {
             return window_->app();
         }
 
+        DEBUG_ASSERT(parent_ != nullptr, "Widget::app: no window_ and no parent to fall back to", title_);
         return parent_->app();
     }
 
@@ -272,33 +277,27 @@ namespace thorin {
         return *this;
     }
 
-    float Widget::x() const
-    {
+    float Widget::x() const {
         return layout_.x();
     }
 
-    float Widget::y() const
-    {
+    float Widget::y() const {
         return layout_.y();
     }
 
-    float Widget::width() const
-    {
+    float Widget::width() const {
         return layout_.width();
     }
 
-    float Widget::height() const
-    {
+    float Widget::height() const {
         return layout_.height();
     }
 
-    const ImVec2& Widget::position() const
-    {
+    const ImVec2& Widget::position() const {
         return layout_.position();
     }
 
-    const ImVec2& Widget::size() const
-    {
+    const ImVec2& Widget::size() const {
         return layout_.size();
     }
 }

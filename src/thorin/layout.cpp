@@ -1,7 +1,7 @@
 
-#include "thorin/layout.hpp"
-
 #include <libassert/assert.hpp>
+
+#include "thorin/layout.hpp"
 
 namespace thorin {
     Layout::Layout(): node_(YGNodeNew()) {
