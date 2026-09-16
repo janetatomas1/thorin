@@ -37,7 +37,11 @@ namespace thorin {
         return exitCode_;
     }
 
-    void Thorin::exit() {}
+    void Thorin::exit() {
+        actionManager_.add_action([this]() {
+            shouldExit_ = true;
+        });
+    }
 
     uint64_t Thorin::frame() const {
         return frame_;
