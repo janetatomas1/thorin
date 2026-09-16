@@ -1,7 +1,6 @@
-
 #include <imgui_impl_sdl3.h>
-
 #include <SDL3/SDL.h>
+#include <libassert/assert.hpp>
 
 #include "thorin/windowmanager.hpp"
 #include "thorin/thorin.hpp"
@@ -11,8 +10,8 @@ namespace thorin {
     WindowManager::WindowManager(Thorin &app) : app_(app) {}
 
     void WindowManager::init() {
-        // TODO: take care of failure case
-        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
+        bool ok = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
+        DEBUG_ASSERT(ok, "SDL_Init failed", SDL_GetError());
     }
 
     void WindowManager::destroy() {
@@ -35,10 +34,9 @@ namespace thorin {
                     )
                 );
                 auto window = get_window(id);
+                DEBUG_ASSERT(window != nullptr, "close-requested event for untracked window id", id);
                 window->close();
             }
-
-            ImGui_ImplSDL3_ProcessEvent(&event);
         }
         for (auto &window: windows_) {
             SDL_Delay(20);
@@ -65,6 +63,7 @@ namespace thorin {
     }
 
     Window* WindowManager::get_window_at(const size_t index) {
+        DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
         return &windows_[index];
     }
 
@@ -83,6 +82,7 @@ namespace thorin {
 
     void WindowManager::remove_window_at(size_t index) {
         app().add_action([this, index](){
+            DEBUG_ASSERT(index < windows_.size(), "deferred remove: index out of range", index, windows_.size());
             windows_[index].destroy();
             windows_.erase(windows_.begin() + index);
         });
@@ -96,6 +96,9 @@ namespace thorin {
                 return win.id() == id;
             }
         );
+
+        DEBUG_ASSERT(it != windows_.end(), "remove_window: no window with this id", id);
+
         auto dist = std::distance(windows_.begin(), it);
         remove_window_at(dist);
     }

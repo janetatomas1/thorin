@@ -27,6 +27,7 @@ find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
 find_package(function2 REQUIRED)
 find_package(yoga REQUIRED)
+find_package(libassert REQUIRED)
 
 add_library(
     thorin
@@ -43,11 +44,11 @@ target_link_libraries(
     imgui::imgui
     function2::function2
     yoga::yoga
+    libassert::assert
 )
 target_include_directories(
     thorin
     PUBLIC
     ${THORIN_HEADER_DIR}
 )
-
 add_subdirectory(${THORIN_EXAMPLES_DIR})
