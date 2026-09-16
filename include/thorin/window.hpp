@@ -16,7 +16,7 @@ namespace thorin {
     protected:
         uint64_t id_ = 0;
         WindowManager *manager_ = nullptr;
-        std::unique_ptr<Widget> rootWidget_ = std::make_unique<Widget>();
+        std::unique_ptr<Widget> rootWidget_;
         std::unique_ptr<GPUBackend> backend_;
     public:
         virtual ~Window() = default;
