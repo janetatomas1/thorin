@@ -1,11 +1,19 @@
+
 #include "thorin/layout.hpp"
+
+#include <libassert/assert.hpp>
 
 namespace thorin {
     Layout::Layout(): node_(YGNodeNew()) {
+        DEBUG_ASSERT(node_ != nullptr, "YGNodeNew failed");
         YGNodeSetContext(node_, this);
     }
 
     Layout::~Layout() {
+        if (node_ == nullptr) {
+            return; // moved-from
+        }
+
         auto parent = YGNodeGetParent(node_);
 
         if (parent != nullptr) {
@@ -17,20 +25,34 @@ namespace thorin {
     }
 
     YGNodeRef Layout::node() {
+        DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
         return node_;
     }
 
     void Layout::add_child(Layout &child, size_t index) {
-        size_t idx = index == std::string::npos ? YGNodeGetChildCount(node_) : index;
+        DEBUG_ASSERT(node_ != nullptr, "add_child called on moved-from Layout");
+        DEBUG_ASSERT(child.node_ != nullptr, "add_child called with moved-from child");
+        DEBUG_ASSERT(&child != this, "add_child: cannot add a Layout as its own child");
+
+        size_t count = YGNodeGetChildCount(node_);
+        size_t idx = index == std::string::npos ? count : index;
+        DEBUG_ASSERT(idx <= count, "add_child index out of range", idx, count);
+
         YGNodeInsertChild(node_, child.node(), idx);
     }
 
     void Layout::calculate_layout(float width, float height) {
+        DEBUG_ASSERT(node_ != nullptr, "calculate_layout called on moved-from Layout");
+        DEBUG_ASSERT(width >= 0.0f, "calculate_layout: negative width", width);
+        DEBUG_ASSERT(height >= 0.0f, "calculate_layout: negative height", height);
+
         YGNodeCalculateLayout(node_, width, height, YGDirectionLTR);
         calculate_position();
     }
 
     void Layout::calculate_position() {
+        DEBUG_ASSERT(node_ != nullptr, "calculate_position called on moved-from Layout");
+
         auto parentLayout = parent();
 
         position_.x = YGNodeLayoutGetLeft(node_);
@@ -48,38 +70,33 @@ namespace thorin {
             auto child = YGNodeGetChild(node_, i);
             if (child != nullptr) {
                 auto layout = static_cast<Layout*>(YGNodeGetContext(child));
+                DEBUG_ASSERT(layout != nullptr, "Yoga child node has no Layout context", i);
                 layout->calculate_position();
             }
         }
     }
 
-    float Layout::x() const
-    {
+    float Layout::x() const {
         return position_.x;
     }
 
-    float Layout::y() const
-    {
+    float Layout::y() const {
         return position_.y;
     }
 
-    const ImVec2& Layout::position() const
-    {
+    const ImVec2& Layout::position() const {
         return position_;
     }
 
-    float Layout::width() const
-    {
+    float Layout::width() const {
         return size_.x;
     }
 
-    float Layout::height() const
-    {
+    float Layout::height() const {
         return size_.y;
     }
 
-    const ImVec2& Layout::size() const
-    {
+    const ImVec2& Layout::size() const {
         return size_;
     }
 
