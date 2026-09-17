@@ -19,6 +19,8 @@ set(
     ${THORIN_SOURCE_DIR}/glbackend.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
     ${THORIN_SOURCE_DIR}/checkbox.cpp
+    ${THORIN_SOURCE_DIR}/radiobutton.cpp
+    ${THORIN_SOURCE_DIR}/radiogroup.cpp
 )
 
 find_package(sdl REQUIRED)
