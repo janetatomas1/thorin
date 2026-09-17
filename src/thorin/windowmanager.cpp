@@ -19,14 +19,14 @@ namespace thorin {
     }
 
     void WindowManager::update() {
-        SDL_Delay(100);
-
+        SDL_Delay(20);
         SDL_Event event;
+
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
 
             if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-                uint64_t id = static_cast<uint64_t>(
+                auto id = static_cast<uint64_t>(
                     SDL_GetNumberProperty(
                         SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)),
                         "WRAPPER",
@@ -39,7 +39,6 @@ namespace thorin {
             }
         }
         for (auto &window: windows_) {
-            SDL_Delay(20);
             window.update();
         }
     }

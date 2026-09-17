@@ -46,6 +46,12 @@ namespace thorin {
         Layout();
         ~Layout();
 
+        Layout(Layout&& other) noexcept;
+        Layout& operator=(Layout&& other) noexcept;
+
+        Layout(const Layout& other) = delete;
+        Layout& operator=(const Layout& other) = delete;
+
         YGNodeRef node();
         void add_child(Layout &child, size_t index = std::string::npos);
         void calculate_layout(float width, float height);

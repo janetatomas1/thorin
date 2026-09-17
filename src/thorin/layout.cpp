@@ -24,6 +24,38 @@ namespace thorin {
         YGNodeFree(node_);
     }
 
+    Layout::Layout(Layout&& other) noexcept
+        : node_(std::exchange(other.node_, nullptr))
+        , position_(other.position_)
+        , size_(other.size_) {
+        if (node_ != nullptr) {
+            YGNodeSetContext(node_, this);
+        }
+    }
+
+    Layout& Layout::operator=(Layout&& other) noexcept {
+        if (this != &other) {
+            if (node_ != nullptr) {
+                auto parent = YGNodeGetParent(node_);
+                if (parent != nullptr) {
+                    YGNodeRemoveChild(parent, node_);
+                }
+                YGNodeSetContext(node_, nullptr);
+                YGNodeFree(node_);
+            }
+
+            node_ = std::exchange(other.node_, nullptr);
+            position_ = other.position_;
+            size_ = other.size_;
+
+            if (node_ != nullptr) {
+                YGNodeSetContext(node_, this);
+            }
+        }
+
+        return *this;
+    }
+
     YGNodeRef Layout::node() {
         DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
         return node_;

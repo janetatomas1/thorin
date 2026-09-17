@@ -22,8 +22,13 @@ namespace thorin {
         Layout layout_;
     public:
         Widget(const std::string &title = "", Widget *parent = nullptr);
-        Widget(const Widget& widget) = delete;
-        Widget &operator=(const Widget& widget) = delete;
+
+        Widget(const Widget& other) = delete;
+        Widget &operator=(const Widget& other) = delete;
+
+        Widget(Widget&& other) noexcept;
+        Widget& operator=(Widget&& other) noexcept;
+
         virtual ~Widget() = default;
         virtual void init() {}
         virtual void destroy() {}

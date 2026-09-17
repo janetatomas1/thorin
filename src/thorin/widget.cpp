@@ -16,6 +16,27 @@ namespace thorin {
         }
     }
 
+    Widget::Widget(Widget&& other) noexcept :
+        id_(other.id_),
+        title_(std::move(other.title_)),
+        titleID_(std::move(other.titleID_)),
+        window_(other.window_),
+        parent_(other.parent_),
+        layout_(std::move(other.layout_)) {}
+
+    Widget& Widget::operator=(Widget&& other) noexcept {
+        if (this != &other) {
+            id_ = other.id_;
+            title_ = std::move(other.title_);
+            titleID_ = std::move(other.titleID_),
+            window_ = other.window_;
+            parent_ = other.parent_;
+            layout_ = std::move(other.layout_);
+        }
+
+        return *this;
+    }
+
     uint64_t Widget::id() const {
         return id_;
     }
