@@ -17,6 +17,9 @@ namespace thorin {
     public:
         RadioGroup(Widget* parent = nullptr);
 
+        // Returned reference is invalidated by any subsequent add_option() call
+        // (options_ is a vector and may reallocate). Chain off it immediately;
+        // don't store it across further add_option() calls.
         RadioButton& add_option(const std::string& label);
         RadioButton& add_option(const std::string& label, std::function<void()> onSelect);
 
@@ -24,7 +27,9 @@ namespace thorin {
         void set_selected(int index);
 
         [[nodiscard]] size_t count() const;
-        RadioButton& option_at(size_t index);
+        // Same invalidation caveat as add_option(): don't hold this reference
+        // across a later add_option() call.
+        RadioButton& at(size_t index);
         bool show() override;
     };
 }

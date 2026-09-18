@@ -42,8 +42,8 @@ namespace thorin {
         return options_.size();
     }
 
-    RadioButton& RadioGroup::option_at(size_t index) {
-        DEBUG_ASSERT(index < options_.size(), "RadioGroup::option_at index out of range", index, options_.size());
+    RadioButton& RadioGroup::at(size_t index) {
+        DEBUG_ASSERT(index < options_.size(), "RadioGroup::at index out of range", index, options_.size());
         return options_[index];
     }
 
