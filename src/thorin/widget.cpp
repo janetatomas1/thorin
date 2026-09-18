@@ -49,6 +49,12 @@ namespace thorin {
         return titleID_;
     }
 
+    Widget& Widget::set_title(const std::string& title) {
+        title_ = title;
+        titleID_ = std::format("{}##{}", title_, id_);
+        return *this;
+    }
+
     bool Widget::render() {
         ImGui::SetCursorPos(layout().position());
         return show();

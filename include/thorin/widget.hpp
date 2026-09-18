@@ -35,6 +35,7 @@ namespace thorin {
         [[nodiscard]] uint64_t id() const;
         [[nodiscard]] std::string title() const;
         [[nodiscard]] std::string title_id() const;
+        Widget& set_title(const std::string& title);
         bool render();
         virtual bool show();
         Window* window();
