@@ -15,7 +15,7 @@ namespace thorin {
         int selected_ = -1;
         std::function<void(int)> onChange_;
         std::string placeholder_ = "Select...";
-        DropdownFlags flags_;
+        DropdownFlags flags_ = ImGuiComboFlags_None;
 
     public:
         Dropdown(const std::string& title = "", Widget* parent = nullptr);

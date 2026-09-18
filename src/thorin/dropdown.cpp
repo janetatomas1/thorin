@@ -97,7 +97,7 @@ namespace thorin {
         bool changed = false;
 
         ImGui::SetNextItemWidth(layout().width());
-        if (ImGui::BeginCombo(title_id().c_str(), preview)) {
+        if (ImGui::BeginCombo(title_id().c_str(), preview, flags_)) {
             for (size_t i = 0; i < options_.size(); ++i) {
                 bool isSelected = (static_cast<int>(i) == selected_);
 
