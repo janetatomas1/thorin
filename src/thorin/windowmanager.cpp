@@ -81,25 +81,24 @@ namespace thorin {
     }
 
     void WindowManager::remove_window_at(size_t index) {
-        app().add_action([this, index](){
-            DEBUG_ASSERT(index < windows_.size(), "deferred remove: index out of range", index, windows_.size());
-            windows_[index]->destroy();
-            windows_.erase(windows_.begin() + index);
-        });
+        DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
+        remove_window(windows_[index]->id());
     }
 
     void WindowManager::remove_window(uint64_t id) {
-        auto it = std::find_if(
-            windows_.begin(),
-            windows_.end(),
-            [id](const auto& win) {
-                return win->id() == id;
-            }
-        );
+        app().add_action([this, id](){
+            auto it = std::find_if(
+                windows_.begin(),
+                windows_.end(),
+                [id](const auto& win) {
+                    return win->id() == id;
+                }
+            );
 
-        DEBUG_ASSERT(it != windows_.end(), "remove_window: no window with this id", id);
+            DEBUG_ASSERT(it != windows_.end(), "remove_window: no window with this id", id);
 
-        auto dist = std::distance(windows_.begin(), it);
-        remove_window_at(dist);
+            (*it)->destroy();
+            windows_.erase(it);
+        });
     }
 }
