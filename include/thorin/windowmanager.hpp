@@ -11,7 +11,7 @@ namespace thorin {
     class Thorin;
 
     class WindowManager {
-        std::vector<Window> windows_;
+        std::vector<std::unique_ptr<Window>> windows_;
         Thorin &app_;
 
     public:

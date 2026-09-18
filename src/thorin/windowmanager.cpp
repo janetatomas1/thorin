@@ -39,7 +39,7 @@ namespace thorin {
             }
         }
         for (auto &window: windows_) {
-            window.update();
+            window->update();
         }
     }
 
@@ -54,8 +54,9 @@ namespace thorin {
     Window* WindowManager::add_window(Window &&window) {
         window.set_window_manager(this);
         app_.add_action(std::move([window = std::move(window), this] () mutable {
-            window.init();
-            windows_.push_back(std::move(window));
+            auto owned = std::make_unique<Window>(std::move(window));
+            owned->init();
+            windows_.push_back(std::move(owned));
         }));
 
         return nullptr;
@@ -63,17 +64,17 @@ namespace thorin {
 
     Window* WindowManager::get_window_at(const size_t index) {
         DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
-        return &windows_[index];
+        return windows_[index].get();
     }
 
     Window* WindowManager::get_window(uint64_t id) {
         auto window = std::find_if(windows_.begin(), windows_.end(),
         [id](const auto& window){
-            return id == window.id();
+            return id == window->id();
         });
 
         if (window != windows_.end()) {
-            return &(*window);
+            return window->get();
         }
 
         return nullptr;
@@ -82,7 +83,7 @@ namespace thorin {
     void WindowManager::remove_window_at(size_t index) {
         app().add_action([this, index](){
             DEBUG_ASSERT(index < windows_.size(), "deferred remove: index out of range", index, windows_.size());
-            windows_[index].destroy();
+            windows_[index]->destroy();
             windows_.erase(windows_.begin() + index);
         });
     }
@@ -92,7 +93,7 @@ namespace thorin {
             windows_.begin(),
             windows_.end(),
             [id](const auto& win) {
-                return win.id() == id;
+                return win->id() == id;
             }
         );
 
