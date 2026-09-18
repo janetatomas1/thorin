@@ -28,7 +28,8 @@ namespace thorin {
             if(action.second <= 1) {
                 action.first();
             } else {
-                const size_t index = action.second < ring_.size() ? action.second - 1 : ring_.size() - 1;
+                const size_t offset = action.second < ring_.size() ? action.second : ring_.size() - 1;
+                const size_t index = (frameIndex_ + offset) % ring_.size();
                 DEBUG_ASSERT(index < ring_.size(), "computed ring index out of range", index, ring_.size());
                 ring_[index].push_back(std::move(action.first));
             }
