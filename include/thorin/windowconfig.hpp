@@ -23,7 +23,7 @@ namespace thorin {
         int windowFlags = ImGuiWindowFlags_NoSavedSettings
         | ImGuiWindowFlags_NoTitleBar
         | ImGuiWindowFlags_NoResize;
-        SDL_InitFlags sdlFlags = SDL_WINDOW_OPENGL
+        SDL_WindowFlags sdlFlags = SDL_WINDOW_OPENGL
         | SDL_WINDOW_RESIZABLE
         | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         WindowState windowState = WindowState::MAXIMIZED;
