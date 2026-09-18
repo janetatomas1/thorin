@@ -12,7 +12,9 @@ namespace thorin {
 
     void Window::init() {
         DEBUG_ASSERT(backend_ != nullptr, "Window::init called with no backend");
+        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::init called with no root widget");
         backend_->set_window(this);
+        rootWidget_->set_window(this);
         backend_->init();
     }
 
@@ -55,6 +57,7 @@ namespace thorin {
             }
 
             rootWidget_ = std::move(widget);
+            rootWidget_->set_window(this);
             rootWidget_->init();
         });
     }

@@ -14,11 +14,7 @@ namespace thorin {
             return; // moved-from
         }
 
-        auto parent = YGNodeGetParent(node_);
-
-        if (parent != nullptr) {
-            YGNodeRemoveChild(parent, node_);
-        }
+        remove_from_parent();
 
         YGNodeSetContext(node_, nullptr);
         YGNodeFree(node_);
@@ -36,10 +32,7 @@ namespace thorin {
     Layout& Layout::operator=(Layout&& other) noexcept {
         if (this != &other) {
             if (node_ != nullptr) {
-                auto parent = YGNodeGetParent(node_);
-                if (parent != nullptr) {
-                    YGNodeRemoveChild(parent, node_);
-                }
+                remove_from_parent();
                 YGNodeSetContext(node_, nullptr);
                 YGNodeFree(node_);
             }
@@ -59,6 +52,14 @@ namespace thorin {
     YGNodeRef Layout::node() {
         DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
         return node_;
+    }
+
+    void Layout::remove_from_parent() {
+        DEBUG_ASSERT(node_ != nullptr, "remove_from_parent called on moved-from Layout");
+
+        if (auto parent = YGNodeGetParent(node_); parent != nullptr) {
+            YGNodeRemoveChild(parent, node_);
+        }
     }
 
     void Layout::add_child(Layout &child, size_t index) {

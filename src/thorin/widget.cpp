@@ -77,6 +77,12 @@ namespace thorin {
 
     void Widget::set_parent(Widget* parent) {
         DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
+
+        layout_.remove_from_parent();
+        if (parent != nullptr) {
+            parent->layout().add_child(layout_);
+        }
+
         parent_ = parent;
     }
 

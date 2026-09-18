@@ -54,6 +54,7 @@ namespace thorin {
 
         YGNodeRef node();
         void add_child(Layout &child, size_t index = std::string::npos);
+        void remove_from_parent();
         void calculate_layout(float width, float height);
         void calculate_position();
 
