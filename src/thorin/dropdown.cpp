@@ -46,7 +46,7 @@ namespace thorin {
     }
 
     void Dropdown::set_selected(int index) {
-        DEBUG_ASSERT(index >= -1 && static_cast<size_t>(index) < options_.size() || index == -1,
+        DEBUG_ASSERT(index == -1 || (index >= 0 && static_cast<size_t>(index) < options_.size()),
                      "Dropdown::set_selected index out of range", index, options_.size());
         selected_ = index;
     }

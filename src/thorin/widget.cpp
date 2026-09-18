@@ -28,7 +28,7 @@ namespace thorin {
         if (this != &other) {
             id_ = other.id_;
             title_ = std::move(other.title_);
-            titleID_ = std::move(other.titleID_),
+            titleID_ = std::move(other.titleID_);
             window_ = other.window_;
             parent_ = other.parent_;
             layout_ = std::move(other.layout_);
