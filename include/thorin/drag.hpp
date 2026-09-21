@@ -60,6 +60,12 @@ namespace thorin {
         Drag& set_on_change(std::function<void(const Value&)> callback);
     };
 
+    template <std::size_t N>
+    using DragInt = Drag<N, int>;
+
+    template <std::size_t N>
+    using DragFloat = Drag<N, float>;
+
     template <std::size_t N, typename T>
     Drag<N, T>::Drag(const std::string& title, Widget* parent)
     : Widget(title, parent) {}

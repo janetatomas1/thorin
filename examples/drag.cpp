@@ -8,10 +8,10 @@ using namespace thorin;
 using namespace literals;
 
 struct DragExample: Widget {
-    Drag<1, float> speed = Drag<1, float>("Speed", this);
-    Drag<2, int> position = Drag<2, int>("Position", this);
-    Drag<3, float> offset = Drag<3, float>("Offset", this);
-    Drag<4, float> rect = Drag<4, float>("Rect", this);
+    DragFloat<1> speed = DragFloat<1>("Speed", this);
+    DragInt<2> position = DragInt<2>("Position", this);
+    DragFloat<3> offset = DragFloat<3>("Offset", this);
+    DragFloat<4> rect = DragFloat<4>("Rect", this);
 
     DragExample(const std::string& title): Widget(title) {
         column(8.0f).center();

@@ -8,10 +8,10 @@ using namespace thorin;
 using namespace literals;
 
 struct SliderExample: Widget {
-    Slider<1, float> volume = Slider<1, float>("Volume", this);
-    Slider<2, int> range = Slider<2, int>("Range", this);
-    Slider<3, float> color = Slider<3, float>("Color", this);
-    Slider<4, float> rect = Slider<4, float>("Rect", this);
+    SliderFloat<1> volume = SliderFloat<1>("Volume", this);
+    SliderInt<2> range = SliderInt<2>("Range", this);
+    SliderFloat<3> color = SliderFloat<3>("Color", this);
+    SliderFloat<4> rect = SliderFloat<4>("Rect", this);
 
     SliderExample(const std::string& title): Widget(title) {
         column(8.0f).center();
