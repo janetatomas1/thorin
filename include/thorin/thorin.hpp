@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "thorin/windowmanager.hpp"
 #include "thorin/randomgenerator.hpp"
 #include "thorin/actionmanager.hpp"
@@ -31,10 +33,12 @@ namespace thorin {
             action &&fn,
             uint64_t delay = 1
         );
-        Window* add_window(Window &&window);
+        // The returned window is owned by the app and valid right away, but it is only initialized on the next
+        // frame. The pointer dangles once the window is closed.
+        Window* add_window(std::unique_ptr<Window> window);
         Window* add_window(const WindowConfig &config = {});
         template<WidgetConcept W, typename... Args>
-        Window* add_window(const WindowConfig &config, Args &&... args);
+        Window* add_window(WindowConfig config, Args &&... args);
         template<WidgetConcept W, typename... Args>
         Window* add_window(Args &&... args);
         Window* get_window_at(size_t index);
@@ -44,10 +48,9 @@ namespace thorin {
     };
 
     template <WidgetConcept W, typename ... Args>
-    Window* Thorin::add_window(const WindowConfig& config, Args&&... args) {
+    Window* Thorin::add_window(WindowConfig config, Args&&... args) {
         auto widget = std::make_unique<W>(std::forward<Args>(args)...);
-        auto window = Window(config, std::move(widget));
-        return add_window(std::move(window));
+        return add_window(std::make_unique<Window>(config, std::move(widget)));
     }
 
     template <WidgetConcept W, typename ... Args>

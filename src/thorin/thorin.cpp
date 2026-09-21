@@ -52,12 +52,12 @@ namespace thorin {
         actionManager_.add_action(std::move(fn), delay);
     }
 
-    Window* Thorin::add_window(Window &&window) {
+    Window* Thorin::add_window(std::unique_ptr<Window> window) {
         return windowManager_.add_window(std::move(window));
     }
 
     Window* Thorin::add_window(const WindowConfig &config) {
-        return windowManager_.add_window(Window(config));
+        return windowManager_.add_window(std::make_unique<Window>(config));
     }
 
     Window* Thorin::get_window_at(size_t index) {

@@ -58,15 +58,19 @@ namespace thorin {
         return app_;
     }
 
-    Window* WindowManager::add_window(Window &&window) {
-        window.set_window_manager(this);
-        app_.add_action(std::move([window = std::move(window), this] () mutable {
-            auto owned = std::make_unique<Window>(std::move(window));
-            owned->init();
-            windows_.push_back(std::move(owned));
-        }));
+    Window* WindowManager::add_window(std::unique_ptr<Window> window) {
+        DEBUG_ASSERT(window != nullptr, "add_window called with a null window");
 
-        return nullptr;
+        Window* raw = window.get();
+        raw->set_window_manager(this);
+
+        // The window is initialized and tracked on the next frame; until then the queued action owns it.
+        app_.add_action([window = std::move(window), this] () mutable {
+            window->init();
+            windows_.push_back(std::move(window));
+        });
+
+        return raw;
     }
 
     Window* WindowManager::get_window_at(const size_t index) {
