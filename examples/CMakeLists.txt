@@ -8,6 +8,7 @@ set(
     radiogroup
     textinput
     text
+    drag
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
