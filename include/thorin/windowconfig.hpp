@@ -18,7 +18,7 @@ namespace thorin {
 
     struct WindowConfig {
         int width = 1920,
-        height = 80;
+        height = 1080;
         std::string title = "Thorin";
         int windowFlags = ImGuiWindowFlags_NoSavedSettings
         | ImGuiWindowFlags_NoTitleBar
