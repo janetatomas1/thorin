@@ -10,6 +10,7 @@ set(
     text
     drag
     slider
+    input
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
