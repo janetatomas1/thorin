@@ -96,7 +96,9 @@ namespace thorin {
         const char* preview = has_selection() ? options_[selected_].c_str() : placeholder_.c_str();
         bool changed = false;
 
-        ImGui::SetNextItemWidth(layout().width());
+        if (width() > 0.0f) {
+            ImGui::SetNextItemWidth(width());
+        }
         if (ImGui::BeginCombo(title_id().c_str(), preview, flags_)) {
             for (size_t i = 0; i < options_.size(); ++i) {
                 bool isSelected = (static_cast<int>(i) == selected_);

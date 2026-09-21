@@ -8,7 +8,9 @@ namespace thorin {
     : Widget(title, parent) {}
 
     bool TextInput::show() {
-        ImGui::SetNextItemWidth(layout().width());
+        if (width() > 0.0f) {
+            ImGui::SetNextItemWidth(width());
+        }
 
         bool changed;
         if (multiline_) {
