@@ -34,7 +34,7 @@ namespace thorin {
         virtual void destroy() {}
         [[nodiscard]] uint64_t id() const;
         [[nodiscard]] const std::string& title() const;
-        [[nodiscard]] std::string title_id() const;
+        [[nodiscard]] const std::string& title_id() const;
         Widget& set_title(const std::string& title);
         bool render();
         virtual bool show();

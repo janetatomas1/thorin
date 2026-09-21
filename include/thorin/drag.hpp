@@ -78,7 +78,7 @@ namespace thorin {
             ImGui::SetNextItemWidth(width());
         }
 
-        const std::string id = title_id();
+        const std::string& id = title_id();
         const T* min = min_ ? &*min_ : nullptr;
         const T* max = max_ ? &*max_ : nullptr;
         const char* format = format_.empty() ? nullptr : format_.c_str();

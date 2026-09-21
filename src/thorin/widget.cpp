@@ -45,7 +45,7 @@ namespace thorin {
         return title_;
     }
 
-    std::string Widget::title_id() const {
+    const std::string& Widget::title_id() const {
         return titleID_;
     }
 
