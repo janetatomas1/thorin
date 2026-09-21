@@ -7,6 +7,7 @@ set(
     dropdown
     radiogroup
     textinput
+    text
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

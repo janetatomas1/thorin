@@ -22,8 +22,8 @@ set(
     ${THORIN_SOURCE_DIR}/radiobutton.cpp
     ${THORIN_SOURCE_DIR}/radiogroup.cpp
     ${THORIN_SOURCE_DIR}/dropdown.cpp
-    ${THORIN_SOURCE_DIR}/label.cpp
     ${THORIN_SOURCE_DIR}/textinput.cpp
+    ${THORIN_SOURCE_DIR}/text.cpp
 )
 
 find_package(sdl REQUIRED)
