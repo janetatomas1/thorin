@@ -15,6 +15,13 @@ namespace thorin {
     }
 
     void WindowManager::destroy() {
+        // Windows that are still open when the app exits (e.g. via Thorin::exit()) have to release their
+        // ImGui and GL resources while SDL is still alive.
+        for (auto &window: windows_) {
+            window->destroy();
+        }
+        windows_.clear();
+
         SDL_Quit();
     }
 
