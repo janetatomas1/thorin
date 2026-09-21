@@ -8,7 +8,7 @@
 #include "thorin/widget.hpp"
 
 namespace thorin {
-    using DropdownFlags = ImGuiComboFlags_;
+    using DropdownFlags = ImGuiComboFlags;
 
     class Dropdown : public Widget {
         std::vector<std::string> options_;

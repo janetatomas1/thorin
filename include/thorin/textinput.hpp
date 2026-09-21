@@ -7,7 +7,7 @@
 #include "thorin/widget.hpp"
 
 namespace thorin {
-    using TextInputFlags = ImGuiInputTextFlags_;
+    using TextInputFlags = ImGuiInputTextFlags;
 
     class TextInput : public Widget {
         std::string value_;
