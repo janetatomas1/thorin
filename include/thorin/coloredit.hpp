@@ -19,7 +19,14 @@ namespace thorin {
         using Value = std::array<float, N>;
 
     private:
-        Value value_{};
+        // Opaque black.
+        Value value_ = [] {
+            Value value{};
+            if constexpr (N == 4) {
+                value[3] = 1.0f;
+            }
+            return value;
+        }();
         ColorEditFlags flags_ = ImGuiColorEditFlags_None;
         std::function<void(const Value&)> onChange_;
 
