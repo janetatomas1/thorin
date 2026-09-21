@@ -45,6 +45,7 @@ namespace thorin {
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);
+        // Does nothing if the window has already been closed.
         void remove_window(uint64_t id);
     };
 

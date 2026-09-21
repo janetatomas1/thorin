@@ -106,7 +106,10 @@ namespace thorin {
                 }
             );
 
-            DEBUG_ASSERT(it != windows_.end(), "remove_window: no window with this id", id);
+            // The window may already be gone (closed by the user, or removed twice); that is not an error.
+            if (it == windows_.end()) {
+                return;
+            }
 
             (*it)->destroy();
             windows_.erase(it);
