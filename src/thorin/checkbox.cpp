@@ -7,11 +7,10 @@ namespace thorin {
         std::function<void(bool)> on_change,
         Widget* parent
     ): Widget(title, parent),
-    label_(std::move(title)),
     onChange_(std::move(on_change)) {}
 
     bool Checkbox::show() {
-        bool changed = ImGui::Checkbox(label_.c_str(), &value_);
+        bool changed = ImGui::Checkbox(title_id().c_str(), &value_);
 
         if (changed && onChange_) {
             onChange_(value_);

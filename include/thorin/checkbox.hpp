@@ -8,7 +8,6 @@
 
 namespace thorin {
     class Checkbox : public Widget {
-        std::string label_;
         bool value_ = false;
         std::function<void(bool)> onChange_;
 
