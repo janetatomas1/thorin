@@ -23,8 +23,9 @@ namespace thorin {
         return value_;
     }
 
-    void Checkbox::set_value(bool value) {
+    Checkbox& Checkbox::set_value(bool value) {
         value_ = value;
+        return *this;
     }
 
     Checkbox& Checkbox::set_on_change(std::function<void(bool)> callback) {

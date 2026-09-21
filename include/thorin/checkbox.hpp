@@ -20,7 +20,7 @@ namespace thorin {
 
         bool show() override;
         [[nodiscard]] bool value() const;
-        void set_value(bool value);
+        Checkbox& set_value(bool value);
         Checkbox& set_on_change(std::function<void(bool)> callback);
     };
 }
