@@ -48,7 +48,7 @@ namespace thorin {
 
         SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_);
 
-        bool current_ok = SDL_GL_MakeCurrent(handle_, gl_context);
+        [[maybe_unused]] bool current_ok = SDL_GL_MakeCurrent(handle_, gl_context);
         DEBUG_ASSERT(current_ok, "SDL_GL_MakeCurrent failed", SDL_GetError());
 
         SDL_GL_SetSwapInterval(1);
@@ -72,10 +72,10 @@ namespace thorin {
         style.ScaleAllSizes(main_scale);
         style.FontScaleDpi = main_scale;
 
-        bool sdl_init_ok = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
+        [[maybe_unused]] bool sdl_init_ok = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
         DEBUG_ASSERT(sdl_init_ok, "ImGui_ImplSDL3_InitForOpenGL failed");
 
-        bool gl3_init_ok = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
+        [[maybe_unused]] bool gl3_init_ok = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
         DEBUG_ASSERT(gl3_init_ok, "ImGui_ImplOpenGL3_Init failed", glsl_version);
     }
 

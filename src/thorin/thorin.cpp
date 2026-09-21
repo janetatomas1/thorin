@@ -15,7 +15,7 @@ namespace thorin {
         shouldExit_ |= windowManager_.count() == 0;
     }
 
-    Thorin::Thorin(int argc, char** argv) {
+    Thorin::Thorin([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         DEBUG_ASSERT(argc >= 0, "argc is negative", argc);
         DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
 

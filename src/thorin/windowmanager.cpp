@@ -10,7 +10,7 @@ namespace thorin {
     WindowManager::WindowManager(Thorin &app) : app_(app) {}
 
     void WindowManager::init() {
-        bool ok = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
+        [[maybe_unused]] bool ok = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
         DEBUG_ASSERT(ok, "SDL_Init failed", SDL_GetError());
     }
 
@@ -75,13 +75,13 @@ namespace thorin {
     }
 
     Window* WindowManager::get_window(uint64_t id) {
-        auto window = std::find_if(windows_.begin(), windows_.end(),
+        auto it = std::find_if(windows_.begin(), windows_.end(),
         [id](const auto& window){
             return id == window->id();
         });
 
-        if (window != windows_.end()) {
-            return window->get();
+        if (it != windows_.end()) {
+            return it->get();
         }
 
         return nullptr;

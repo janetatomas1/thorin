@@ -21,17 +21,17 @@ namespace thorin {
         DEBUG_ASSERT(!ring_.empty(), "dispatch called on ActionManager with empty ring");
         DEBUG_ASSERT(frameIndex_ < ring_.size(), "frameIndex_ out of range", frameIndex_, ring_.size());
 
-        std::pair<action, uint64_t> action;
-        while (immediate_.try_dequeue(action)) {
-            DEBUG_ASSERT(action.first != nullptr, "dequeued a null/empty action");
+        std::pair<action, uint64_t> queued;
+        while (immediate_.try_dequeue(queued)) {
+            DEBUG_ASSERT(queued.first != nullptr, "dequeued a null/empty action");
 
-            if(action.second <= 1) {
-                action.first();
+            if(queued.second <= 1) {
+                queued.first();
             } else {
-                const size_t offset = action.second < ring_.size() ? action.second : ring_.size() - 1;
+                const size_t offset = queued.second < ring_.size() ? queued.second : ring_.size() - 1;
                 const size_t index = (frameIndex_ + offset) % ring_.size();
                 DEBUG_ASSERT(index < ring_.size(), "computed ring index out of range", index, ring_.size());
-                ring_[index].push_back(std::move(action.first));
+                ring_[index].push_back(std::move(queued.first));
             }
         }
 
