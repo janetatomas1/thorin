@@ -9,6 +9,7 @@ set(
     textinput
     text
     drag
+    slider
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

@@ -75,15 +75,32 @@ namespace thorin {
         const std::string id = title_id();
         const T* min = min_ ? &*min_ : nullptr;
         const T* max = max_ ? &*max_ : nullptr;
+        // The typed N-component helpers take their bounds by value; min == max means unbounded.
+        const T lo = min_.value_or(T{});
+        const T hi = max_.value_or(T{});
         const char* format = format_.empty() ? nullptr : format_.c_str();
         bool changed;
 
-        if constexpr (N == 1) {
-            changed = ImGui::DragScalar(id.c_str(), dataType, &value_, speed_, min, max, format, flags_);
+        if constexpr (N == 2) {
+            if constexpr (std::same_as<T, float>) {
+                changed = ImGui::DragFloat2(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            } else {
+                changed = ImGui::DragInt2(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            }
+        } else if constexpr (N == 3) {
+            if constexpr (std::same_as<T, float>) {
+                changed = ImGui::DragFloat3(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            } else {
+                changed = ImGui::DragInt3(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            }
+        } else if constexpr (N == 4) {
+            if constexpr (std::same_as<T, float>) {
+                changed = ImGui::DragFloat4(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            } else {
+                changed = ImGui::DragInt4(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
+            }
         } else {
-            changed = ImGui::DragScalarN(
-                id.c_str(), dataType, value_.data(), static_cast<int>(N), speed_, min, max, format, flags_
-            );
+            changed = ImGui::DragScalar(id.c_str(), dataType, &value_, speed_, min, max, format, flags_);
         }
 
         if (changed && onChange_) {
