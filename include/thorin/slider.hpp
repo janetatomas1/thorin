@@ -67,29 +67,15 @@ namespace thorin {
 
         const std::string id = title_id();
         const char* format = format_.empty() ? nullptr : format_.c_str();
-        bool changed;
 
-        if constexpr (N == 2) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::SliderFloat2(id.c_str(), value_.data(), min_, max_, format, flags_);
-            } else {
-                changed = ImGui::SliderInt2(id.c_str(), value_.data(), min_, max_, format, flags_);
-            }
-        } else if constexpr (N == 3) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::SliderFloat3(id.c_str(), value_.data(), min_, max_, format, flags_);
-            } else {
-                changed = ImGui::SliderInt3(id.c_str(), value_.data(), min_, max_, format, flags_);
-            }
-        } else if constexpr (N == 4) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::SliderFloat4(id.c_str(), value_.data(), min_, max_, format, flags_);
-            } else {
-                changed = ImGui::SliderInt4(id.c_str(), value_.data(), min_, max_, format, flags_);
-            }
+        T* data;
+        if constexpr (N == 1) {
+            data = &value_;
         } else {
-            changed = ImGui::SliderScalar(id.c_str(), dataType, &value_, &min_, &max_, format, flags_);
+            data = value_.data();
         }
+
+        const bool changed = ImGui::SliderScalarN(id.c_str(), dataType, data, N, &min_, &max_, format, flags_);
 
         if (changed && onChange_) {
             onChange_(value_);

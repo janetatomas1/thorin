@@ -60,7 +60,7 @@ namespace thorin {
         Drag& set_on_change(std::function<void(const Value&)> callback);
     };
 
-        template <std::size_t N, typename T>
+    template <std::size_t N, typename T>
     Drag<N, T>::Drag(const std::string& title, Widget* parent)
     : Widget(title, parent) {}
 
@@ -75,33 +75,16 @@ namespace thorin {
         const std::string id = title_id();
         const T* min = min_ ? &*min_ : nullptr;
         const T* max = max_ ? &*max_ : nullptr;
-        // The typed N-component helpers take their bounds by value; min == max means unbounded.
-        const T lo = min_.value_or(T{});
-        const T hi = max_.value_or(T{});
         const char* format = format_.empty() ? nullptr : format_.c_str();
-        bool changed;
 
-        if constexpr (N == 2) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::DragFloat2(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            } else {
-                changed = ImGui::DragInt2(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            }
-        } else if constexpr (N == 3) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::DragFloat3(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            } else {
-                changed = ImGui::DragInt3(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            }
-        } else if constexpr (N == 4) {
-            if constexpr (std::same_as<T, float>) {
-                changed = ImGui::DragFloat4(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            } else {
-                changed = ImGui::DragInt4(id.c_str(), value_.data(), speed_, lo, hi, format, flags_);
-            }
+        T* data;
+        if constexpr (N == 1) {
+            data = &value_;
         } else {
-            changed = ImGui::DragScalar(id.c_str(), dataType, &value_, speed_, min, max, format, flags_);
+            data = value_.data();
         }
+
+        const bool changed = ImGui::DragScalarN(id.c_str(), dataType, data, N, speed_, min, max, format, flags_);
 
         if (changed && onChange_) {
             onChange_(value_);
