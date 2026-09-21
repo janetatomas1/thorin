@@ -31,7 +31,7 @@ namespace thorin {
         [[nodiscard]] uint64_t frame() const;
         void add_action(
             action &&fn,
-            uint64_t delay = 1
+            uint64_t delay = 0
         );
         // The app takes ownership of the window and returns its id. The window is created on the next frame, so
         // get_window(id) is null until then and again once the window has been closed. Use it to check whether

@@ -12,7 +12,9 @@ namespace thorin {
 
     public:
         ActionManager(uint64_t maxDelayFrames = 256);
-        void add_action(action &&fn, uint64_t delay = 1);
+        // delay is the number of dispatches to wait: 0 runs on the next dispatch, 1 on the one after, and so on.
+        // The largest delay is maxDelayFrames - 1; a longer one runs at that limit.
+        void add_action(action &&fn, uint64_t delay = 0);
         void dispatch();
     };
 }

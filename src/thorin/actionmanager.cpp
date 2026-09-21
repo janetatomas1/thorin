@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <libassert/assert.hpp>
 
 #include "thorin/actionmanager.hpp"
@@ -25,10 +27,13 @@ namespace thorin {
         while (immediate_.try_dequeue(queued)) {
             DEBUG_ASSERT(queued.first != nullptr, "dequeued a null/empty action");
 
-            if(queued.second <= 1) {
+            if (queued.second == 0) {
                 queued.first();
             } else {
-                const size_t offset = queued.second < ring_.size() ? queued.second : ring_.size() - 1;
+                DEBUG_ASSERT(queued.second < ring_.size(), "action delay exceeds the ring size", queued.second, ring_.size());
+
+                // The bucket at frameIndex_ runs below, so delay d lands d slots ahead of it.
+                const size_t offset = std::min<uint64_t>(queued.second, ring_.size() - 1);
                 const size_t index = (frameIndex_ + offset) % ring_.size();
                 DEBUG_ASSERT(index < ring_.size(), "computed ring index out of range", index, ring_.size());
                 ring_[index].push_back(std::move(queued.first));
