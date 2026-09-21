@@ -48,8 +48,8 @@ namespace thorin {
 
         SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_);
 
-        [[maybe_unused]] bool current_ok = SDL_GL_MakeCurrent(handle_, gl_context);
-        DEBUG_ASSERT(current_ok, "SDL_GL_MakeCurrent failed", SDL_GetError());
+        [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, gl_context);
+        DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
 
         SDL_GL_SetSwapInterval(1);
         SDL_SetWindowPosition(handle_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -72,11 +72,11 @@ namespace thorin {
         style.ScaleAllSizes(main_scale);
         style.FontScaleDpi = main_scale;
 
-        [[maybe_unused]] bool sdl_init_ok = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
-        DEBUG_ASSERT(sdl_init_ok, "ImGui_ImplSDL3_InitForOpenGL failed");
+        [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
+        DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
 
-        [[maybe_unused]] bool gl3_init_ok = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
-        DEBUG_ASSERT(gl3_init_ok, "ImGui_ImplOpenGL3_Init failed", glsl_version);
+        [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
+        DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glsl_version);
     }
 
     void GLBackend::destroy() {
