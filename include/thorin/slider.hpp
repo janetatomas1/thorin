@@ -53,10 +53,10 @@ namespace thorin {
         Slider& set_on_change(std::function<void(const Value&)> callback);
     };
 
-    template <std::size_t N>
+    template <std::size_t N = 1>
     using SliderInt = Slider<N, int>;
 
-    template <std::size_t N>
+    template <std::size_t N = 1>
     using SliderFloat = Slider<N, float>;
 
     template <std::size_t N, typename T>

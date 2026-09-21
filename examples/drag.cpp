@@ -8,7 +8,7 @@ using namespace thorin;
 using namespace literals;
 
 struct DragExample: Widget {
-    DragFloat<1> speed = DragFloat<1>("Speed", this);
+    DragFloat<> speed = DragFloat<>("Speed", this);
     DragInt<2> position = DragInt<2>("Position", this);
     DragFloat<3> offset = DragFloat<3>("Offset", this);
     DragFloat<4> rect = DragFloat<4>("Rect", this);

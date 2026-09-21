@@ -8,9 +8,9 @@ using namespace thorin;
 using namespace literals;
 
 struct InputExample: Widget {
-    InputInt<1> count = InputInt<1>("Count", this);
+    InputInt<> count = InputInt<>("Count", this);
     InputInt<2> position = InputInt<2>("Position", this);
-    InputFloat<1> weight = InputFloat<1>("Weight", this);
+    InputFloat<> weight = InputFloat<>("Weight", this);
     InputFloat<3> offset = InputFloat<3>("Offset", this);
 
     InputExample(const std::string& title): Widget(title) {

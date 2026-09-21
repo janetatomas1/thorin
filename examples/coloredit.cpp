@@ -9,8 +9,8 @@ using namespace literals;
 
 struct ColorEditExample: Widget {
     ColorEdit<3> background = ColorEdit<3>("Background", this);
-    ColorEdit<4> tint = ColorEdit<4>("Tint", this);
-    ColorEdit<4> swatch = ColorEdit<4>("Swatch", this);
+    ColorEdit<> tint = ColorEdit<>("Tint", this);
+    ColorEdit<> swatch = ColorEdit<>("Swatch", this);
 
     ColorEditExample(const std::string& title): Widget(title) {
         column(8.0f).center();

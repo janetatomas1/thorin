@@ -54,10 +54,10 @@ namespace thorin {
         Input& set_on_change(std::function<void(const Value&)> callback);
     };
 
-    template <std::size_t N>
+    template <std::size_t N = 1>
     using InputInt = Input<N, int>;
 
-    template <std::size_t N>
+    template <std::size_t N = 1>
     using InputFloat = Input<N, float>;
 
     template <std::size_t N, typename T>

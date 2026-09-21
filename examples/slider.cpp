@@ -8,7 +8,7 @@ using namespace thorin;
 using namespace literals;
 
 struct SliderExample: Widget {
-    SliderFloat<1> volume = SliderFloat<1>("Volume", this);
+    SliderFloat<> volume = SliderFloat<>("Volume", this);
     SliderInt<2> range = SliderInt<2>("Range", this);
     SliderFloat<3> color = SliderFloat<3>("Color", this);
     SliderFloat<4> rect = SliderFloat<4>("Rect", this);

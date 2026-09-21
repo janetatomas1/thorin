@@ -10,8 +10,8 @@
 namespace thorin {
     using ColorEditFlags = ImGuiColorEditFlags;
 
-    // An RGB (N == 3) or RGBA (N == 4) color, each component in 0..1. Clicking the swatch opens a picker.
-    template <std::size_t N>
+    // An RGB (N == 3) or RGBA (N == 4, the default) color, each component in 0..1. Clicking the swatch opens a picker.
+    template <std::size_t N = 4>
     class ColorEdit : public Widget {
         static_assert(N == 3 || N == 4, "ColorEdit supports 3 (RGB) or 4 (RGBA) components");
 
