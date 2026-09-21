@@ -23,6 +23,7 @@ namespace thorin {
         virtual void init() = 0;
         virtual void update(Widget *rootWidget) = 0;
         virtual void destroy() = 0;
+        virtual void process_event(const SDL_Event& event) = 0;
         void set_window(Window *window);
         Window* window();
         void maximize();

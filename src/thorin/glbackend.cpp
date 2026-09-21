@@ -46,7 +46,7 @@ namespace thorin {
             minimize();
         }
 
-        SDL_SetNumberProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_->id());
+        SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_);
 
         bool current_ok = SDL_GL_MakeCurrent(handle_, gl_context);
         DEBUG_ASSERT(current_ok, "SDL_GL_MakeCurrent failed", SDL_GetError());
@@ -62,7 +62,7 @@ namespace thorin {
         );
 
         IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        imguiContext_ = ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -82,6 +82,14 @@ namespace thorin {
     void GLBackend::destroy() {
         DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
         DEBUG_ASSERT(gl_context != nullptr, "GLBackend::destroy called with no gl context");
+        DEBUG_ASSERT(imguiContext_ != nullptr, "GLBackend::destroy called with no imgui context");
+
+        // The backends and the context are per window; shut them down while this window's contexts are current.
+        make_current();
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext(imguiContext_);
+        imguiContext_ = nullptr;
 
         SDL_GL_DestroyContext(gl_context);
         SDL_DestroyWindow(handle_);
@@ -91,6 +99,7 @@ namespace thorin {
         DEBUG_ASSERT(handle_ != nullptr, "GLBackend::update called with no window handle");
         DEBUG_ASSERT(rootWidget != nullptr, "GLBackend::update called with null root widget");
 
+        make_current();
         SDL_ShowWindow(handle_);
         SDL_GetWindowSize(handle_, &config_.width, &config_.height);
 
@@ -117,10 +126,19 @@ namespace thorin {
         SDL_GL_SwapWindow(handle_);
     }
 
+    void GLBackend::process_event(const SDL_Event& event) {
+        DEBUG_ASSERT(imguiContext_ != nullptr, "process_event called with no imgui context");
+
+        ImGui::SetCurrentContext(imguiContext_);
+        ImGui_ImplSDL3_ProcessEvent(&event);
+    }
+
     void GLBackend::make_current() {
         DEBUG_ASSERT(handle_ != nullptr, "make_current called with no window handle");
         DEBUG_ASSERT(gl_context != nullptr, "make_current called with no gl context");
+        DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
 
         SDL_GL_MakeCurrent(handle_, gl_context);
+        ImGui::SetCurrentContext(imguiContext_);
     }
 }

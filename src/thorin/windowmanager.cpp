@@ -23,19 +23,26 @@ namespace thorin {
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL3_ProcessEvent(&event);
+            // Every window has its own ImGui context, so an event has to reach the context of its window.
+            // Events that belong to no window (e.g. gamepad hot-plug) go to all of them.
+            SDL_Window* handle = SDL_GetWindowFromEvent(&event);
+            Window* target = nullptr;
+
+            if (handle == nullptr) {
+                for (auto &window: windows_) {
+                    window->backend()->process_event(event);
+                }
+            } else {
+                target = static_cast<Window*>(SDL_GetPointerProperty(SDL_GetWindowProperties(handle), "WRAPPER", nullptr));
+
+                if (target != nullptr) {
+                    target->backend()->process_event(event);
+                }
+            }
 
             if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-                auto id = static_cast<uint64_t>(
-                    SDL_GetNumberProperty(
-                        SDL_GetWindowProperties(SDL_GetWindowFromEvent(&event)),
-                        "WRAPPER",
-                        0
-                    )
-                );
-                auto window = get_window(id);
-                DEBUG_ASSERT(window != nullptr, "close-requested event for untracked window id", id);
-                window->close();
+                DEBUG_ASSERT(target != nullptr, "close-requested event for untracked window");
+                target->close();
             }
         }
         for (auto &window: windows_) {
