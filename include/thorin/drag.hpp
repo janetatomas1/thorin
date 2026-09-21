@@ -172,13 +172,4 @@ namespace thorin {
         onChange_ = std::move(callback);
         return *this;
     }
-
-    template class Drag<1, int>;
-    template class Drag<2, int>;
-    template class Drag<3, int>;
-    template class Drag<4, int>;
-    template class Drag<1, float>;
-    template class Drag<2, float>;
-    template class Drag<3, float>;
-    template class Drag<4, float>;
 }
