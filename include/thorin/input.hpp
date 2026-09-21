@@ -40,9 +40,11 @@ namespace thorin {
 
         // Amount added by the -/+ buttons, and by the same buttons with Ctrl held.
         // The buttons are hidden when step <= 0. Defaults: 1 and 100 for int, none for float.
+        // set_step(step) leaves the fast step unchanged.
         [[nodiscard]] T step() const;
         [[nodiscard]] T step_fast() const;
-        Input& set_step(T step, T stepFast = static_cast<T>(0));
+        Input& set_step(T step);
+        Input& set_step(T step, T stepFast);
 
         // printf-style, applied to each component, e.g. "%.2f" or "%d px". Empty = ImGui default.
         [[nodiscard]] const std::string& format() const;
@@ -112,6 +114,12 @@ namespace thorin {
     template <std::size_t N, typename T>
     T Input<N, T>::step_fast() const {
         return stepFast_;
+    }
+
+    template <std::size_t N, typename T>
+    Input<N, T>& Input<N, T>::set_step(T step) {
+        step_ = step;
+        return *this;
     }
 
     template <std::size_t N, typename T>
