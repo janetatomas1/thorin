@@ -68,52 +68,52 @@ namespace thorin {
 
         Layout *parent();
 
-        Layout& set_margin(LayoutValue value, YGEdge edge = YGEdgeAll);
-        Layout& set_margin(float points, YGEdge edge = YGEdgeAll);
+        Layout& margin(LayoutValue value, YGEdge edge = YGEdgeAll);
+        Layout& margin(float points, YGEdge edge = YGEdgeAll);
 
-        Layout& set_padding(LayoutValue value, YGEdge edge = YGEdgeAll);
-        Layout& set_padding(float points, YGEdge edge = YGEdgeAll);
+        Layout& padding(LayoutValue value, YGEdge edge = YGEdgeAll);
+        Layout& padding(float points, YGEdge edge = YGEdgeAll);
 
-        Layout& set_position(LayoutValue value, YGEdge edge);
-        Layout& set_position(float points, YGEdge edge);
+        Layout& position(LayoutValue value, YGEdge edge);
+        Layout& position(float points, YGEdge edge);
 
-        Layout& set_width(LayoutValue value);
-        Layout& set_width(float points);
-        Layout& set_height(LayoutValue value);
-        Layout& set_height(float points);
+        Layout& width(LayoutValue value);
+        Layout& width(float points);
+        Layout& height(LayoutValue value);
+        Layout& height(float points);
 
-        Layout& set_gap(LayoutValue value, YGGutter gutter = YGGutterAll);
-        Layout& set_gap(float points, YGGutter gutter = YGGutterAll);
+        Layout& gap(LayoutValue value, YGGutter gutter = YGGutterAll);
+        Layout& gap(float points, YGGutter gutter = YGGutterAll);
 
-        Layout& set_flex_direction(YGFlexDirection direction);
-        Layout& set_position_type(YGPositionType type);
+        Layout& flex_direction(YGFlexDirection direction);
+        Layout& position_type(YGPositionType type);
 
-        Layout& set_flex_grow(float value);
-        Layout& set_flex_shrink(float value);
-        Layout& set_flex_basis(LayoutValue value);
-        Layout& set_flex_basis(float points);
-        Layout& set_flex(float value);
-        Layout& set_flex_wrap(YGWrap wrap);
+        Layout& flex_grow(float value);
+        Layout& flex_shrink(float value);
+        Layout& flex_basis(LayoutValue value);
+        Layout& flex_basis(float points);
+        Layout& flex(float value);
+        Layout& flex_wrap(YGWrap wrap);
 
-        Layout& set_align_items(YGAlign align);
-        Layout& set_align_self(YGAlign align);
-        Layout& set_align_content(YGAlign align);
-        Layout& set_justify_content(YGJustify justify);
+        Layout& align_items(YGAlign align);
+        Layout& align_self(YGAlign align);
+        Layout& align_content(YGAlign align);
+        Layout& justify_content(YGJustify justify);
 
-        Layout& set_min_width(LayoutValue value);
-        Layout& set_min_width(float points);
-        Layout& set_min_height(LayoutValue value);
-        Layout& set_min_height(float points);
-        Layout& set_max_width(LayoutValue value);
-        Layout& set_max_width(float points);
-        Layout& set_max_height(LayoutValue value);
-        Layout& set_max_height(float points);
+        Layout& min_width(LayoutValue value);
+        Layout& min_width(float points);
+        Layout& min_height(LayoutValue value);
+        Layout& min_height(float points);
+        Layout& max_width(LayoutValue value);
+        Layout& max_width(float points);
+        Layout& max_height(LayoutValue value);
+        Layout& max_height(float points);
 
-        Layout& set_border(float width, YGEdge edge = YGEdgeAll);
-        Layout& set_display(YGDisplay display);
-        Layout& set_overflow(YGOverflow overflow);
-        Layout& set_aspect_ratio(float ratio);
-        Layout& set_direction(YGDirection direction);
+        Layout& border(float width, YGEdge edge = YGEdgeAll);
+        Layout& display(YGDisplay display);
+        Layout& overflow(YGOverflow overflow);
+        Layout& aspect_ratio(float ratio);
+        Layout& direction(YGDirection direction);
 
         Layout& fill_parent();
         Layout& row(float gap = 0.0f);

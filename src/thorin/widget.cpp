@@ -105,188 +105,188 @@ namespace thorin {
         return layout_;
     }
 
-    Widget& Widget::set_margin(LayoutValue value, YGEdge edge) {
-        layout_.set_margin(value, edge);
+    Widget& Widget::margin(LayoutValue value, YGEdge edge) {
+        layout_.margin(value, edge);
         return *this;
     }
 
-    Widget& Widget::set_margin(float points, YGEdge edge) {
-        layout_.set_margin(points, edge);
+    Widget& Widget::margin(float points, YGEdge edge) {
+        layout_.margin(points, edge);
         return *this;
     }
 
-    Widget& Widget::set_padding(LayoutValue value, YGEdge edge) {
-        layout_.set_padding(value, edge);
+    Widget& Widget::padding(LayoutValue value, YGEdge edge) {
+        layout_.padding(value, edge);
         return *this;
     }
 
-    Widget& Widget::set_padding(float points, YGEdge edge) {
-        layout_.set_padding(points, edge);
+    Widget& Widget::padding(float points, YGEdge edge) {
+        layout_.padding(points, edge);
         return *this;
     }
 
-    Widget& Widget::set_position(LayoutValue value, YGEdge edge) {
-        layout_.set_position(value, edge);
+    Widget& Widget::position(LayoutValue value, YGEdge edge) {
+        layout_.position(value, edge);
         return *this;
     }
 
-    Widget& Widget::set_position(float points, YGEdge edge) {
-        layout_.set_position(points, edge);
+    Widget& Widget::position(float points, YGEdge edge) {
+        layout_.position(points, edge);
         return *this;
     }
 
-    Widget& Widget::set_width(LayoutValue value) {
-        layout_.set_width(value);
+    Widget& Widget::width(LayoutValue value) {
+        layout_.width(value);
         return *this;
     }
 
-    Widget& Widget::set_width(float points) {
-        layout_.set_width(points);
+    Widget& Widget::width(float points) {
+        layout_.width(points);
         return *this;
     }
 
-    Widget& Widget::set_height(LayoutValue value) {
-        layout_.set_height(value);
+    Widget& Widget::height(LayoutValue value) {
+        layout_.height(value);
         return *this;
     }
 
-    Widget& Widget::set_height(float points) {
-        layout_.set_height(points);
+    Widget& Widget::height(float points) {
+        layout_.height(points);
         return *this;
     }
 
-    Widget& Widget::set_gap(LayoutValue value, YGGutter gutter) {
-        layout_.set_gap(value, gutter);
+    Widget& Widget::gap(LayoutValue value, YGGutter gutter) {
+        layout_.gap(value, gutter);
         return *this;
     }
 
-    Widget& Widget::set_gap(float points, YGGutter gutter) {
-        layout_.set_gap(points, gutter);
+    Widget& Widget::gap(float points, YGGutter gutter) {
+        layout_.gap(points, gutter);
         return *this;
     }
 
-    Widget& Widget::set_flex_direction(YGFlexDirection direction) {
-        layout_.set_flex_direction(direction);
+    Widget& Widget::flex_direction(YGFlexDirection direction) {
+        layout_.flex_direction(direction);
         return *this;
     }
 
-    Widget& Widget::set_flex_grow(float value) {
-        layout_.set_flex_grow(value);
+    Widget& Widget::flex_grow(float value) {
+        layout_.flex_grow(value);
         return *this;
     }
 
-    Widget& Widget::set_flex_shrink(float value) {
-        layout_.set_flex_shrink(value);
+    Widget& Widget::flex_shrink(float value) {
+        layout_.flex_shrink(value);
         return *this;
     }
 
-    Widget& Widget::set_flex_basis(LayoutValue value) {
-        layout_.set_flex_basis(value);
+    Widget& Widget::flex_basis(LayoutValue value) {
+        layout_.flex_basis(value);
         return *this;
     }
 
-    Widget& Widget::set_flex_basis(float points) {
-        layout_.set_flex_basis(points);
+    Widget& Widget::flex_basis(float points) {
+        layout_.flex_basis(points);
         return *this;
     }
 
-    Widget& Widget::set_flex(float value) {
-        layout_.set_flex(value);
+    Widget& Widget::flex(float value) {
+        layout_.flex(value);
         return *this;
     }
 
-    Widget& Widget::set_flex_wrap(YGWrap wrap) {
-        layout_.set_flex_wrap(wrap);
+    Widget& Widget::flex_wrap(YGWrap wrap) {
+        layout_.flex_wrap(wrap);
         return *this;
     }
 
-    Widget& Widget::set_align_items(YGAlign align) {
-        layout_.set_align_items(align);
+    Widget& Widget::align_items(YGAlign align) {
+        layout_.align_items(align);
         return *this;
     }
 
-    Widget& Widget::set_align_self(YGAlign align) {
-        layout_.set_align_self(align);
+    Widget& Widget::align_self(YGAlign align) {
+        layout_.align_self(align);
         return *this;
     }
 
-    Widget& Widget::set_align_content(YGAlign align) {
-        layout_.set_align_content(align);
+    Widget& Widget::align_content(YGAlign align) {
+        layout_.align_content(align);
         return *this;
     }
 
-    Widget& Widget::set_justify_content(YGJustify justify) {
-        layout_.set_justify_content(justify);
+    Widget& Widget::justify_content(YGJustify justify) {
+        layout_.justify_content(justify);
         return *this;
     }
 
-    Widget& Widget::set_min_width(LayoutValue value) {
-        layout_.set_min_width(value);
+    Widget& Widget::min_width(LayoutValue value) {
+        layout_.min_width(value);
         return *this;
     }
 
-    Widget& Widget::set_min_width(float points) {
-        layout_.set_min_width(points);
+    Widget& Widget::min_width(float points) {
+        layout_.min_width(points);
         return *this;
     }
 
-    Widget& Widget::set_min_height(LayoutValue value) {
-        layout_.set_min_height(value);
+    Widget& Widget::min_height(LayoutValue value) {
+        layout_.min_height(value);
         return *this;
     }
 
-    Widget& Widget::set_min_height(float points) {
-        layout_.set_min_height(points);
+    Widget& Widget::min_height(float points) {
+        layout_.min_height(points);
         return *this;
     }
 
-    Widget& Widget::set_max_width(LayoutValue value) {
-        layout_.set_max_width(value);
+    Widget& Widget::max_width(LayoutValue value) {
+        layout_.max_width(value);
         return *this;
     }
 
-    Widget& Widget::set_max_width(float points) {
-        layout_.set_max_width(points);
+    Widget& Widget::max_width(float points) {
+        layout_.max_width(points);
         return *this;
     }
 
-    Widget& Widget::set_max_height(LayoutValue value) {
-        layout_.set_max_height(value);
+    Widget& Widget::max_height(LayoutValue value) {
+        layout_.max_height(value);
         return *this;
     }
 
-    Widget& Widget::set_max_height(float points) {
-        layout_.set_max_height(points);
+    Widget& Widget::max_height(float points) {
+        layout_.max_height(points);
         return *this;
     }
 
-    Widget& Widget::set_border(float width, YGEdge edge) {
-        layout_.set_border(width, edge);
+    Widget& Widget::border(float width, YGEdge edge) {
+        layout_.border(width, edge);
         return *this;
     }
 
-    Widget& Widget::set_display(YGDisplay display) {
-        layout_.set_display(display);
+    Widget& Widget::display(YGDisplay display) {
+        layout_.display(display);
         return *this;
     }
 
-    Widget& Widget::set_overflow(YGOverflow overflow) {
-        layout_.set_overflow(overflow);
+    Widget& Widget::overflow(YGOverflow overflow) {
+        layout_.overflow(overflow);
         return *this;
     }
 
-    Widget& Widget::set_aspect_ratio(float ratio) {
-        layout_.set_aspect_ratio(ratio);
+    Widget& Widget::aspect_ratio(float ratio) {
+        layout_.aspect_ratio(ratio);
         return *this;
     }
 
-    Widget& Widget::set_direction(YGDirection direction) {
-        layout_.set_direction(direction);
+    Widget& Widget::direction(YGDirection direction) {
+        layout_.direction(direction);
         return *this;
     }
 
-    Widget& Widget::set_position_type(YGPositionType type) {
-        layout_.set_position_type(type);
+    Widget& Widget::position_type(YGPositionType type) {
+        layout_.position_type(type);
         return *this;
     }
 

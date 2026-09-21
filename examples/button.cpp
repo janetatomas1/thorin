@@ -14,8 +14,8 @@ struct ButtonExample: Widget {
     ButtonExample(const std::string& title): Widget(title) {
         center();
         button
-        .set_width(20_pcts)
-        .set_height(10_pcts);
+        .width(20_pcts)
+        .height(10_pcts);
     }
 
     bool show() override {

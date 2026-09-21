@@ -14,8 +14,8 @@ struct HelloWidget: Widget {
     HelloWidget(const std::string& title): Widget(title) {
         center();
         button
-        .set_width(10_pcts)
-        .set_height(10_pcts);
+        .width(10_pcts)
+        .height(10_pcts);
     };
 
     bool show() override {

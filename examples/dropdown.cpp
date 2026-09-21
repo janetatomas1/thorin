@@ -13,8 +13,8 @@ struct DropdownExample: Widget {
         center();
 
         dropdown
-        .set_width(20_pcts)
-        .set_height(10_pcts);
+        .width(20_pcts)
+        .height(10_pcts);
 
         dropdown.set_flags(ImGuiComboFlags_HeightLarge);
         dropdown.set_placeholder("Choose a color...");

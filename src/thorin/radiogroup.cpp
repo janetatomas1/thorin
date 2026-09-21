@@ -9,12 +9,12 @@ namespace thorin {
     RadioGroup::RadioGroup(Widget* parent)
     : Widget("", parent) {
         column();
-        set_gap(0.5_pcts);
+        gap(0.5_pcts);
     }
 
     RadioButton& RadioGroup::add_option(const std::string& label) {
         auto rb = RadioButton(label, &selected_, static_cast<int>(options_.size()), this);
-        rb.set_margin(10);
+        rb.margin(10);
         options_.push_back(std::move(rb));
         return options_.back();
     }
@@ -23,7 +23,7 @@ namespace thorin {
         auto rb = RadioButton(
             label, &selected_, static_cast<int>(options_.size()), std::move(onSelect), this
         );
-        rb.set_margin(10);
+        rb.margin(10);
         options_.push_back(std::move(rb));
         return options_.back();
     }

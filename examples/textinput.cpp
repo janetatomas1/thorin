@@ -12,7 +12,7 @@ struct TextInputExample: Widget {
     TextInputExample(const std::string& title): Widget(title) {
         center();
 
-        input.set_width(30_pcts);
+        input.width(30_pcts);
         input
         .set_hint("Type here...")
         .set_on_change([](const std::string& value) {
