@@ -33,14 +33,15 @@ namespace thorin {
             action &&fn,
             uint64_t delay = 1
         );
-        // The returned window is owned by the app and valid right away, but it is only initialized on the next
-        // frame. The pointer dangles once the window is closed.
-        Window* add_window(std::unique_ptr<Window> window);
-        Window* add_window(const WindowConfig &config = {});
+        // The app takes ownership of the window and returns its id. The window is created on the next frame, so
+        // get_window(id) is null until then and again once the window has been closed. Use it to check whether
+        // a window is still open.
+        uint64_t add_window(std::unique_ptr<Window> window);
+        uint64_t add_window(const WindowConfig &config = {});
         template<WidgetConcept W, typename... Args>
-        Window* add_window(WindowConfig config, Args &&... args);
+        uint64_t add_window(WindowConfig config, Args &&... args);
         template<WidgetConcept W, typename... Args>
-        Window* add_window(Args &&... args);
+        uint64_t add_window(Args &&... args);
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);
@@ -48,13 +49,13 @@ namespace thorin {
     };
 
     template <WidgetConcept W, typename ... Args>
-    Window* Thorin::add_window(WindowConfig config, Args&&... args) {
+    uint64_t Thorin::add_window(WindowConfig config, Args&&... args) {
         auto widget = std::make_unique<W>(std::forward<Args>(args)...);
         return add_window(std::make_unique<Window>(config, std::move(widget)));
     }
 
     template <WidgetConcept W, typename ... Args>
-    Window* Thorin::add_window(Args&&... args) {
+    uint64_t Thorin::add_window(Args&&... args) {
         return add_window<W>({}, std::forward<Args>(args)...);
     }
 }

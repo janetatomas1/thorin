@@ -21,7 +21,7 @@ namespace thorin {
         void destroy();
         [[nodiscard]] size_t count() const;
         Thorin &app();
-        Window* add_window(std::unique_ptr<Window> window);
+        uint64_t add_window(std::unique_ptr<Window> window);
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);
