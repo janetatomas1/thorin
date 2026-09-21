@@ -28,6 +28,10 @@ namespace thorin {
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
         float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+        if (main_scale <= 0.0f) {
+            // SDL reports 0 when it cannot query the display; a zero scale would collapse the whole UI.
+            main_scale = 1.0f;
+        }
 
         handle_ = SDL_CreateWindow(
             config_.title.c_str(),
