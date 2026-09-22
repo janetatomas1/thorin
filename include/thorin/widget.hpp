@@ -32,6 +32,7 @@ namespace thorin {
         virtual ~Widget() = default;
         virtual void init() {}
         virtual void destroy() {}
+        virtual ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode);
         [[nodiscard]] uint64_t id() const;
         [[nodiscard]] const std::string& title() const;
         [[nodiscard]] const std::string& title_id() const;

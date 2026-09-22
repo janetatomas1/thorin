@@ -11,6 +11,7 @@ namespace thorin {
     id_(Thorin::random()),
     title_(title),
     titleID_(std::format("{}##{}", title, id_)), parent_(parent) {
+        layout_.set_owner(this);
         if (parent != nullptr) {
             parent->layout().add_child(layout());
         }
@@ -22,7 +23,9 @@ namespace thorin {
         titleID_(std::move(other.titleID_)),
         window_(other.window_),
         parent_(other.parent_),
-        layout_(std::move(other.layout_)) {}
+        layout_(std::move(other.layout_)) {
+        layout_.set_owner(this);
+    }
 
     Widget& Widget::operator=(Widget&& other) noexcept {
         if (this != &other) {
@@ -32,9 +35,14 @@ namespace thorin {
             window_ = other.window_;
             parent_ = other.parent_;
             layout_ = std::move(other.layout_);
+            layout_.set_owner(this);
         }
 
         return *this;
+    }
+
+    ImVec2 Widget::measure(float, YGMeasureMode, float, YGMeasureMode) {
+        return ImVec2{0.0f, 0.0f};
     }
 
     uint64_t Widget::id() const {
@@ -84,9 +92,20 @@ namespace thorin {
     void Widget::set_parent(Widget* parent) {
         DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
 
-        layout_.remove_from_parent();
-        if (parent != nullptr) {
-            parent->layout().add_child(layout_);
+        // Yoga node identity (not the Widget*/Layout* addresses, which can
+        // change across moves) is the source of truth for "is this already
+        // the right parent". Only touch the tree when it's actually
+        // changing, so re-asserting the same parent (e.g. to repair a stale
+        // parent_ pointer after the parent widget moved) doesn't silently
+        // reorder this child to the end of the children list.
+        auto currentParentNode = YGNodeGetParent(layout_.node());
+        auto newParentNode = parent != nullptr ? parent->layout().node() : nullptr;
+
+        if (currentParentNode != newParentNode) {
+            layout_.remove_from_parent();
+            if (parent != nullptr) {
+                parent->layout().add_child(layout_);
+            }
         }
 
         parent_ = parent;

@@ -23,7 +23,8 @@ namespace thorin {
     Layout::Layout(Layout&& other) noexcept
         : node_(std::exchange(other.node_, nullptr))
         , position_(other.position_)
-        , size_(other.size_) {
+        , size_(other.size_)
+        , owner_(other.owner_) {
         if (node_ != nullptr) {
             YGNodeSetContext(node_, this);
         }
@@ -40,6 +41,7 @@ namespace thorin {
             node_ = std::exchange(other.node_, nullptr);
             position_ = other.position_;
             size_ = other.size_;
+            owner_ = other.owner_;
 
             if (node_ != nullptr) {
                 YGNodeSetContext(node_, this);
@@ -52,6 +54,14 @@ namespace thorin {
     YGNodeRef Layout::node() {
         DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
         return node_;
+    }
+
+    void Layout::set_owner(Widget* owner) {
+        owner_ = owner;
+    }
+
+    Widget* Layout::owner() const {
+        return owner_;
     }
 
     void Layout::remove_from_parent() {

@@ -6,6 +6,8 @@
 #include <string>
 
 namespace thorin {
+    class Widget;
+
     using LayoutValue = YGValue;
 
     constexpr LayoutValue points(float v){
@@ -41,6 +43,7 @@ namespace thorin {
         YGNodeRef node_ = nullptr;
         ImVec2 position_ = {0.0f, 0.0f};
         ImVec2 size_ = {0.0f, 0.0f};
+        Widget* owner_ = nullptr;
 
     public:
         Layout();
@@ -53,6 +56,9 @@ namespace thorin {
         Layout& operator=(const Layout& other) = delete;
 
         YGNodeRef node();
+
+        void set_owner(Widget* owner);
+        [[nodiscard]] Widget* owner() const;
         void add_child(Layout &child, size_t index = std::string::npos);
         void remove_from_parent();
         void calculate_layout(float width, float height);
