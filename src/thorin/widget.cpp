@@ -58,6 +58,7 @@ namespace thorin {
     Widget& Widget::set_title(const std::string& title) {
         title_ = title;
         titleID_ = std::format("{}##{}", title_, id_);
+        layout_.mark_dirty();
         return *this;
     }
 
@@ -103,6 +104,9 @@ namespace thorin {
             if (parent != nullptr) {
                 parent->layout().add_child(layout_);
             }
+
+            // The new tree may belong to a window with a different style.
+            layout_.mark_dirty();
         }
     }
 

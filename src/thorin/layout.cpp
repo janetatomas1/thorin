@@ -1,9 +1,42 @@
 
 #include <libassert/assert.hpp>
 
+#include <algorithm>
+
 #include "thorin/layout.hpp"
+#include "thorin/widget.hpp"
 
 namespace thorin {
+    namespace {
+        // Yoga only calls this from YGNodeCalculateLayout, i.e. inside the frame, so
+        // measure() may use ImGui metrics. Resolved through the node context on every
+        // call, so it stays valid across Layout/Widget moves.
+        YGSize measure_trampoline(
+            YGNodeConstRef node,
+            float width,
+            YGMeasureMode widthMode,
+            float height,
+            YGMeasureMode heightMode
+        ) {
+            DEBUG_ASSERT(ImGui::GetCurrentContext() != nullptr, "measure called with no ImGui context");
+
+            auto layout = static_cast<Layout*>(YGNodeGetContext(node));
+            DEBUG_ASSERT(layout != nullptr, "measured Yoga node has no Layout context");
+            DEBUG_ASSERT(layout->owner() != nullptr, "measured Layout has no owner");
+
+            ImVec2 size = layout->owner()->measure(width, widthMode, height, heightMode);
+            return YGSize{size.x, size.y};
+        }
+    }
+
+    float fit_measure(float intrinsic, float available, YGMeasureMode mode) {
+        switch (mode) {
+            case YGMeasureModeExactly: return available;
+            case YGMeasureModeAtMost:  return std::min(intrinsic, available);
+            default:                   return intrinsic;
+        }
+    }
+
     Layout::Layout(): node_(YGNodeNew()) {
         DEBUG_ASSERT(node_ != nullptr, "YGNodeNew failed");
         YGNodeSetContext(node_, this);
@@ -64,6 +97,21 @@ namespace thorin {
         return owner_;
     }
 
+    void Layout::enable_measure() {
+        DEBUG_ASSERT(node_ != nullptr, "enable_measure called on moved-from Layout");
+        DEBUG_ASSERT(YGNodeGetChildCount(node_) == 0, "enable_measure: measured nodes must be leaves");
+
+        YGNodeSetMeasureFunc(node_, measure_trampoline);
+    }
+
+    void Layout::mark_dirty() {
+        DEBUG_ASSERT(node_ != nullptr, "mark_dirty called on moved-from Layout");
+
+        if (YGNodeHasMeasureFunc(node_)) {
+            YGNodeMarkDirty(node_);
+        }
+    }
+
     void Layout::remove_from_parent() {
         DEBUG_ASSERT(node_ != nullptr, "remove_from_parent called on moved-from Layout");
 
@@ -76,6 +124,7 @@ namespace thorin {
         DEBUG_ASSERT(node_ != nullptr, "add_child called on moved-from Layout");
         DEBUG_ASSERT(child.node_ != nullptr, "add_child called with moved-from child");
         DEBUG_ASSERT(&child != this, "add_child: cannot add a Layout as its own child");
+        DEBUG_ASSERT(!YGNodeHasMeasureFunc(node_), "add_child: measured nodes must be leaves");
 
         size_t count = YGNodeGetChildCount(node_);
         size_t idx = index == std::string::npos ? count : index;

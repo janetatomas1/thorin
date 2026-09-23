@@ -21,6 +21,9 @@ namespace thorin {
         return LayoutValue{0.0f, YGUnitAuto};
     }
 
+    // Resolves a measure function's intrinsic size against Yoga's constraint for one axis.
+    float fit_measure(float intrinsic, float available, YGMeasureMode mode);
+
     namespace literals {
         constexpr LayoutValue operator""_pts(long double v) {
             return points(static_cast<float>(v));
@@ -59,6 +62,11 @@ namespace thorin {
 
         void set_owner(Widget* owner);
         [[nodiscard]] Widget* owner() const;
+
+        // Makes Yoga size this node by calling owner()->measure(). Leaf nodes only.
+        void enable_measure();
+        // Invalidates Yoga's cached measurement. No-op on nodes without a measure function.
+        void mark_dirty();
         void add_child(Layout &child, size_t index = std::string::npos);
         void remove_from_parent();
         void calculate_layout(float width, float height);

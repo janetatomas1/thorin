@@ -20,6 +20,7 @@ namespace thorin {
             Widget *parent = nullptr
         );
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
         void set_callback(fu2::unique_function<void()> callback);
     };
 }

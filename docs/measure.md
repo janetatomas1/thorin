@@ -164,6 +164,54 @@ ok.style<Font>().set(bigFont);
   satisfies `std::derived_from<W, RadioButton>`.
 - **Short aliases are still possible:** `template <class W> using WithFont = Styled<W, Font>;`
 
+### Custom and runtime styling
+
+The built-in style parts cover static styling. For anything that changes at runtime there are
+two routes, and neither needs library support.
+
+**1. A custom style part** (preferred). It's any type with `push()` / `pop()`, and it can
+hold its own runtime state:
+
+```cpp
+struct ErrorColor {
+    bool active = false;
+    int pushed_ = 0;
+
+    void push() {
+        pushed_ = active ? 1 : 0;
+        if (pushed_) ImGui::PushStyleColor(ImGuiCol_Text, red);
+    }
+    void pop() { ImGui::PopStyleColor(pushed_); }
+};
+
+Styled<Input<1, int>, ErrorColor> age;
+age.style<ErrorColor>().active = !valid;
+```
+
+- `Styled` calls the part in both `show()` and `measure()`, so drawing and measuring can't
+  diverge.
+- **`pop()` must undo exactly what `push()` did**, recorded at push time (`pushed_` above).
+  The part's state may change *between* the two, because the widget's callbacks
+  (e.g. `on_change`) run inside `W::show()`. If `pop()` re-checked `active`, a callback
+  that sets it would unbalance the ImGui stack.
+- **Parts that affect size** (fonts, `FramePadding`, spacing) must mark the node dirty when
+  their state changes. The part doesn't know its widget, so changes go through `Styled`:
+  e.g. `update<T>(fn)`, which applies `fn` to the part and then calls `layout().mark_dirty()`.
+  Colour-only parts can be changed directly through `style<T>()`.
+
+**2. A custom widget with its own `show()`**, the plain ImGui way. Subclass the widget and push
+whatever you need around the base `show()`. The same rules then fall on the author:
+
+- A push that affects size must also be done in `measure()`, around the base `measure()`.
+- Call `layout().mark_dirty()` whenever that state changes.
+- A new leaf that draws ImGui directly (not subclassing a leaf) must call
+  `layout().enable_measure()` in its constructor and implement `measure()`.
+- Colour-only pushes need nothing beyond `show()`.
+
+Timing, for both routes: layout runs before rendering in the same frame. A size-affecting
+change made during `show()` (from a callback) is therefore measured on the *next* frame, so
+the widget is off by one frame at most.
+
 ### Wrappers are for leaves only
 
 A container draws its children inside its own `show()`, but Yoga measures those children
