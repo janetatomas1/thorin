@@ -30,10 +30,14 @@ namespace thorin {
         ColorEditFlags flags_ = ImGuiColorEditFlags_None;
         std::function<void(const Value&)> onChange_;
 
+        // label_extent(), or 0 with NoLabel.
+        [[nodiscard]] float shown_label_extent() const;
+
     public:
         ColorEdit(const std::string& title = "", Widget* parent = nullptr);
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
 
         [[nodiscard]] const Value& value() const;
         ColorEdit& set_value(const Value& value);
@@ -46,12 +50,20 @@ namespace thorin {
 
     template <std::size_t N>
     ColorEdit<N>::ColorEdit(const std::string& title, Widget* parent)
-    : Widget(title, parent) {}
+    : Widget(title, parent) {
+        layout().enable_measure();
+    }
+
+    template <std::size_t N>
+    float ColorEdit<N>::shown_label_extent() const {
+        return (flags_ & ImGuiColorEditFlags_NoLabel) ? 0.0f : label_extent();
+    }
 
     template <std::size_t N>
     bool ColorEdit<N>::show() {
-        if (width() > 0.0f) {
-            ImGui::SetNextItemWidth(width());
+        // The item width covers inputs + swatch; with NoInputs ImGui ignores it.
+        if (!(flags_ & ImGuiColorEditFlags_NoInputs)) {
+            set_next_field_width(shown_label_extent());
         }
 
         const std::string& id = title_id();
@@ -68,6 +80,28 @@ namespace thorin {
         }
 
         return changed;
+    }
+
+    template <std::size_t N>
+    ImVec2 ColorEdit<N>::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+        // Mirrors ImGui::ColorEdit4: inputs + swatch fill the item width, the label follows after ItemInnerSpacing.
+        // With NoInputs only the swatch is drawn, and the label follows it.
+        const float square = ImGui::GetFrameHeight();
+        const bool preview = !(flags_ & ImGuiColorEditFlags_NoSmallPreview);
+        float intrinsic;
+
+        if (flags_ & ImGuiColorEditFlags_NoInputs) {
+            // Without the swatch the label starts at the item's left edge, with no spacing before it.
+            const float label = (flags_ & ImGuiColorEditFlags_NoLabel) ? 0.0f : label_width();
+            intrinsic = preview ? square + shown_label_extent() : label;
+        } else {
+            intrinsic = default_field_width() + shown_label_extent();
+        }
+
+        return ImVec2{
+            fit_measure(intrinsic, width, widthMode),
+            fit_measure(square, height, heightMode)
+        };
     }
 
     template <std::size_t N>
@@ -89,6 +123,8 @@ namespace thorin {
     template <std::size_t N>
     ColorEdit<N>& ColorEdit<N>::set_flags(ColorEditFlags flags) {
         flags_ = flags;
+        // NoInputs, NoLabel and NoSmallPreview change the measured size.
+        layout().mark_dirty();
         return *this;
     }
 
