@@ -144,6 +144,8 @@ namespace thorin {
     }
 
     Layout* Layout::parent() {
+        DEBUG_ASSERT(node_ != nullptr, "Layout::parent called on moved-from Layout");
+
         auto parent = YGNodeGetParent(node_);
 
         if (parent != nullptr) {

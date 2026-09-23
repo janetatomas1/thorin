@@ -17,7 +17,6 @@ namespace thorin {
         std::string titleID_;
 
         Window* window_ = nullptr;
-        Widget* parent_ = nullptr;
 
         Layout layout_;
     public:

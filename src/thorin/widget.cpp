@@ -10,7 +10,7 @@ namespace thorin {
     Widget::Widget(const std::string& title, Widget* parent):
     id_(Thorin::random()),
     title_(title),
-    titleID_(std::format("{}##{}", title, id_)), parent_(parent) {
+    titleID_(std::format("{}##{}", title, id_)) {
         layout_.set_owner(this);
         if (parent != nullptr) {
             parent->layout().add_child(layout());
@@ -22,7 +22,6 @@ namespace thorin {
         title_(std::move(other.title_)),
         titleID_(std::move(other.titleID_)),
         window_(other.window_),
-        parent_(other.parent_),
         layout_(std::move(other.layout_)) {
         layout_.set_owner(this);
     }
@@ -33,7 +32,6 @@ namespace thorin {
             title_ = std::move(other.title_);
             titleID_ = std::move(other.titleID_);
             window_ = other.window_;
-            parent_ = other.parent_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
         }
@@ -77,8 +75,9 @@ namespace thorin {
             return window_;
         }
 
-        DEBUG_ASSERT(parent_ != nullptr, "Widget::window: no window_ and no parent to fall back to", title_);
-        return parent_->window();
+        auto p = parent();
+        DEBUG_ASSERT(p != nullptr, "Widget::window: no window_ and no parent to fall back to", title_);
+        return p->window();
     }
 
     void Widget::set_window(Window* window) {
@@ -86,18 +85,16 @@ namespace thorin {
     }
 
     Widget* Widget::parent() {
-        return parent_;
+        auto parentLayout = layout_.parent();
+        return parentLayout != nullptr ? parentLayout->owner() : nullptr;
     }
 
     void Widget::set_parent(Widget* parent) {
         DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
 
-        // Yoga node identity (not the Widget*/Layout* addresses, which can
-        // change across moves) is the source of truth for "is this already
-        // the right parent". Only touch the tree when it's actually
-        // changing, so re-asserting the same parent (e.g. to repair a stale
-        // parent_ pointer after the parent widget moved) doesn't silently
-        // reorder this child to the end of the children list.
+        // The Yoga tree is the only record of parenthood. Only touch it when
+        // the parent actually changes, so re-asserting the same parent
+        // doesn't silently reorder this child to the end of the children list.
         auto currentParentNode = YGNodeGetParent(layout_.node());
         auto newParentNode = parent != nullptr ? parent->layout().node() : nullptr;
 
@@ -107,8 +104,6 @@ namespace thorin {
                 parent->layout().add_child(layout_);
             }
         }
-
-        parent_ = parent;
     }
 
     Thorin& Widget::app() {
@@ -116,8 +111,9 @@ namespace thorin {
             return window_->app();
         }
 
-        DEBUG_ASSERT(parent_ != nullptr, "Widget::app: no window_ and no parent to fall back to", title_);
-        return parent_->app();
+        auto p = parent();
+        DEBUG_ASSERT(p != nullptr, "Widget::app: no window_ and no parent to fall back to", title_);
+        return p->app();
     }
 
     Layout& Widget::layout() {
