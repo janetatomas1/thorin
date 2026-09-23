@@ -18,6 +18,7 @@ namespace thorin {
                     std::function<void()> onSelect, Widget* parent = nullptr);
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
 
         [[nodiscard]] bool selected() const;
         void select();

@@ -17,6 +17,9 @@ namespace thorin {
         std::string placeholder_ = "Select...";
         DropdownFlags flags_ = ImGuiComboFlags_None;
 
+        // Text shown in the closed combo: the selected option, or the placeholder.
+        [[nodiscard]] const char* preview() const;
+
     public:
         Dropdown(const std::string& title = "", Widget* parent = nullptr);
 
@@ -43,5 +46,6 @@ namespace thorin {
         Dropdown& set_on_change(std::function<void(int)> callback);
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
     };
 }

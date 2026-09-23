@@ -5,7 +5,13 @@
 
 namespace thorin {
     Dropdown::Dropdown(const std::string& title, Widget* parent)
-    : Widget(title, parent) {}
+    : Widget(title, parent) {
+        layout().enable_measure();
+    }
+
+    const char* Dropdown::preview() const {
+        return has_selection() ? options_[selected_].c_str() : placeholder_.c_str();
+    }
 
     Dropdown& Dropdown::add_option(const std::string& label) {
         options_.push_back(label);
@@ -34,11 +40,14 @@ namespace thorin {
         } else if (selected_ > static_cast<int>(index)) {
             selected_ -= 1;
         }
+
+        layout().mark_dirty();
     }
 
     void Dropdown::clear_options() {
         options_.clear();
         selected_ = -1;
+        layout().mark_dirty();
     }
 
     int Dropdown::selected() const {
@@ -49,6 +58,7 @@ namespace thorin {
         DEBUG_ASSERT(index == -1 || (index >= 0 && static_cast<size_t>(index) < options_.size()),
                      "Dropdown::set_selected index out of range", index, options_.size());
         selected_ = index;
+        layout().mark_dirty();
     }
 
     const std::string& Dropdown::selected_label() const {
@@ -71,6 +81,7 @@ namespace thorin {
 
     Dropdown& Dropdown::set_placeholder(const std::string& text) {
         placeholder_ = text;
+        layout().mark_dirty();
         return *this;
     }
 
@@ -84,6 +95,7 @@ namespace thorin {
 
     Dropdown& Dropdown::set_flags(DropdownFlags flags) {
         flags_ = flags;
+        layout().mark_dirty();
         return *this;
     }
 
@@ -93,13 +105,11 @@ namespace thorin {
     }
 
     bool Dropdown::show() {
-        const char* preview = has_selection() ? options_[selected_].c_str() : placeholder_.c_str();
         bool changed = false;
 
-        if (width() > 0.0f) {
-            ImGui::SetNextItemWidth(width());
-        }
-        if (ImGui::BeginCombo(title_id().c_str(), preview, flags_)) {
+        // NoPreview and WidthFitPreview size the combo themselves and ignore the item width.
+        set_next_field_width(label_extent());
+        if (ImGui::BeginCombo(title_id().c_str(), preview(), flags_)) {
             for (size_t i = 0; i < options_.size(); ++i) {
                 bool isSelected = (static_cast<int>(i) == selected_);
 
@@ -119,10 +129,35 @@ namespace thorin {
             ImGui::EndCombo();
         }
 
-        if (changed && onChange_) {
-            onChange_(selected_);
+        if (changed) {
+            // WidthFitPreview measures the selected label; picked up on the next layout.
+            layout().mark_dirty();
+
+            if (onChange_) {
+                onChange_(selected_);
+            }
         }
 
         return changed;
+    }
+
+    ImVec2 Dropdown::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+        // Mirrors ImGui::BeginCombo's frame width; the label follows after ItemInnerSpacing.
+        const float arrow = (flags_ & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
+        float frame;
+
+        if (flags_ & ImGuiComboFlags_NoPreview) {
+            frame = arrow;
+        } else if (flags_ & ImGuiComboFlags_WidthFitPreview) {
+            const float text = ImGui::CalcTextSize(preview(), nullptr, true).x;
+            frame = arrow + text + ImGui::GetStyle().FramePadding.x * 2.0f;
+        } else {
+            frame = default_field_width();
+        }
+
+        return ImVec2{
+            fit_measure(frame + label_extent(), width, widthMode),
+            fit_measure(ImGui::GetFrameHeight(), height, heightMode)
+        };
     }
 }

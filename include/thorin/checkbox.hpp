@@ -19,6 +19,7 @@ namespace thorin {
         );
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
         [[nodiscard]] bool value() const;
         Checkbox& set_value(bool value);
         Checkbox& set_on_change(std::function<void(bool)> callback);

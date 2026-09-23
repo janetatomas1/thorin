@@ -8,12 +8,14 @@ namespace thorin {
     RadioButton::RadioButton(const std::string& title, int* groupValue, int value, Widget* parent)
     : Widget(title, parent), groupValue_(groupValue), value_(value) {
         DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
+        layout().enable_measure();
     }
 
     RadioButton::RadioButton(const std::string& title, int* groupValue, int value,
                               std::function<void()> onSelect, Widget* parent)
     : Widget(title, parent), groupValue_(groupValue), value_(value), onSelect_(std::move(onSelect)) {
         DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
+        layout().enable_measure();
     }
 
     bool RadioButton::show() {
@@ -27,6 +29,17 @@ namespace thorin {
         }
 
         return clicked;
+    }
+
+    ImVec2 RadioButton::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+        // Same as ImGui::RadioButton: a frame-height circle, then the visible label after ItemInnerSpacing.
+        const ImVec2 label = ImGui::CalcTextSize(title_id().c_str(), nullptr, true);
+        const float circle = ImGui::GetFrameHeight();
+
+        return ImVec2{
+            fit_measure(circle + label_extent(), width, widthMode),
+            fit_measure(label.y + ImGui::GetStyle().FramePadding.y * 2.0f, height, heightMode)
+        };
     }
 
     bool RadioButton::selected() const {
