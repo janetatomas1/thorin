@@ -34,6 +34,7 @@ namespace thorin {
         Slider(const std::string& title = "", Widget* parent = nullptr);
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
 
         [[nodiscard]] const Value& value() const;
         Slider& set_value(const Value& value);
@@ -61,15 +62,15 @@ namespace thorin {
 
     template <std::size_t N, typename T>
     Slider<N, T>::Slider(const std::string& title, Widget* parent)
-    : Widget(title, parent) {}
+    : Widget(title, parent) {
+        layout().enable_measure();
+    }
 
     template <std::size_t N, typename T>
     bool Slider<N, T>::show() {
         constexpr ImGuiDataType dataType = std::same_as<T, int> ? ImGuiDataType_S32 : ImGuiDataType_Float;
 
-        if (width() > 0.0f) {
-            ImGui::SetNextItemWidth(width());
-        }
+        set_next_field_width(label_extent());
 
         const std::string& id = title_id();
         const char* format = format_.empty() ? nullptr : format_.c_str();
@@ -88,6 +89,12 @@ namespace thorin {
         }
 
         return changed;
+    }
+
+    template <std::size_t N, typename T>
+    ImVec2 Slider<N, T>::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+        // One frame-height row: the N components share the field width, the label follows.
+        return measure_field(label_extent(), width, widthMode, height, heightMode);
     }
 
     template <std::size_t N, typename T>
