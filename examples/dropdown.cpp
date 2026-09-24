@@ -12,9 +12,7 @@ struct DropdownExample: Widget {
     DropdownExample(const std::string& title): Widget(title) {
         center();
 
-        dropdown
-        .width(20_pcts)
-        .height(10_pcts);
+        dropdown.width(20_pcts);
 
         dropdown.set_flags(ImGuiComboFlags_HeightLarge);
         dropdown.set_placeholder("Choose a color...");

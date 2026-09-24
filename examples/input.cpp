@@ -17,7 +17,7 @@ struct InputExample: Widget {
         column(8.0f).center();
 
         for (Widget* w: std::initializer_list<Widget*>{&count, &position, &weight, &offset}) {
-            w->width(50_pcts).height(24.0f);
+            w->width(50_pcts);
         }
 
         count

@@ -17,7 +17,7 @@ struct DragExample: Widget {
         column(8.0f).center();
 
         for (Widget* w: std::initializer_list<Widget*>{&speed, &position, &offset, &rect}) {
-            w->width(50_pcts).height(24.0f);
+            w->width(50_pcts);
         }
 
         speed

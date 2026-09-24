@@ -69,11 +69,15 @@ namespace thorin {
         const std::string& id = title_id();
         bool changed;
 
+        // Also scales the swatch, a frame-height square. It stays pushed while ImGui draws the
+        // picker popup, which then uses the same padding.
+        const bool pushed = push_frame_height();
         if constexpr (N == 3) {
             changed = ImGui::ColorEdit3(id.c_str(), value_.data(), flags_);
         } else {
             changed = ImGui::ColorEdit4(id.c_str(), value_.data(), flags_);
         }
+        pop_frame_height(pushed);
 
         if (changed && onChange_) {
             onChange_(value_);
@@ -86,7 +90,7 @@ namespace thorin {
     ImVec2 ColorEdit<N>::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
         // Mirrors ImGui::ColorEdit4: inputs + swatch fill the item width, the label follows after ItemInnerSpacing.
         // With NoInputs only the swatch is drawn, and the label follows it.
-        const float square = ImGui::GetFrameHeight();
+        const float square = frame_height(height, heightMode);
         const bool preview = !(flags_ & ImGuiColorEditFlags_NoSmallPreview);
         float intrinsic;
 

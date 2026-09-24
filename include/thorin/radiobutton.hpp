@@ -7,10 +7,15 @@
 #include "thorin/widget.hpp"
 
 namespace thorin {
+    class RadioGroup;
+
     class RadioButton : public Widget {
         int* groupValue_ = nullptr;
         int value_ = 0;
         std::function<void()> onSelect_;
+
+        // A moved RadioGroup points its options at its new selected_.
+        friend class RadioGroup;
 
     public:
         RadioButton(const std::string& title, int* groupValue, int value, Widget* parent = nullptr);

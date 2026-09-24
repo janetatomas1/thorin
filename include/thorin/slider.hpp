@@ -82,7 +82,9 @@ namespace thorin {
             data = value_.data();
         }
 
+        const bool pushed = push_frame_height();
         const bool changed = ImGui::SliderScalarN(id.c_str(), dataType, data, N, &min_, &max_, format, flags_);
+        pop_frame_height(pushed);
 
         if (changed && onChange_) {
             onChange_(value_);

@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <cmath>
 #include <format>
 
 #include <libassert/assert.hpp>
@@ -77,6 +78,34 @@ namespace thorin {
         if (width() > 0.0f) {
             ImGui::SetNextItemWidth(std::max(width() - labelExtent, 1.0f));
         }
+    }
+
+    bool Widget::push_frame_height() const {
+        // Measured heights already equal the frame height; only explicit, stretched or
+        // flexed heights need a push. Sub-pixel differences come from Yoga's rounding.
+        if (height() <= 0.0f || std::abs(height() - ImGui::GetFrameHeight()) < 0.5f) {
+            return false;
+        }
+
+        // A box shorter than the font can't be honoured; the frame gets no vertical padding.
+        const ImVec2 padding = ImGui::GetStyle().FramePadding;
+        const float paddingY = std::max((height() - ImGui::GetFontSize()) * 0.5f, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{padding.x, paddingY});
+        return true;
+    }
+
+    void Widget::pop_frame_height(bool pushed) {
+        if (pushed) {
+            ImGui::PopStyleVar();
+        }
+    }
+
+    float Widget::frame_height(float height, YGMeasureMode heightMode) {
+        if (heightMode != YGMeasureModeExactly || std::abs(height - ImGui::GetFrameHeight()) < 0.5f) {
+            return ImGui::GetFrameHeight();
+        }
+
+        return std::max(height, ImGui::GetFontSize());
     }
 
     uint64_t Widget::id() const {

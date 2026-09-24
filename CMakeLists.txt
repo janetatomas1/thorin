@@ -58,3 +58,8 @@ target_include_directories(
     ${THORIN_HEADER_DIR}
 )
 add_subdirectory(${THORIN_EXAMPLES_DIR})
+
+option(THORIN_BUILD_TESTS "Build the headless tests" ON)
+if(THORIN_BUILD_TESTS)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+endif()

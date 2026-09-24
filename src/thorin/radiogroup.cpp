@@ -12,6 +12,29 @@ namespace thorin {
         gap(0.5_pcts);
     }
 
+    RadioGroup::RadioGroup(RadioGroup&& other) noexcept
+    : Widget(std::move(other)),
+    selected_(other.selected_),
+    options_(std::move(other.options_)) {
+        for (auto& option : options_) {
+            option.groupValue_ = &selected_;
+        }
+    }
+
+    RadioGroup& RadioGroup::operator=(RadioGroup&& other) noexcept {
+        if (this != &other) {
+            Widget::operator=(std::move(other));
+            selected_ = other.selected_;
+            options_ = std::move(other.options_);
+
+            for (auto& option : options_) {
+                option.groupValue_ = &selected_;
+            }
+        }
+
+        return *this;
+    }
+
     RadioButton& RadioGroup::add_option(const std::string& label) {
         auto rb = RadioButton(label, &selected_, static_cast<int>(options_.size()), this);
         rb.margin(10);

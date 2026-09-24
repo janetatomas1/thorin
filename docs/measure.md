@@ -63,8 +63,15 @@ Yoga calls `measure` only for dimensions that are not set explicitly, so `.width
   `CalcTextSize(title, nullptr, true)` (text after `##` hidden); 0 when there is no
   visible label.
 - **Explicit height** on a frame widget: push `ImGuiStyleVar_FramePadding` with
-  `y = (height - FontSize) / 2` around the ImGui call. `Button` and
-  `InputTextMultiline` take a size directly.
+  `y = (height - FontSize) / 2` around the ImGui call (`push_frame_height()`; skipped when
+  the box is within half a pixel of `GetFrameHeight()`, clamped at 0 below the font size).
+  `Button` and `InputTextMultiline` take a size directly.
+  - Frame-height squares grow with it, so `measure()` sizes them with
+    `frame_height(height, heightMode)`: the Dropdown arrow and the `NoInputs` ColorEdit swatch.
+  - Dropdown pops before drawing its items, so the popup keeps the normal padding. ColorEdit
+    can't: its picker popup is drawn inside `ColorEdit4` with the pushed padding.
+  - A height from stretching (`align_items` stretch in a row) is applied when drawing, but
+    `measure()` isn't told about it, so a square's width there follows the frame height.
 - Yoga's default `flex-shrink` is 0, so a row of intrinsic-width widgets that doesn't fit
   overflows unless children get `flex_shrink(1)` / `flex(1)`.
 
@@ -263,6 +270,6 @@ is unsupported, because nothing marks the nodes dirty.
 2. ~~Reference widget, including label handling.~~ Done (Button first, then the rest).
 3. ~~The remaining leaf widgets.~~ Done: Button, Checkbox, RadioButton, Slider, Drag, Input,
    TextInput, Dropdown, Text, ColorEdit, and the new ColorPicker.
-4. Explicit heights on frame widgets (`FramePadding` push); remove the hard-coded
-   `.height(24.0f)` from the examples.
+4. ~~Explicit heights on frame widgets (`FramePadding` push); remove the hard-coded
+   `.height(24.0f)` from the examples.~~ Done, with headless tests in `tests/`.
 5. `Styled` / `Font`, `Window::set_style`, templated `RadioGroup` (separate change).

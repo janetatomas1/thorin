@@ -3,49 +3,21 @@
 Ideas for what to build next, grouped by area. Nothing here is implemented yet.
 Design details for measuring and styling live in [measure.md](measure.md).
 
-**Suggested order:** headless measure tests → explicit heights → automatic child rendering.
-The tests verify the explicit-height work; automatic child rendering removes the most
-boilerplate from every example.
+## Finish the measure work (done)
 
-## Finish the measure work
-
-### Explicit heights on frame widgets
-
-ImGui frame widgets (Slider, Drag, Input, TextInput, ColorEdit, Dropdown) take no height.
-When Yoga gives one a fixed height, push `ImGuiStyleVar_FramePadding` with
-`y = (height - FontSize) / 2` around the ImGui call, then pop. `Button` and
-`InputTextMultiline` already take a size directly. After this, remove the hard-coded
-`.height(24.0f)` from the slider, drag, input and coloredit examples.
-
-This is the last step of the implementation order in [measure.md](measure.md).
-
-### Headless measure tests
-
-A test executable that needs no window:
-
-1. `ImGui::CreateContext()`, build the font atlas, set `io.DisplaySize`.
-2. `NewFrame()`, `Begin()`, draw each widget through `render()`.
-3. Compare the widget's `measure()` result with ImGui's `GetItemRectSize()` for the same widget.
-
-The GUI isn't run during development, so today measure functions are only checked by
-reading ImGui's source. These tests would catch mistakes such as the ColorPicker's
-vertical spacing (worked out from `ItemSize` / `BeginGroup`, never seen on screen), and
-cover every future widget as it's added.
-
-Group items (ColorEdit, ColorPicker, Input with step buttons) report the whole group's
-rect after `EndGroup`, which is the size to compare against.
-
-### RadioGroup's `&selected_` pointer
-
-Each `RadioButton` stores `int* groupValue_`, pointing at its group's `selected_`. If the
-`RadioGroup` is moved (for example as a member of a widget that moves), the options point at
-the moved-from group. Parent lookup survives moves (see measure.md); this pointer doesn't.
-
-Options:
-
-- Look the value up through the parent: `static_cast<RadioGroup&>(*parent()).selected_`.
-  Works because parenthood follows the Yoga tree.
-- Have `RadioGroup`'s move operations rebind every option's pointer.
+- **Explicit heights on frame widgets.** Slider, Drag, Input, TextInput (single line),
+  ColorEdit and Dropdown push `ImGuiStyleVar_FramePadding` with
+  `y = (height - FontSize) / 2` when their box differs from `GetFrameHeight()`
+  (`Widget::push_frame_height`). Frame-height squares (combo arrow, colour swatch) are
+  measured with the exact height too (`Widget::frame_height`). The hard-coded heights are
+  gone from the examples.
+- **Headless measure tests.** `tests/measure_test.cpp` (GoogleTest, `ctest`) creates an
+  ImGui context with no window, lays each widget out and compares Yoga's box with
+  `GetItemRectSize()`. Covers every leaf and the main flag variants, including the
+  ColorPicker, plus explicit boxes on frame widgets. Build with `-DTHORIN_BUILD_TESTS=OFF`
+  to skip.
+- **RadioGroup's `&selected_` pointer.** `RadioGroup`'s move operations re-point every
+  option at the new group's `selected_`.
 
 ## Layout
 

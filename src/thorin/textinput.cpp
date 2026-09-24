@@ -21,11 +21,13 @@ namespace thorin {
         } else {
             set_next_field_width(label_extent());
 
+            const bool pushed = push_frame_height();
             if (hint_.empty()) {
                 changed = ImGui::InputText(title_id().c_str(), &value_, flags_);
             } else {
                 changed = ImGui::InputTextWithHint(title_id().c_str(), hint_.c_str(), &value_, flags_);
             }
+            pop_frame_height(pushed);
         }
 
         if (changed && onChange_) {

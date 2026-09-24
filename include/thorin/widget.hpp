@@ -39,6 +39,15 @@ namespace thorin {
         // SetNextItemWidth for the field part of this widget's box, leaving labelExtent for the label.
         void set_next_field_width(float labelExtent) const;
 
+        // One-line frame widgets take no height from ImGui: they are drawn at GetFrameHeight().
+        // When this widget's box is taller or shorter, push FramePadding.y so the frame fills it.
+        // Returns whether a style var was pushed; pass the result to pop_frame_height().
+        [[nodiscard]] bool push_frame_height() const;
+        static void pop_frame_height(bool pushed);
+        // Frame height push_frame_height() will draw at, for measuring frame-height squares
+        // (combo arrow, color swatch) when Yoga passes an exact height.
+        [[nodiscard]] static float frame_height(float height, YGMeasureMode heightMode);
+
     public:
         Widget(const std::string &title = "", Widget *parent = nullptr);
 

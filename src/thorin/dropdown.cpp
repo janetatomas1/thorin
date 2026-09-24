@@ -109,7 +109,13 @@ namespace thorin {
 
         // NoPreview and WidthFitPreview size the combo themselves and ignore the item width.
         set_next_field_width(label_extent());
-        if (ImGui::BeginCombo(title_id().c_str(), preview(), flags_)) {
+
+        // Popped before the items, so only the combo frame takes the height, not the popup.
+        const bool pushed = push_frame_height();
+        const bool open = ImGui::BeginCombo(title_id().c_str(), preview(), flags_);
+        pop_frame_height(pushed);
+
+        if (open) {
             for (size_t i = 0; i < options_.size(); ++i) {
                 bool isSelected = (static_cast<int>(i) == selected_);
 
@@ -143,7 +149,7 @@ namespace thorin {
 
     ImVec2 Dropdown::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
         // Mirrors ImGui::BeginCombo's frame width; the label follows after ItemInnerSpacing.
-        const float arrow = (flags_ & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
+        const float arrow = (flags_ & ImGuiComboFlags_NoArrowButton) ? 0.0f : frame_height(height, heightMode);
         float frame;
 
         if (flags_ & ImGuiComboFlags_NoPreview) {

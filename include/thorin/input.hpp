@@ -87,7 +87,9 @@ namespace thorin {
             data = value_.data();
         }
 
+        const bool pushed = push_frame_height();
         const bool changed = ImGui::InputScalarN(id.c_str(), dataType, data, N, step, stepFast, format, flags_);
+        pop_frame_height(pushed);
 
         if (changed && onChange_) {
             onChange_(value_);

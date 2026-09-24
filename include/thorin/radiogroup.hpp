@@ -17,6 +17,10 @@ namespace thorin {
     public:
         RadioGroup(Widget* parent = nullptr);
 
+        // Options hold a pointer to selected_, so moves re-point them at the new group.
+        RadioGroup(RadioGroup&& other) noexcept;
+        RadioGroup& operator=(RadioGroup&& other) noexcept;
+
         // Returned reference is invalidated by any subsequent add_option() call
         // (options_ is a vector and may reallocate). Chain off it immediately;
         // don't store it across further add_option() calls.
