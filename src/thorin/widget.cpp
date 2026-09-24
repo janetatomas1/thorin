@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <format>
 
 #include <libassert/assert.hpp>
@@ -41,6 +42,41 @@ namespace thorin {
 
     ImVec2 Widget::measure(float, YGMeasureMode, float, YGMeasureMode) {
         return ImVec2{0.0f, 0.0f};
+    }
+
+    float Widget::label_width() const {
+        return ImGui::CalcTextSize(titleID_.c_str(), nullptr, true).x;
+    }
+
+    float Widget::label_extent() const {
+        const float label = label_width();
+        return label > 0.0f ? ImGui::GetStyle().ItemInnerSpacing.x + label : 0.0f;
+    }
+
+    float Widget::default_field_width() {
+        // ImGui's own fallback item width for auto-resizing windows.
+        return ImGui::GetFontSize() * 16.0f;
+    }
+
+    ImVec2 Widget::measure_field(
+        float labelExtent,
+        float width,
+        YGMeasureMode widthMode,
+        float height,
+        YGMeasureMode heightMode
+    ) {
+        return ImVec2{
+            fit_measure(default_field_width() + labelExtent, width, widthMode),
+            fit_measure(ImGui::GetFrameHeight(), height, heightMode)
+        };
+    }
+
+    void Widget::set_next_field_width(float labelExtent) const {
+        // ImGui draws the label outside the item width, so the field gets what is left of the box.
+        // Must stay positive: ImGui treats a width <= 0 as relative to the window's right edge.
+        if (width() > 0.0f) {
+            ImGui::SetNextItemWidth(std::max(width() - labelExtent, 1.0f));
+        }
     }
 
     uint64_t Widget::id() const {

@@ -20,6 +20,7 @@ namespace thorin {
         TextInput(const std::string& title = "", Widget* parent = nullptr);
 
         bool show() override;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
 
         [[nodiscard]] const std::string& value() const;
         TextInput& set_value(const std::string& value);

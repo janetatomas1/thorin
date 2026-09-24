@@ -1,24 +1,31 @@
 
 #include "thorin/textinput.hpp"
 
+#include <algorithm>
+
 #include <imgui_stdlib.h>
 
 namespace thorin {
     TextInput::TextInput(const std::string& title, Widget* parent)
-    : Widget(title, parent) {}
+    : Widget(title, parent) {
+        layout().enable_measure();
+    }
 
     bool TextInput::show() {
-        if (width() > 0.0f) {
-            ImGui::SetNextItemWidth(width());
-        }
-
         bool changed;
         if (multiline_) {
-            changed = ImGui::InputTextMultiline(title_id().c_str(), &value_, size(), flags_);
-        } else if (hint_.empty()) {
-            changed = ImGui::InputText(title_id().c_str(), &value_, flags_);
+            // Explicit frame size, so the label gets the rest of the box. Width must stay positive:
+            // ImGui treats a width <= 0 as relative to the window's right edge.
+            const ImVec2 frame{std::max(width() - label_extent(), 1.0f), height()};
+            changed = ImGui::InputTextMultiline(title_id().c_str(), &value_, frame, flags_);
         } else {
-            changed = ImGui::InputTextWithHint(title_id().c_str(), hint_.c_str(), &value_, flags_);
+            set_next_field_width(label_extent());
+
+            if (hint_.empty()) {
+                changed = ImGui::InputText(title_id().c_str(), &value_, flags_);
+            } else {
+                changed = ImGui::InputTextWithHint(title_id().c_str(), hint_.c_str(), &value_, flags_);
+            }
         }
 
         if (changed && onChange_) {
@@ -26,6 +33,20 @@ namespace thorin {
         }
 
         return changed;
+    }
+
+    ImVec2 TextInput::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
+        if (!multiline_) {
+            return measure_field(label_extent(), width, widthMode, height, heightMode);
+        }
+
+        // ImGui's default multiline frame: 8 lines of text plus frame padding. The label sits to its right.
+        const float frameHeight = ImGui::GetFontSize() * 8.0f + ImGui::GetStyle().FramePadding.y * 2.0f;
+
+        return ImVec2{
+            fit_measure(default_field_width() + label_extent(), width, widthMode),
+            fit_measure(frameHeight, height, heightMode)
+        };
     }
 
     const std::string& TextInput::value() const {
@@ -61,6 +82,7 @@ namespace thorin {
 
     TextInput& TextInput::set_multiline(bool multiline) {
         multiline_ = multiline;
+        layout().mark_dirty();
         return *this;
     }
 
