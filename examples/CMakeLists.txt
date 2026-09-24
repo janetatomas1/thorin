@@ -12,6 +12,7 @@ set(
     slider
     input
     coloredit
+    colorpicker
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

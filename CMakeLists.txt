@@ -24,6 +24,7 @@ set(
     ${THORIN_SOURCE_DIR}/dropdown.cpp
     ${THORIN_SOURCE_DIR}/textinput.cpp
     ${THORIN_SOURCE_DIR}/text.cpp
+    ${THORIN_SOURCE_DIR}/colorpicker.cpp
 )
 
 find_package(sdl REQUIRED)

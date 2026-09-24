@@ -19,6 +19,26 @@ namespace thorin {
         Window* window_ = nullptr;
 
         Layout layout_;
+
+    protected:
+        // Width of the visible label (text after "##" hidden), 0 when there is none. ImGui context required.
+        [[nodiscard]] float label_width() const;
+        // Space ImGui puts after a field for its label: ItemInnerSpacing.x + label, or 0 when there is none.
+        [[nodiscard]] float label_extent() const;
+        // Intrinsic field width for frame widgets that have no natural width (Slider, Drag, ColorEdit, ...).
+        [[nodiscard]] static float default_field_width();
+
+        // Measure for a one-line frame widget: default field width + labelExtent, frame height.
+        [[nodiscard]] static ImVec2 measure_field(
+            float labelExtent,
+            float width,
+            YGMeasureMode widthMode,
+            float height,
+            YGMeasureMode heightMode
+        );
+        // SetNextItemWidth for the field part of this widget's box, leaving labelExtent for the label.
+        void set_next_field_width(float labelExtent) const;
+
     public:
         Widget(const std::string &title = "", Widget *parent = nullptr);
 
