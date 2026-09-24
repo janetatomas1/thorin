@@ -1,6 +1,7 @@
 # Measure functions and styling
 
-Design notes. **Not implemented yet** except where marked.
+Design notes. Parenthood and measure functions are implemented; styling is not yet.
+See [roadmap.md](roadmap.md) for what comes next.
 
 ## Problem
 
@@ -27,7 +28,7 @@ layout().enable_measure();   // YGNodeSetMeasureFunc(node, trampoline)
 The trampoline is a plain function: node context → `Layout` → `owner()` →
 virtual `Widget::measure(width, widthMode, height, heightMode)`. It captures no widget
 address, so moves need no re-registration. Containers never enable measure; Yoga
-requires measured nodes to be leaves (`add_child` should assert this).
+requires measured nodes to be leaves (`add_child` asserts this).
 
 Yoga calls `measure` only from `YGNodeCalculateLayout`, i.e. from
 `Layout::calculate_layout`, which runs inside the frame (after `make_current()`,
@@ -52,6 +53,7 @@ Yoga calls `measure` only for dimensions that are not set explicitly, so `.width
 | Button                                               | text + 2 × `FramePadding.x`                           | text + 2 × `FramePadding.y` |
 | Checkbox, RadioButton                                | frame-height square + `ItemInnerSpacing.x` + label    | `GetFrameHeight()`       |
 | Slider, Drag, Input, TextInput, ColorEdit, Dropdown  | 16 × `FontSize` + `ItemInnerSpacing.x` + label        | `GetFrameHeight()`       |
+| ColorPicker                                          | picker block (16 × `FontSize`) + side preview / label | SV square (follows width) or side group, whichever is taller, + input rows |
 
 - **Default field width** is a fixed multiple of the font size (16×, ImGui's own fallback
   for auto-resizing windows), not `CalcItemWidth()`. The latter is 65% of the window
@@ -256,9 +258,11 @@ is unsupported, because nothing marks the nodes dirty.
 
 ## Implementation order
 
-1. Plumbing: `Layout::enable_measure()`, `Layout::mark_dirty()`, trampoline, leaf assert in
-   `add_child`.
-2. Slider as the reference widget, including label handling.
-3. The remaining leaf widgets.
-4. Remove the hard-coded `.height(24.0f)` from the examples.
+1. ~~Plumbing: `Layout::enable_measure()`, `Layout::mark_dirty()`, trampoline, leaf assert in
+   `add_child`.~~ Done.
+2. ~~Reference widget, including label handling.~~ Done (Button first, then the rest).
+3. ~~The remaining leaf widgets.~~ Done: Button, Checkbox, RadioButton, Slider, Drag, Input,
+   TextInput, Dropdown, Text, ColorEdit, and the new ColorPicker.
+4. Explicit heights on frame widgets (`FramePadding` push); remove the hard-coded
+   `.height(24.0f)` from the examples.
 5. `Styled` / `Font`, `Window::set_style`, templated `RadioGroup` (separate change).
