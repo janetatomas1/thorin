@@ -29,10 +29,6 @@ struct DropdownExample: Widget {
             std::cout << "Selected: " << dropdown.at(index) << std::endl;
         });
     }
-
-    bool show() override {
-        return dropdown.render();
-    }
 };
 
 int main(const int argc, char** argv) {

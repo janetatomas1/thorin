@@ -14,10 +14,6 @@ struct CheckboxExample: Widget {
     CheckboxExample(const std::string& title): Widget(title) {
         center();
     }
-
-    bool show() override {
-        return checkbox.render();
-    }
 };
 
 int main(const int argc, char** argv) {

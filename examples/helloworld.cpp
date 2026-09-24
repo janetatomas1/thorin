@@ -17,10 +17,6 @@ struct HelloWidget: Widget {
         .width(10_pcts)
         .height(10_pcts);
     };
-
-    bool show() override {
-        return button.render();
-    }
 };
     
 int main(const int argc, char **argv) {

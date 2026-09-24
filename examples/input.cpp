@@ -39,15 +39,6 @@ struct InputExample: Widget {
             std::cout << "Weight: " << value << std::endl;
         });
     }
-
-    bool show() override {
-        bool changed = false;
-        changed |= count.render();
-        changed |= position.render();
-        changed |= weight.render();
-        changed |= offset.render();
-        return changed;
-    }
 };
 
 int main(const int argc, char** argv) {

@@ -104,7 +104,22 @@ namespace thorin {
     }
 
     bool Widget::show() {
-        return false;
+        bool changed = false;
+
+        // Count re-read each step: a child's callback may change the tree (actions are
+        // normally deferred, but don't rely on it for bounds).
+        for (size_t i = 0; i < layout_.child_count(); ++i) {
+            auto child = layout_.child(i);
+            if (!child->visible()) {
+                continue; // Yoga gave it no box; drawing it would land on a stale position.
+            }
+
+            auto owner = child->owner();
+            DEBUG_ASSERT(owner != nullptr, "Widget::show: child Layout has no owner", i);
+            changed |= owner->render();
+        }
+
+        return changed;
     }
 
     Window* Widget::window() {

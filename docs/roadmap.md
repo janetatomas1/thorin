@@ -49,10 +49,11 @@ Options:
 
 ## Layout
 
-### Automatic child rendering
+### Automatic child rendering (done)
 
-The Yoga tree is the single source of truth for parenthood, so `Widget::show()` could by
-default render its children by walking the tree:
+Implemented: `Widget::show()` renders its children by walking the Yoga tree, skipping
+children with `display(YGDisplayNone)`. The examples no longer override `show()`, and
+`RadioGroup::show()` calls the base. Original sketch:
 
 ```cpp
 bool Widget::show() {

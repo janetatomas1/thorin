@@ -36,15 +36,6 @@ struct DragExample: Widget {
 
         rect.set_speed(0.1f);
     }
-
-    bool show() override {
-        bool changed = false;
-        changed |= speed.render();
-        changed |= position.render();
-        changed |= offset.render();
-        changed |= rect.render();
-        return changed;
-    }
 };
 
 int main(const int argc, char** argv) {

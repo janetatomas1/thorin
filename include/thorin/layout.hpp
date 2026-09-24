@@ -81,6 +81,11 @@ namespace thorin {
         [[nodiscard]] const ImVec2 &size() const;
 
         Layout *parent();
+        [[nodiscard]] size_t child_count();
+        // Layout of the index-th Yoga child, in insertion order.
+        Layout* child(size_t index);
+        // False when display(YGDisplayNone) is set: Yoga gives the node no space.
+        [[nodiscard]] bool visible();
 
         Layout& margin(LayoutValue value, YGEdge edge = YGEdgeAll);
         Layout& margin(float points, YGEdge edge = YGEdgeAll);

@@ -15,10 +15,6 @@ struct TextExample: Widget {
         center();
         text.width(40_pcts);
     }
-
-    bool show() override {
-        return text.render();
-    }
 };
 
 int main(const int argc, char** argv) {

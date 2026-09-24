@@ -24,13 +24,6 @@ struct ColorPickerExample: Widget {
         .set_value({0.1f, 0.2f, 0.3f})
         .set_flags(ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_DisplayHex);
     }
-
-    bool show() override {
-        bool changed = false;
-        changed |= accent.render();
-        changed |= background.render();
-        return changed;
-    }
 };
 
 int main(const int argc, char** argv) {

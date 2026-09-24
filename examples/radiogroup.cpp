@@ -18,10 +18,6 @@ struct RadioGroupExample: Widget {
             std::cout << "Large selected" << std::endl;
         });
     }
-
-    bool show() override {
-        return group.render();
-    }
 };
 
 int main(const int argc, char** argv) {

@@ -19,10 +19,6 @@ struct TextInputExample: Widget {
             std::cout << "Value: " << value << std::endl;
         });
     }
-
-    bool show() override {
-        return input.render();
-    }
 };
 
 int main(const int argc, char** argv) {

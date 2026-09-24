@@ -33,14 +33,6 @@ struct ColorEditExample: Widget {
         .set_value({0.0f, 0.8f, 0.4f, 1.0f})
         .set_flags(ImGuiColorEditFlags_NoInputs);
     }
-
-    bool show() override {
-        bool changed = false;
-        changed |= background.render();
-        changed |= tint.render();
-        changed |= swatch.render();
-        return changed;
-    }
 };
 
 int main(const int argc, char** argv) {

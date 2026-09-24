@@ -57,6 +57,7 @@ namespace thorin {
         [[nodiscard]] const std::string& title_id() const;
         Widget& set_title(const std::string& title);
         bool render();
+        // Default: renders the children in Yoga order. Leaves override it to draw themselves.
         virtual bool show();
         Window* window();
         void set_window(Window* window);

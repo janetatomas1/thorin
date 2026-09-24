@@ -49,12 +49,7 @@ namespace thorin {
 
     bool RadioGroup::show() {
         int before = selected_;
-
-        for (auto& option : options_) {
-            option.render();
-        }
-
-        bool changed = selected_ != before;
-        return changed;
+        Widget::show();
+        return selected_ != before;
     }
 }

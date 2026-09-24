@@ -36,15 +36,6 @@ struct SliderExample: Widget {
         color.set_range(0.0f, 1.0f);
         rect.set_range(-1.0f, 1.0f);
     }
-
-    bool show() override {
-        bool changed = false;
-        changed |= volume.render();
-        changed |= range.render();
-        changed |= color.render();
-        changed |= rect.render();
-        return changed;
-    }
 };
 
 int main(const int argc, char** argv) {

@@ -11,7 +11,8 @@ namespace thorin {
         // Yoga only calls this from YGNodeCalculateLayout, i.e. inside the frame, so
         // measure() may use ImGui metrics. Resolved through the node context on every
         // call, so it stays valid across Layout/Widget moves.
-        YGSize measure_trampoline(
+        YGSize
+        measure_trampoline(
             YGNodeConstRef node,
             float width,
             YGMeasureMode widthMode,
@@ -157,14 +158,8 @@ namespace thorin {
             position_.y += parentLayout->position().y;
         }
 
-        size_t count = YGNodeGetChildCount(node_);
-        for (size_t i = 0; i < count; ++i) {
-            auto child = YGNodeGetChild(node_, i);
-            if (child != nullptr) {
-                auto layout = static_cast<Layout*>(YGNodeGetContext(child));
-                DEBUG_ASSERT(layout != nullptr, "Yoga child node has no Layout context", i);
-                layout->calculate_position();
-            }
+        for (size_t i = 0; i < child_count(); ++i) {
+            child(i)->calculate_position();
         }
     }
 
@@ -202,6 +197,25 @@ namespace thorin {
         }
 
         return nullptr;
+    }
+
+    size_t Layout::child_count() {
+        DEBUG_ASSERT(node_ != nullptr, "Layout::child_count called on moved-from Layout");
+        return YGNodeGetChildCount(node_);
+    }
+
+    Layout* Layout::child(size_t index) {
+        DEBUG_ASSERT(node_ != nullptr, "Layout::child called on moved-from Layout");
+        DEBUG_ASSERT(index < child_count(), "Layout::child index out of range", index, child_count());
+
+        auto layout = static_cast<Layout*>(YGNodeGetContext(YGNodeGetChild(node_, index)));
+        DEBUG_ASSERT(layout != nullptr, "Yoga child node has no Layout context", index);
+        return layout;
+    }
+
+    bool Layout::visible() {
+        DEBUG_ASSERT(node_ != nullptr, "Layout::visible called on moved-from Layout");
+        return YGNodeStyleGetDisplay(node_) != YGDisplayNone;
     }
 
     Layout& Layout::margin(LayoutValue value, YGEdge edge) {
