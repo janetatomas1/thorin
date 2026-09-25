@@ -2,6 +2,7 @@
 #include <libassert/assert.hpp>
 
 #include "thorin/dropdown.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     Dropdown::Dropdown(const std::string& title, Widget* parent)
@@ -140,7 +141,11 @@ namespace thorin {
             layout().mark_dirty();
 
             if (onChange_) {
-                onChange_(selected_);
+                app().add_action([this, selected = selected_] {
+                    if (onChange_) {
+                        onChange_(selected);
+                    }
+                });
             }
         }
 

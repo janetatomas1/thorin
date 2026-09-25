@@ -1,5 +1,6 @@
 
 #include "thorin/menu.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     MenuItem::MenuItem(
@@ -54,7 +55,11 @@ namespace thorin {
 
         if (ImGui::MenuItem(title_id().c_str(), shortcut, checkable_ ? &checked_ : nullptr, enabled_)) {
             if (callback_) {
-                callback_();
+                app().add_action([this] {
+                    if (callback_) {
+                        callback_();
+                    }
+                });
             }
 
             return true;
@@ -76,24 +81,16 @@ namespace thorin {
         fu2::unique_function<void()> callback,
         const std::string& shortcut
     ) {
-        return entries_.add<MenuItem>(title, std::move(callback), shortcut);
+        return add<MenuItem>(title, std::move(callback), shortcut);
     }
 
     Menu& Menu::add_menu(const std::string& title) {
-        return entries_.add<Menu>(title);
+        return add<Menu>(title);
     }
 
     Menu& Menu::add_separator() {
-        entries_.add<MenuSeparator>();
+        add<MenuSeparator>();
         return *this;
-    }
-
-    size_t Menu::count() const {
-        return entries_.count();
-    }
-
-    Widget& Menu::at(size_t index) {
-        return entries_.at(index);
     }
 
     Menu& Menu::set_enabled(bool enabled) {
@@ -109,7 +106,9 @@ namespace thorin {
         bool clicked = false;
 
         if (ImGui::BeginMenu(title_id().c_str(), enabled_)) {
-            for (auto& entry : entries_.items()) {
+            for (auto& entry : items()) {
+                // Entries are outside the Yoga tree, so they reach the app through this menu's window.
+                entry.set_window(window());
                 clicked |= entry.show();
             }
 

@@ -48,11 +48,15 @@ namespace thorin {
         bool show() final;
     };
 
-    class Menu : public Widget {
-        Container<Widget> entries_;
+    // Container is protected: entries are added through add_item(), add_menu() and add_separator().
+    class Menu : public Widget, protected Container<Widget> {
         bool enabled_ = true;
 
     public:
+        using Container::count;
+        using Container::at;
+        using Container::items;
+
         Menu(const std::string& title);
 
         // Returned references stay valid for the Menu's lifetime.
@@ -63,9 +67,6 @@ namespace thorin {
         );
         Menu& add_menu(const std::string& title);
         Menu& add_separator();
-
-        [[nodiscard]] size_t count() const;
-        Widget& at(size_t index);
 
         Menu& set_enabled(bool enabled);
         [[nodiscard]] bool enabled() const;

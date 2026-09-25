@@ -9,6 +9,7 @@
 #include <string>
 
 #include "thorin/widget.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     using ColorPickerFlags = ImGuiColorEditFlags;
@@ -190,7 +191,11 @@ namespace thorin {
             std::copy(color, color + N, value_.begin());
 
             if (onChange_) {
-                onChange_(value_);
+                app().add_action([this, value = value_] {
+                    if (onChange_) {
+                        onChange_(value);
+                    }
+                });
             }
         }
 

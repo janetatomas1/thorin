@@ -1,5 +1,6 @@
 
 #include "thorin/button.hpp"
+#include "thorin/thorin.hpp"
 
 #include <algorithm>
 
@@ -17,7 +18,11 @@ namespace thorin {
     bool Button::show() {
         if (ImGui::Button(title_id().c_str(), size())){
             if (callback_) {
-                callback_();
+                app().add_action([this] {
+                    if (callback_) {
+                        callback_();
+                    }
+                });
             }
 
             return true;

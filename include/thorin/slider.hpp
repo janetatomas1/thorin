@@ -8,6 +8,7 @@
 #include <type_traits>
 
 #include "thorin/widget.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     using SliderFlags = ImGuiSliderFlags;
@@ -87,7 +88,11 @@ namespace thorin {
         pop_frame_height(pushed);
 
         if (changed && onChange_) {
-            onChange_(value_);
+            app().add_action([this, value = value_] {
+                if (onChange_) {
+                    onChange_(value);
+                }
+            });
         }
 
         return changed;

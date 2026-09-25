@@ -1,5 +1,6 @@
 
 #include "thorin/checkbox.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     Checkbox::Checkbox(
@@ -15,7 +16,11 @@ namespace thorin {
         bool changed = ImGui::Checkbox(title_id().c_str(), &value_);
 
         if (changed && onChange_) {
-            onChange_(value_);
+            app().add_action([this, value = value_] {
+                if (onChange_) {
+                    onChange_(value);
+                }
+            });
         }
 
         return changed;

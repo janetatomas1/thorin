@@ -1,5 +1,6 @@
 
 #include "thorin/textinput.hpp"
+#include "thorin/thorin.hpp"
 
 #include <algorithm>
 
@@ -31,7 +32,11 @@ namespace thorin {
         }
 
         if (changed && onChange_) {
-            onChange_(value_);
+            app().add_action([this, value = value_] {
+                if (onChange_) {
+                    onChange_(value);
+                }
+            });
         }
 
         return changed;
