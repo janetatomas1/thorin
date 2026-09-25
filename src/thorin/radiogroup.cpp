@@ -17,7 +17,7 @@ namespace thorin {
     selected_(other.selected_),
     options_(std::move(other.options_)) {
         for (auto& option : options_) {
-            option.groupValue_ = &selected_;
+            option->groupValue_ = &selected_;
         }
     }
 
@@ -28,7 +28,7 @@ namespace thorin {
             options_ = std::move(other.options_);
 
             for (auto& option : options_) {
-                option.groupValue_ = &selected_;
+                option->groupValue_ = &selected_;
             }
         }
 
@@ -36,19 +36,19 @@ namespace thorin {
     }
 
     RadioButton& RadioGroup::add_option(const std::string& label) {
-        auto rb = RadioButton(label, &selected_, static_cast<int>(options_.size()), this);
-        rb.margin(10);
+        auto rb = std::make_unique<RadioButton>(label, &selected_, static_cast<int>(options_.size()), this);
+        rb->margin(10);
         options_.push_back(std::move(rb));
-        return options_.back();
+        return *options_.back();
     }
 
     RadioButton& RadioGroup::add_option(const std::string& label, std::function<void()> onSelect) {
-        auto rb = RadioButton(
+        auto rb = std::make_unique<RadioButton>(
             label, &selected_, static_cast<int>(options_.size()), std::move(onSelect), this
         );
-        rb.margin(10);
+        rb->margin(10);
         options_.push_back(std::move(rb));
-        return options_.back();
+        return *options_.back();
     }
 
     int RadioGroup::selected() const {
@@ -67,7 +67,7 @@ namespace thorin {
 
     RadioButton& RadioGroup::at(size_t index) {
         DEBUG_ASSERT(index < options_.size(), "RadioGroup::at index out of range", index, options_.size());
-        return options_[index];
+        return *options_[index];
     }
 
     bool RadioGroup::show() {
