@@ -22,8 +22,8 @@ namespace thorin {
         RadioButton(const std::string& title, int* groupValue, int value,
                     std::function<void()> onSelect, Widget* parent = nullptr);
 
-        bool show() override;
-        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
+        bool show() final;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
         [[nodiscard]] bool selected() const;
         void select();

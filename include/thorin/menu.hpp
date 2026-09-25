@@ -1,13 +1,11 @@
 
 #pragma once
 
-#include <memory>
 #include <string>
-#include <vector>
 
 #include <function2/function2.hpp>
 
-#include "thorin/widget.hpp"
+#include "thorin/container.hpp"
 
 namespace thorin {
     // Entries of a Menu are drawn in ImGui's popup flow, not placed by Yoga:
@@ -42,16 +40,16 @@ namespace thorin {
         MenuItem& set_checked(bool checked);
         [[nodiscard]] bool checked() const;
 
-        bool show() override;
+        bool show() final;
     };
 
     class MenuSeparator : public Widget {
     public:
-        bool show() override;
+        bool show() final;
     };
 
     class Menu : public Widget {
-        std::vector<std::unique_ptr<Widget>> entries_;
+        Container<Widget> entries_;
         bool enabled_ = true;
 
     public:

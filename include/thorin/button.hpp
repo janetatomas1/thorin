@@ -19,8 +19,8 @@ namespace thorin {
             fu2::unique_function<void()> callback,
             Widget *parent = nullptr
         );
-        bool show() override;
-        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
+        bool show() final;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
         void set_callback(fu2::unique_function<void()> callback);
     };
 }

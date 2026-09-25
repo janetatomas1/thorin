@@ -1,8 +1,6 @@
 
 #include <algorithm>
 
-#include <libassert/assert.hpp>
-
 #include "thorin/menubar.hpp"
 
 using namespace thorin::literals;
@@ -15,20 +13,9 @@ namespace thorin {
     }
 
     Menu& MenuBar::add_menu(const std::string& title) {
-        auto menu = std::make_unique<Menu>(title);
-        auto& ref = *menu;
-        menus_.push_back(std::move(menu));
+        auto& menu = add(title);
         layout().mark_dirty();
-        return ref;
-    }
-
-    size_t MenuBar::count() const {
-        return menus_.size();
-    }
-
-    Menu& MenuBar::at(size_t index) {
-        DEBUG_ASSERT(index < menus_.size(), "MenuBar::at index out of range", index, menus_.size());
-        return *menus_[index];
+        return menu;
     }
 
     bool MenuBar::show() {
@@ -36,20 +23,22 @@ namespace thorin {
 
         // BeginMenuBar needs a window with ImGuiWindowFlags_MenuBar, so the bar gets its own
         // child window sized to this widget's box.
-        ImGui::BeginChild(
+        if (ImGui::BeginChild(
             title_id().c_str(),
             size(),
             ImGuiChildFlags_None,
             ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse
-        );
+        )) {
 
-        if (ImGui::BeginMenuBar()) {
-            for (auto& menu : menus_) {
-                clicked |= menu->show();
+            if (ImGui::BeginMenuBar()) {
+                for (auto& menu : *this) {
+                    clicked |= menu->show();
+                }
+
+                ImGui::EndMenuBar();
             }
-
-            ImGui::EndMenuBar();
         }
+
 
         ImGui::EndChild();
         return clicked;
@@ -61,7 +50,7 @@ namespace thorin {
         const ImGuiStyle& style = ImGui::GetStyle();
         float intrinsic = std::max(style.WindowPadding.x, style.ItemSpacing.x) * 2.0f;
 
-        for (const auto& menu : menus_) {
+        for (const auto& menu : *this) {
             intrinsic += ImGui::CalcTextSize(menu->title_id().c_str(), nullptr, true).x + style.ItemSpacing.x * 2.0f;
         }
 

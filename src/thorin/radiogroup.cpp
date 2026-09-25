@@ -14,9 +14,9 @@ namespace thorin {
 
     RadioGroup::RadioGroup(RadioGroup&& other) noexcept
     : Widget(std::move(other)),
-    selected_(other.selected_),
-    options_(std::move(other.options_)) {
-        for (auto& option : options_) {
+    Container(std::move(other)),
+    selected_(other.selected_) {
+        for (auto& option : *this) {
             option->groupValue_ = &selected_;
         }
     }
@@ -25,9 +25,9 @@ namespace thorin {
         if (this != &other) {
             Widget::operator=(std::move(other));
             selected_ = other.selected_;
-            options_ = std::move(other.options_);
+            Container::operator=(std::move(other));
 
-            for (auto& option : options_) {
+            for (auto& option : *this) {
                 option->groupValue_ = &selected_;
             }
         }
@@ -36,19 +36,17 @@ namespace thorin {
     }
 
     RadioButton& RadioGroup::add_option(const std::string& label) {
-        auto rb = std::make_unique<RadioButton>(label, &selected_, static_cast<int>(options_.size()), this);
-        rb->margin(10);
-        options_.push_back(std::move(rb));
-        return *options_.back();
+        auto& rb = add(label, &selected_, static_cast<int>(count()), this);
+        rb.margin(10);
+        return rb;
     }
 
     RadioButton& RadioGroup::add_option(const std::string& label, std::function<void()> onSelect) {
-        auto rb = std::make_unique<RadioButton>(
-            label, &selected_, static_cast<int>(options_.size()), std::move(onSelect), this
+        auto& rb = add(
+            label, &selected_, static_cast<int>(count()), std::move(onSelect), this
         );
-        rb->margin(10);
-        options_.push_back(std::move(rb));
-        return *options_.back();
+        rb.margin(10);
+        return rb;
     }
 
     int RadioGroup::selected() const {
@@ -56,18 +54,9 @@ namespace thorin {
     }
 
     void RadioGroup::set_selected(int index) {
-        DEBUG_ASSERT(index >= 0 && static_cast<size_t>(index) < options_.size(),
-                     "RadioGroup::set_selected index out of range", index, options_.size());
+        DEBUG_ASSERT(index >= 0 && static_cast<size_t>(index) < count(),
+                     "RadioGroup::set_selected index out of range", index, count());
         selected_ = index;
-    }
-
-    size_t RadioGroup::count() const {
-        return options_.size();
-    }
-
-    RadioButton& RadioGroup::at(size_t index) {
-        DEBUG_ASSERT(index < options_.size(), "RadioGroup::at index out of range", index, options_.size());
-        return *options_[index];
     }
 
     bool RadioGroup::show() {

@@ -1,6 +1,4 @@
 
-#include <libassert/assert.hpp>
-
 #include "thorin/menu.hpp"
 
 namespace thorin {
@@ -78,31 +76,24 @@ namespace thorin {
         fu2::unique_function<void()> callback,
         const std::string& shortcut
     ) {
-        auto item = std::make_unique<MenuItem>(title, std::move(callback), shortcut);
-        auto& ref = *item;
-        entries_.push_back(std::move(item));
-        return ref;
+        return entries_.add<MenuItem>(title, std::move(callback), shortcut);
     }
 
     Menu& Menu::add_menu(const std::string& title) {
-        auto menu = std::make_unique<Menu>(title);
-        auto& ref = *menu;
-        entries_.push_back(std::move(menu));
-        return ref;
+        return entries_.add<Menu>(title);
     }
 
     Menu& Menu::add_separator() {
-        entries_.push_back(std::make_unique<MenuSeparator>());
+        entries_.add<MenuSeparator>();
         return *this;
     }
 
     size_t Menu::count() const {
-        return entries_.size();
+        return entries_.count();
     }
 
     Widget& Menu::at(size_t index) {
-        DEBUG_ASSERT(index < entries_.size(), "Menu::at index out of range", index, entries_.size());
-        return *entries_[index];
+        return entries_.at(index);
     }
 
     Menu& Menu::set_enabled(bool enabled) {

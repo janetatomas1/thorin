@@ -33,8 +33,8 @@ namespace thorin {
     public:
         Input(const std::string& title = "", Widget* parent = nullptr);
 
-        bool show() override;
-        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
+        bool show() final;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
         [[nodiscard]] const Value& value() const;
         Input& set_value(const Value& value);

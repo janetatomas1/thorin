@@ -2,17 +2,18 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <memory>
 #include <functional>
 
 #include "thorin/widget.hpp"
+#include "thorin/container.hpp"
 #include "thorin/radiobutton.hpp"
 
 namespace thorin {
-    class RadioGroup : public Widget {
+    class RadioGroup : public Widget, public Container<RadioButton> {
+        // Options are added through add_option(), which links them to selected_.
+        using Container::add;
+
         int selected_ = 0;
-        std::vector<std::unique_ptr<RadioButton>> options_;
 
     public:
         RadioGroup(Widget* parent = nullptr);
@@ -28,8 +29,6 @@ namespace thorin {
         [[nodiscard]] int selected() const;
         void set_selected(int index);
 
-        [[nodiscard]] size_t count() const;
-        RadioButton& at(size_t index);
         bool show() override;
     };
 }

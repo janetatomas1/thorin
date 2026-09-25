@@ -45,7 +45,7 @@ namespace thorin {
 
         Dropdown& set_on_change(std::function<void(int)> callback);
 
-        bool show() override;
-        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) override;
+        bool show() final;
+        ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
     };
 }
