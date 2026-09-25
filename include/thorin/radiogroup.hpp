@@ -9,13 +9,15 @@
 #include "thorin/radiobutton.hpp"
 
 namespace thorin {
-    class RadioGroup : public Widget, public Container<RadioButton> {
-        // Options are added through add_option(), which links them to selected_.
-        using Container::add;
-
+    // Container is protected: options are added through add_option(), which links them to selected_.
+    class RadioGroup : public Widget, protected Container<RadioButton> {
         int selected_ = 0;
 
     public:
+        using Container::count;
+        using Container::at;
+        using Container::items;
+
         RadioGroup(Widget* parent = nullptr);
 
         // Options hold a pointer to selected_, so moves re-point them at the new group.

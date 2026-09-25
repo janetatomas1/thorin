@@ -6,11 +6,13 @@
 namespace thorin {
     // A horizontal bar of menus. Yoga places and sizes the bar (full parent width by
     // default, frame height); the menus themselves are drawn in ImGui's menu bar flow.
-    class MenuBar : public Widget, public Container<Menu> {
-        // Menus are added through add_menu(), which also re-measures the bar.
-        using Container::add;
-
+    // Container is protected: menus are added through add_menu(), which also re-measures the bar.
+    class MenuBar : public Widget, protected Container<Menu> {
     public:
+        using Container::count;
+        using Container::at;
+        using Container::items;
+
         MenuBar(Widget* parent = nullptr);
 
         // Returned reference stays valid for the MenuBar's lifetime.

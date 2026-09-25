@@ -109,8 +109,8 @@ namespace thorin {
         bool clicked = false;
 
         if (ImGui::BeginMenu(title_id().c_str(), enabled_)) {
-            for (auto& entry : entries_) {
-                clicked |= entry->show();
+            for (auto& entry : entries_.items()) {
+                clicked |= entry.show();
             }
 
             ImGui::EndMenu();

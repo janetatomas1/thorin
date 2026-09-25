@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include <libassert/assert.hpp>
@@ -35,8 +36,10 @@ namespace thorin {
             return *items_[index];
         }
 
-        // Iterates the unique_ptrs in insertion order.
-        auto begin() { return items_.begin(); }
-        auto end() { return items_.end(); }
+        // The widgets as T&, in insertion order. Ownership stays out of reach: the
+        // unique_ptrs can't be reset or moved out through this view.
+        auto items() {
+            return items_ | std::views::transform([](std::unique_ptr<T>& item) -> T& { return *item; });
+        }
     };
 }

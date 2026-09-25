@@ -16,8 +16,8 @@ namespace thorin {
     : Widget(std::move(other)),
     Container(std::move(other)),
     selected_(other.selected_) {
-        for (auto& option : *this) {
-            option->groupValue_ = &selected_;
+        for (auto& option : items()) {
+            option.groupValue_ = &selected_;
         }
     }
 
@@ -27,8 +27,8 @@ namespace thorin {
             selected_ = other.selected_;
             Container::operator=(std::move(other));
 
-            for (auto& option : *this) {
-                option->groupValue_ = &selected_;
+            for (auto& option : items()) {
+                option.groupValue_ = &selected_;
             }
         }
 

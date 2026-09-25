@@ -31,8 +31,8 @@ namespace thorin {
         )) {
 
             if (ImGui::BeginMenuBar()) {
-                for (auto& menu : *this) {
-                    clicked |= menu->show();
+                for (auto& menu : items()) {
+                    clicked |= menu.show();
                 }
 
                 ImGui::EndMenuBar();
@@ -50,8 +50,8 @@ namespace thorin {
         const ImGuiStyle& style = ImGui::GetStyle();
         float intrinsic = std::max(style.WindowPadding.x, style.ItemSpacing.x) * 2.0f;
 
-        for (const auto& menu : *this) {
-            intrinsic += ImGui::CalcTextSize(menu->title_id().c_str(), nullptr, true).x + style.ItemSpacing.x * 2.0f;
+        for (auto& menu : items()) {
+            intrinsic += ImGui::CalcTextSize(menu.title_id().c_str(), nullptr, true).x + style.ItemSpacing.x * 2.0f;
         }
 
         return ImVec2{
