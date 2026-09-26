@@ -23,6 +23,7 @@ namespace thorin {
         id_(other.id_),
         title_(std::move(other.title_)),
         titleID_(std::move(other.titleID_)),
+        tooltip_(std::move(other.tooltip_)),
         window_(other.window_),
         layout_(std::move(other.layout_)) {
         layout_.set_owner(this);
@@ -33,6 +34,7 @@ namespace thorin {
             id_ = other.id_;
             title_ = std::move(other.title_);
             titleID_ = std::move(other.titleID_);
+            tooltip_ = std::move(other.tooltip_);
             window_ = other.window_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
@@ -127,9 +129,33 @@ namespace thorin {
         return *this;
     }
 
+    const std::string& Widget::tooltip() const {
+        return tooltip_;
+    }
+
+    Widget& Widget::set_tooltip(const std::string& tooltip) {
+        tooltip_ = tooltip;
+        return *this;
+    }
+
     bool Widget::render() {
         ImGui::SetCursorPos(layout().position());
-        return show();
+
+        if (tooltip_.empty()) {
+            return show();
+        }
+
+        // The group makes the whole widget one item, so hovering works for containers too,
+        // not just for their last child.
+        ImGui::BeginGroup();
+        const bool changed = show();
+        ImGui::EndGroup();
+
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
+            ImGui::SetTooltip("%s", tooltip_.c_str());
+        }
+
+        return changed;
     }
 
     bool Widget::show() {

@@ -14,6 +14,7 @@ struct ButtonExample: Widget {
     ButtonExample(const std::string& title): Widget(title) {
         center();
         button
+        .set_tooltip("Prints to stdout")
         .width(20_pcts)
         .height(10_pcts);
     }

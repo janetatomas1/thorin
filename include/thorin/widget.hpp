@@ -15,6 +15,7 @@ namespace thorin {
         uint64_t id_ = 0;
         std::string title_;
         std::string titleID_;
+        std::string tooltip_;
 
         Window* window_ = nullptr;
 
@@ -65,6 +66,9 @@ namespace thorin {
         [[nodiscard]] const std::string& title() const;
         [[nodiscard]] const std::string& title_id() const;
         Widget& set_title(const std::string& title);
+        // Text shown while the widget's box is hovered. Empty means no tooltip.
+        [[nodiscard]] const std::string& tooltip() const;
+        Widget& set_tooltip(const std::string& tooltip);
         bool render();
         // Default: renders the children in Yoga order. Leaves override it to draw themselves.
         virtual bool show();
