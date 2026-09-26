@@ -14,6 +14,7 @@ set(
     coloredit
     colorpicker
     menubar
+    table
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
