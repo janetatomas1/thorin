@@ -139,8 +139,38 @@ namespace thorin {
         Layout& column(float gap = 0.0f);
         Layout& center();
 
-        float computed_margin(YGEdge edge);
-        float computed_padding(YGEdge edge);
-        float computed_border(YGEdge edge);
+        // Style values as set. style_ marks the ones whose plain name returns the computed box
+        // (width(), margin(edge), ...). Unset values come back as YGUnitUndefined / NaN, as Yoga reports them.
+        [[nodiscard]] LayoutValue style_margin(YGEdge edge = YGEdgeAll) const;
+        [[nodiscard]] LayoutValue style_padding(YGEdge edge = YGEdgeAll) const;
+        [[nodiscard]] LayoutValue style_position(YGEdge edge) const;
+        [[nodiscard]] LayoutValue style_width() const;
+        [[nodiscard]] LayoutValue style_height() const;
+        [[nodiscard]] float gap(YGGutter gutter = YGGutterAll) const;
+        [[nodiscard]] YGFlexDirection flex_direction() const;
+        [[nodiscard]] float flex_grow() const;
+        [[nodiscard]] float flex_shrink() const;
+        [[nodiscard]] LayoutValue flex_basis() const;
+        [[nodiscard]] float flex() const;
+        [[nodiscard]] YGWrap flex_wrap() const;
+        [[nodiscard]] YGAlign align_items() const;
+        [[nodiscard]] YGAlign align_self() const;
+        [[nodiscard]] YGAlign align_content() const;
+        [[nodiscard]] YGJustify justify_content() const;
+        [[nodiscard]] LayoutValue min_width() const;
+        [[nodiscard]] LayoutValue min_height() const;
+        [[nodiscard]] LayoutValue max_width() const;
+        [[nodiscard]] LayoutValue max_height() const;
+        [[nodiscard]] float style_border(YGEdge edge = YGEdgeAll) const;
+        [[nodiscard]] YGDisplay display() const;
+        [[nodiscard]] YGOverflow overflow() const;
+        [[nodiscard]] float aspect_ratio() const;
+        [[nodiscard]] YGDirection direction() const;
+        [[nodiscard]] YGPositionType position_type() const;
+
+        // Computed by the last calculate_layout().
+        [[nodiscard]] float margin(YGEdge edge) const;
+        [[nodiscard]] float padding(YGEdge edge) const;
+        [[nodiscard]] float border(YGEdge edge) const;
     };
 }

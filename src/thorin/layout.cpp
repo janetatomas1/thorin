@@ -288,10 +288,8 @@ namespace thorin {
 
     Layout& Layout::gap(LayoutValue value, YGGutter gutter) {
         switch (value.unit) {
-            case YGUnitPoint:
-            case YGUnitPercent:
-                YGNodeStyleSetGap(node_, gutter, value.value);
-                break;
+            case YGUnitPoint:   YGNodeStyleSetGap(node_, gutter, value.value); break;
+            case YGUnitPercent: YGNodeStyleSetGapPercent(node_, gutter, value.value); break;
             default: break; // gap has no "auto"
         }
         return *this;
@@ -458,15 +456,119 @@ namespace thorin {
         return align_items(YGAlignCenter).justify_content(YGJustifyCenter);
     }
 
-    float Layout::computed_margin(YGEdge edge) {
+    LayoutValue Layout::style_margin(YGEdge edge) const {
+        return YGNodeStyleGetMargin(node_, edge);
+    }
+
+    LayoutValue Layout::style_padding(YGEdge edge) const {
+        return YGNodeStyleGetPadding(node_, edge);
+    }
+
+    LayoutValue Layout::style_position(YGEdge edge) const {
+        return YGNodeStyleGetPosition(node_, edge);
+    }
+
+    LayoutValue Layout::style_width() const {
+        return YGNodeStyleGetWidth(node_);
+    }
+
+    LayoutValue Layout::style_height() const {
+        return YGNodeStyleGetHeight(node_);
+    }
+
+    float Layout::gap(YGGutter gutter) const {
+        return YGNodeStyleGetGap(node_, gutter);
+    }
+
+    YGFlexDirection Layout::flex_direction() const {
+        return YGNodeStyleGetFlexDirection(node_);
+    }
+
+    float Layout::flex_grow() const {
+        return YGNodeStyleGetFlexGrow(node_);
+    }
+
+    float Layout::flex_shrink() const {
+        return YGNodeStyleGetFlexShrink(node_);
+    }
+
+    LayoutValue Layout::flex_basis() const {
+        return YGNodeStyleGetFlexBasis(node_);
+    }
+
+    float Layout::flex() const {
+        return YGNodeStyleGetFlex(node_);
+    }
+
+    YGWrap Layout::flex_wrap() const {
+        return YGNodeStyleGetFlexWrap(node_);
+    }
+
+    YGAlign Layout::align_items() const {
+        return YGNodeStyleGetAlignItems(node_);
+    }
+
+    YGAlign Layout::align_self() const {
+        return YGNodeStyleGetAlignSelf(node_);
+    }
+
+    YGAlign Layout::align_content() const {
+        return YGNodeStyleGetAlignContent(node_);
+    }
+
+    YGJustify Layout::justify_content() const {
+        return YGNodeStyleGetJustifyContent(node_);
+    }
+
+    LayoutValue Layout::min_width() const {
+        return YGNodeStyleGetMinWidth(node_);
+    }
+
+    LayoutValue Layout::min_height() const {
+        return YGNodeStyleGetMinHeight(node_);
+    }
+
+    LayoutValue Layout::max_width() const {
+        return YGNodeStyleGetMaxWidth(node_);
+    }
+
+    LayoutValue Layout::max_height() const {
+        return YGNodeStyleGetMaxHeight(node_);
+    }
+
+    float Layout::style_border(YGEdge edge) const {
+        return YGNodeStyleGetBorder(node_, edge);
+    }
+
+    YGDisplay Layout::display() const {
+        return YGNodeStyleGetDisplay(node_);
+    }
+
+    YGOverflow Layout::overflow() const {
+        return YGNodeStyleGetOverflow(node_);
+    }
+
+    float Layout::aspect_ratio() const {
+        return YGNodeStyleGetAspectRatio(node_);
+    }
+
+    YGDirection Layout::direction() const {
+        return YGNodeStyleGetDirection(node_);
+    }
+
+    YGPositionType Layout::position_type() const {
+        return YGNodeStyleGetPositionType(node_);
+    }
+
+    float Layout::margin(YGEdge edge) const {
         return YGNodeLayoutGetMargin(node_, edge);
     }
 
-    float Layout::computed_padding(YGEdge edge) {
+    float Layout::padding(YGEdge edge) const {
         return YGNodeLayoutGetPadding(node_, edge);
     }
 
-    float Layout::computed_border(YGEdge edge) {
+    float Layout::border(YGEdge edge) const {
         return YGNodeLayoutGetBorder(node_, edge);
     }
 }

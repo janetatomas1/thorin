@@ -409,6 +409,110 @@ namespace thorin {
         return *this;
     }
 
+    LayoutValue Widget::style_margin(YGEdge edge) const {
+        return layout_.style_margin(edge);
+    }
+
+    LayoutValue Widget::style_padding(YGEdge edge) const {
+        return layout_.style_padding(edge);
+    }
+
+    LayoutValue Widget::style_position(YGEdge edge) const {
+        return layout_.style_position(edge);
+    }
+
+    LayoutValue Widget::style_width() const {
+        return layout_.style_width();
+    }
+
+    LayoutValue Widget::style_height() const {
+        return layout_.style_height();
+    }
+
+    float Widget::gap(YGGutter gutter) const {
+        return layout_.gap(gutter);
+    }
+
+    YGFlexDirection Widget::flex_direction() const {
+        return layout_.flex_direction();
+    }
+
+    float Widget::flex_grow() const {
+        return layout_.flex_grow();
+    }
+
+    float Widget::flex_shrink() const {
+        return layout_.flex_shrink();
+    }
+
+    LayoutValue Widget::flex_basis() const {
+        return layout_.flex_basis();
+    }
+
+    float Widget::flex() const {
+        return layout_.flex();
+    }
+
+    YGWrap Widget::flex_wrap() const {
+        return layout_.flex_wrap();
+    }
+
+    YGAlign Widget::align_items() const {
+        return layout_.align_items();
+    }
+
+    YGAlign Widget::align_self() const {
+        return layout_.align_self();
+    }
+
+    YGAlign Widget::align_content() const {
+        return layout_.align_content();
+    }
+
+    YGJustify Widget::justify_content() const {
+        return layout_.justify_content();
+    }
+
+    LayoutValue Widget::min_width() const {
+        return layout_.min_width();
+    }
+
+    LayoutValue Widget::min_height() const {
+        return layout_.min_height();
+    }
+
+    LayoutValue Widget::max_width() const {
+        return layout_.max_width();
+    }
+
+    LayoutValue Widget::max_height() const {
+        return layout_.max_height();
+    }
+
+    float Widget::style_border(YGEdge edge) const {
+        return layout_.style_border(edge);
+    }
+
+    YGDisplay Widget::display() const {
+        return layout_.display();
+    }
+
+    YGOverflow Widget::overflow() const {
+        return layout_.overflow();
+    }
+
+    float Widget::aspect_ratio() const {
+        return layout_.aspect_ratio();
+    }
+
+    YGDirection Widget::direction() const {
+        return layout_.direction();
+    }
+
+    YGPositionType Widget::position_type() const {
+        return layout_.position_type();
+    }
+
     float Widget::x() const {
         return layout_.x();
     }
@@ -431,5 +535,17 @@ namespace thorin {
 
     const ImVec2& Widget::size() const {
         return layout_.size();
+    }
+
+    float Widget::margin(YGEdge edge) const {
+        return layout_.margin(edge);
+    }
+
+    float Widget::padding(YGEdge edge) const {
+        return layout_.padding(edge);
+    }
+
+    float Widget::border(YGEdge edge) const {
+        return layout_.border(edge);
     }
 }
