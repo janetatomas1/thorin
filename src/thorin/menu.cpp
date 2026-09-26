@@ -23,15 +23,6 @@ namespace thorin {
         return *this;
     }
 
-    MenuItem& MenuItem::set_enabled(bool enabled) {
-        enabled_ = enabled;
-        return *this;
-    }
-
-    bool MenuItem::enabled() const {
-        return enabled_;
-    }
-
     MenuItem& MenuItem::set_checkable(bool checkable) {
         checkable_ = checkable;
         return *this;
@@ -53,7 +44,7 @@ namespace thorin {
     bool MenuItem::show() {
         const char* shortcut = shortcut_.empty() ? nullptr : shortcut_.c_str();
 
-        if (ImGui::MenuItem(title_id().c_str(), shortcut, checkable_ ? &checked_ : nullptr, enabled_)) {
+        if (ImGui::MenuItem(title_id().c_str(), shortcut, checkable_ ? &checked_ : nullptr)) {
             if (callback_) {
                 app().add_action([this] {
                     if (callback_) {
@@ -93,23 +84,14 @@ namespace thorin {
         return *this;
     }
 
-    Menu& Menu::set_enabled(bool enabled) {
-        enabled_ = enabled;
-        return *this;
-    }
-
-    bool Menu::enabled() const {
-        return enabled_;
-    }
-
     bool Menu::show() {
         bool clicked = false;
 
-        if (ImGui::BeginMenu(title_id().c_str(), enabled_)) {
+        if (ImGui::BeginMenu(title_id().c_str())) {
             for (auto& entry : items()) {
                 // Entries are outside the Yoga tree, so they reach the app through this menu's window.
                 entry.set_window(window());
-                clicked |= entry.show();
+                clicked |= entry.draw();
             }
 
             ImGui::EndMenu();

@@ -70,7 +70,7 @@ namespace thorin {
                     // Widgets are outside the Yoga tree, so they reach the app through the table's window.
                     auto widget = std::get<Widget*>(cell);
                     widget->set_window(window());
-                    changed |= widget->show();
+                    changed |= widget->draw();
                 }
             }
 

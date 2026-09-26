@@ -14,7 +14,6 @@ namespace thorin {
     class MenuItem : public Widget {
         std::string shortcut_;
         fu2::unique_function<void()> callback_;
-        bool enabled_ = true;
         bool checkable_ = false;
         bool checked_ = false;
 
@@ -30,9 +29,6 @@ namespace thorin {
         [[nodiscard]] const std::string& shortcut() const;
 
         MenuItem& set_callback(fu2::unique_function<void()> callback);
-
-        MenuItem& set_enabled(bool enabled);
-        [[nodiscard]] bool enabled() const;
 
         // A checkable item toggles checked() when clicked, before the callback runs.
         MenuItem& set_checkable(bool checkable);
@@ -50,8 +46,6 @@ namespace thorin {
 
     // Container is protected: entries are added through add_item(), add_menu() and add_separator().
     class Menu : public Widget, protected Container<Widget> {
-        bool enabled_ = true;
-
     public:
         using Container::count;
         using Container::at;
@@ -67,9 +61,6 @@ namespace thorin {
         );
         Menu& add_menu(const std::string& title);
         Menu& add_separator();
-
-        Menu& set_enabled(bool enabled);
-        [[nodiscard]] bool enabled() const;
 
         // Draws the menu header and, while open, its entries. Must be called inside a
         // menu bar or another open menu.

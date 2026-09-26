@@ -34,7 +34,7 @@ namespace thorin {
                 for (auto& menu : items()) {
                     // Menus are outside the Yoga tree, so they reach the app through the bar's window.
                     menu.set_window(window());
-                    clicked |= menu.show();
+                    clicked |= menu.draw();
                 }
 
                 ImGui::EndMenuBar();

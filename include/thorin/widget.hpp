@@ -16,6 +16,7 @@ namespace thorin {
         std::string title_;
         std::string titleID_;
         std::string tooltip_;
+        bool enabled_ = true;
 
         Window* window_ = nullptr;
 
@@ -69,7 +70,14 @@ namespace thorin {
         // Text shown while the widget's box is hovered. Empty means no tooltip.
         [[nodiscard]] const std::string& tooltip() const;
         Widget& set_tooltip(const std::string& tooltip);
+        // A disabled widget is greyed out and ignores input; so is everything drawn inside it.
+        [[nodiscard]] bool enabled() const;
+        Widget& set_enabled(bool enabled);
+        // Positions the widget at its Yoga box, then draw()s it.
         bool render();
+        // show() with the per-widget state applied (disabled, tooltip). Owners that draw
+        // widgets outside the Yoga tree (menus, table cells) call this instead of render().
+        bool draw();
         // Default: renders the children in Yoga order. Leaves override it to draw themselves.
         virtual bool show();
         Window* window();

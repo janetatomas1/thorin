@@ -24,6 +24,7 @@ namespace thorin {
         title_(std::move(other.title_)),
         titleID_(std::move(other.titleID_)),
         tooltip_(std::move(other.tooltip_)),
+        enabled_(other.enabled_),
         window_(other.window_),
         layout_(std::move(other.layout_)) {
         layout_.set_owner(this);
@@ -35,6 +36,7 @@ namespace thorin {
             title_ = std::move(other.title_);
             titleID_ = std::move(other.titleID_);
             tooltip_ = std::move(other.tooltip_);
+            enabled_ = other.enabled_;
             window_ = other.window_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
@@ -138,20 +140,43 @@ namespace thorin {
         return *this;
     }
 
+    bool Widget::enabled() const {
+        return enabled_;
+    }
+
+    Widget& Widget::set_enabled(bool enabled) {
+        enabled_ = enabled;
+        return *this;
+    }
+
     bool Widget::render() {
         ImGui::SetCursorPos(layout().position());
+        return draw();
+    }
 
-        if (tooltip_.empty()) {
-            return show();
+    bool Widget::draw() {
+        if (!enabled_) {
+            ImGui::BeginDisabled();
         }
 
-        // The group makes the whole widget one item, so hovering works for containers too,
-        // not just for their last child.
-        ImGui::BeginGroup();
-        const bool changed = show();
-        ImGui::EndGroup();
+        bool changed = false;
 
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) {
+        if (tooltip_.empty()) {
+            changed = show();
+        } else {
+            // The group makes the whole widget one item, so hovering works for containers too,
+            // not just for their last child.
+            ImGui::BeginGroup();
+            changed = show();
+            ImGui::EndGroup();
+        }
+
+        // Ended before the tooltip, which would otherwise be drawn greyed out too.
+        if (!enabled_) {
+            ImGui::EndDisabled();
+        }
+
+        if (!tooltip_.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
             ImGui::SetTooltip("%s", tooltip_.c_str());
         }
 
