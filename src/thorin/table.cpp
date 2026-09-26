@@ -1,7 +1,5 @@
 #include <algorithm>
 
-#include <libassert/assert.hpp>
-
 #include "thorin/table.hpp"
 
 using namespace thorin::literals;
@@ -22,12 +20,6 @@ namespace thorin {
 
     Table& Table::add_cell(float value) {
         cells_.emplace_back(value);
-        layout().mark_dirty();
-        return *this;
-    }
-
-    Table& Table::add_cell(Widget& widget) {
-        cells_.emplace_back(&widget);
         layout().mark_dirty();
         return *this;
     }

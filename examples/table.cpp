@@ -6,25 +6,25 @@
 #include <iostream>
 
 using namespace thorin;
+using namespace literals;
 
 struct TableExample: Widget {
-    // Declared before the table, so they outlive it.
-    Text alpha = Text("alpha");
-    Checkbox alphaEnabled = Checkbox("##enabled");
-    Button alphaRun = Button("Run", [] { std::cout << "Run alpha" << std::endl; });
-
-    Text beta = Text("beta");
-    Checkbox betaEnabled = Checkbox("##enabled");
-    Button betaRun = Button("Run", [] { std::cout << "Run beta" << std::endl; });
-
     Table table = Table({"Name", "Count", "Ratio", "Enabled", "Action"}, this);
 
     TableExample(const std::string& title): Widget(title) {
         column();
         padding(10);
 
-        table.add_cell(alpha).add_cell(1).add_cell(0.5f).add_cell(alphaEnabled).add_cell(alphaRun);
-        table.add_cell(beta).add_cell(2).add_cell(0.25f).add_cell(betaEnabled).add_cell(betaRun);
+        int n = 0;
+        for (const char* name : {"alpha", "beta", "gamma"}) {
+            table.add_cell<Text>(name);
+            table.add_cell(++n);
+            table.add_cell(n / 3.0f);
+            table.add_cell<Checkbox>(std::string("##enabled"));
+            table.add_cell<Button>("Run", [name] { std::cout << "Run " << name << std::endl; });
+        }
+
+        table.width(40_pcts).margin(20_pcts);
     }
 };
 
