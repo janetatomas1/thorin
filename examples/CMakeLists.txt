@@ -15,6 +15,7 @@ set(
     colorpicker
     menubar
     table
+    tabwidget
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

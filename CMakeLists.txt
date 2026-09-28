@@ -28,6 +28,7 @@ set(
     ${THORIN_SOURCE_DIR}/menu.cpp
     ${THORIN_SOURCE_DIR}/menubar.cpp
     ${THORIN_SOURCE_DIR}/table.cpp
+    ${THORIN_SOURCE_DIR}/tabwidget.cpp
 )
 
 find_package(sdl REQUIRED)

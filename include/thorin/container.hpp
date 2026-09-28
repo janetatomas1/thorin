@@ -36,6 +36,7 @@ namespace thorin {
             return *items_[index];
         }
 
+    protected:
         // The widgets as T&, in insertion order. Ownership stays out of reach: the
         // unique_ptrs can't be reset or moved out through this view.
         auto items() {
