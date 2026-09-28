@@ -47,6 +47,7 @@ namespace thorin {
         ImVec2 position_ = {0.0f, 0.0f};
         ImVec2 size_ = {0.0f, 0.0f};
         Widget* owner_ = nullptr;
+        bool origin_ = false;
 
     public:
         Layout();
@@ -71,6 +72,10 @@ namespace thorin {
         void remove_from_parent();
         void calculate_layout(float width, float height);
         void calculate_position();
+        // An origin node starts a new coordinate space: its own position stays in the parent's
+        // space, its descendants' positions are relative to it (e.g. inside an ImGui child window).
+        void set_origin(bool origin);
+        [[nodiscard]] bool origin() const;
 
         [[nodiscard]] float x() const;
         [[nodiscard]] float y() const;

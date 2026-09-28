@@ -16,6 +16,7 @@ set(
     menubar
     table
     tabwidget
+    childwindow
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

@@ -29,6 +29,7 @@ set(
     ${THORIN_SOURCE_DIR}/menubar.cpp
     ${THORIN_SOURCE_DIR}/table.cpp
     ${THORIN_SOURCE_DIR}/tabwidget.cpp
+    ${THORIN_SOURCE_DIR}/childwindow.cpp
 )
 
 find_package(sdl REQUIRED)

@@ -58,7 +58,8 @@ namespace thorin {
         : node_(std::exchange(other.node_, nullptr))
         , position_(other.position_)
         , size_(other.size_)
-        , owner_(other.owner_) {
+        , owner_(other.owner_)
+        , origin_(other.origin_) {
         if (node_ != nullptr) {
             YGNodeSetContext(node_, this);
         }
@@ -76,6 +77,7 @@ namespace thorin {
             position_ = other.position_;
             size_ = other.size_;
             owner_ = other.owner_;
+            origin_ = other.origin_;
 
             if (node_ != nullptr) {
                 YGNodeSetContext(node_, this);
@@ -143,6 +145,14 @@ namespace thorin {
         calculate_position();
     }
 
+    void Layout::set_origin(bool origin) {
+        origin_ = origin;
+    }
+
+    bool Layout::origin() const {
+        return origin_;
+    }
+
     void Layout::calculate_position() {
         DEBUG_ASSERT(node_ != nullptr, "calculate_position called on moved-from Layout");
 
@@ -153,7 +163,7 @@ namespace thorin {
         size_.x = YGNodeLayoutGetWidth(node_);
         size_.y = YGNodeLayoutGetHeight(node_);
 
-        if (parentLayout != nullptr) {
+        if (parentLayout != nullptr && !parentLayout->origin()) {
             position_.x += parentLayout->position().x;
             position_.y += parentLayout->position().y;
         }
