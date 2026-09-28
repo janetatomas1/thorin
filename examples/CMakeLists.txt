@@ -17,6 +17,7 @@ set(
     table
     tabwidget
     childwindow
+    selectable
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

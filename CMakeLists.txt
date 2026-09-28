@@ -30,6 +30,7 @@ set(
     ${THORIN_SOURCE_DIR}/table.cpp
     ${THORIN_SOURCE_DIR}/tabwidget.cpp
     ${THORIN_SOURCE_DIR}/childwindow.cpp
+    ${THORIN_SOURCE_DIR}/selectable.cpp
 )
 
 find_package(sdl REQUIRED)
