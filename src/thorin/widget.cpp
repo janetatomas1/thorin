@@ -460,26 +460,6 @@ namespace thorin {
         return *this;
     }
 
-    LayoutValue Widget::style_margin(YGEdge edge) const {
-        return layout_.style_margin(edge);
-    }
-
-    LayoutValue Widget::style_padding(YGEdge edge) const {
-        return layout_.style_padding(edge);
-    }
-
-    LayoutValue Widget::style_position(YGEdge edge) const {
-        return layout_.style_position(edge);
-    }
-
-    LayoutValue Widget::style_width() const {
-        return layout_.style_width();
-    }
-
-    LayoutValue Widget::style_height() const {
-        return layout_.style_height();
-    }
-
     float Widget::gap(YGGutter gutter) const {
         return layout_.gap(gutter);
     }
@@ -538,10 +518,6 @@ namespace thorin {
 
     LayoutValue Widget::max_height() const {
         return layout_.max_height();
-    }
-
-    float Widget::style_border(YGEdge edge) const {
-        return layout_.style_border(edge);
     }
 
     YGDisplay Widget::display() const {

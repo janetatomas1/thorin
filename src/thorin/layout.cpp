@@ -466,26 +466,6 @@ namespace thorin {
         return align_items(YGAlignCenter).justify_content(YGJustifyCenter);
     }
 
-    LayoutValue Layout::style_margin(YGEdge edge) const {
-        return YGNodeStyleGetMargin(node_, edge);
-    }
-
-    LayoutValue Layout::style_padding(YGEdge edge) const {
-        return YGNodeStyleGetPadding(node_, edge);
-    }
-
-    LayoutValue Layout::style_position(YGEdge edge) const {
-        return YGNodeStyleGetPosition(node_, edge);
-    }
-
-    LayoutValue Layout::style_width() const {
-        return YGNodeStyleGetWidth(node_);
-    }
-
-    LayoutValue Layout::style_height() const {
-        return YGNodeStyleGetHeight(node_);
-    }
-
     float Layout::gap(YGGutter gutter) const {
         return YGNodeStyleGetGap(node_, gutter);
     }
@@ -544,10 +524,6 @@ namespace thorin {
 
     LayoutValue Layout::max_height() const {
         return YGNodeStyleGetMaxHeight(node_);
-    }
-
-    float Layout::style_border(YGEdge edge) const {
-        return YGNodeStyleGetBorder(node_, edge);
     }
 
     YGDisplay Layout::display() const {

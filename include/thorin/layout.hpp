@@ -144,13 +144,7 @@ namespace thorin {
         Layout& column(float gap = 0.0f);
         Layout& center();
 
-        // Style values as set. style_ marks the ones whose plain name returns the computed box
-        // (width(), margin(edge), ...). Unset values come back as YGUnitUndefined / NaN, as Yoga reports them.
-        [[nodiscard]] LayoutValue style_margin(YGEdge edge = YGEdgeAll) const;
-        [[nodiscard]] LayoutValue style_padding(YGEdge edge = YGEdgeAll) const;
-        [[nodiscard]] LayoutValue style_position(YGEdge edge) const;
-        [[nodiscard]] LayoutValue style_width() const;
-        [[nodiscard]] LayoutValue style_height() const;
+        // Style values as set. Unset values come back as YGUnitUndefined / NaN, as Yoga reports them.
         [[nodiscard]] float gap(YGGutter gutter = YGGutterAll) const;
         [[nodiscard]] YGFlexDirection flex_direction() const;
         [[nodiscard]] float flex_grow() const;
@@ -166,7 +160,6 @@ namespace thorin {
         [[nodiscard]] LayoutValue min_height() const;
         [[nodiscard]] LayoutValue max_width() const;
         [[nodiscard]] LayoutValue max_height() const;
-        [[nodiscard]] float style_border(YGEdge edge = YGEdgeAll) const;
         [[nodiscard]] YGDisplay display() const;
         [[nodiscard]] YGOverflow overflow() const;
         [[nodiscard]] float aspect_ratio() const;
