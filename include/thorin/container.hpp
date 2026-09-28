@@ -27,6 +27,20 @@ namespace thorin {
             return ref;
         }
 
+        // Takes ownership of an already constructed widget.
+        T& adopt(std::unique_ptr<T> item) {
+            DEBUG_ASSERT(item != nullptr, "Container::adopt called with null");
+            auto& ref = *item;
+            items_.push_back(std::move(item));
+            return ref;
+        }
+
+        // Destroys the widget at index; later widgets shift down by one.
+        void remove(size_t index) {
+            DEBUG_ASSERT(index < items_.size(), "Container::remove index out of range", index, items_.size());
+            items_.erase(items_.begin() + static_cast<std::ptrdiff_t>(index));
+        }
+
         [[nodiscard]] size_t count() const {
             return items_.size();
         }

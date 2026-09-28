@@ -18,8 +18,23 @@ namespace thorin {
     Thorin::Thorin([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
         DEBUG_ASSERT(argc >= 0, "argc is negative", argc);
         DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
+        DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
+        current_ = this;
 
         windowManager_.init();
+    }
+
+    Thorin::~Thorin() {
+        current_ = nullptr;
+    }
+
+    Thorin& Thorin::current() {
+        DEBUG_ASSERT(current_ != nullptr, "Thorin::current called with no Thorin instance");
+        return *current_;
+    }
+
+    bool Thorin::has_current() {
+        return current_ != nullptr;
     }
 
     void Thorin::destroy() {

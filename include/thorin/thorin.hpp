@@ -9,6 +9,9 @@
 
 namespace thorin {
     class Thorin {
+        // The live app, so widgets reach it without a window (e.g. from their constructors).
+        static inline Thorin* current_ = nullptr;
+
         int exitCode_ = 0;
         uint64_t frame_ = 0;
         bool shouldExit_ = false;
@@ -22,6 +25,17 @@ namespace thorin {
         void update();
     public:
         Thorin(int argc, char** argv);
+        ~Thorin();
+
+        // WindowManager and current_ hold this address, so it must not move.
+        Thorin(const Thorin&) = delete;
+        Thorin& operator=(const Thorin&) = delete;
+        Thorin(Thorin&&) = delete;
+        Thorin& operator=(Thorin&&) = delete;
+
+        // The live app. Asserts when there is none (e.g. headless tests).
+        static Thorin& current();
+        [[nodiscard]] static bool has_current();
         int exec();
         void exit();
 
@@ -51,8 +65,14 @@ namespace thorin {
 
     template <WidgetConcept W, typename ... Args>
     uint64_t Thorin::add_window(WindowConfig config, Args&&... args) {
-        auto widget = std::make_unique<W>(std::forward<Args>(args)...);
-        return add_window(std::make_unique<Window>(config, std::move(widget)));
+        // The window is registered first so it can reach the app; set_root_widget() then gives the
+        // widget its window right away and queues the swap after the window's init, which calls
+        // the widget's init(). The widget's constructor still runs without a window.
+        auto window = std::make_unique<Window>(config);
+        Window* raw = window.get();
+        const uint64_t id = add_window(std::move(window));
+        raw->set_root_widget(std::make_unique<W>(std::forward<Args>(args)...));
+        return id;
     }
 
     template <WidgetConcept W, typename ... Args>

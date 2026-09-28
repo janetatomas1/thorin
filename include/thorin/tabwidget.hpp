@@ -30,6 +30,8 @@ namespace thorin {
 
         // Shows page index and hides the previously selected one.
         void display_page(size_t index);
+        // Queues the page to be parented and appended on the next dispatch.
+        void attach_page(std::unique_ptr<Widget> page);
 
     public:
         using Container::count;
@@ -38,19 +40,20 @@ namespace thorin {
 
         TabWidget(Widget* parent = nullptr);
 
-        // Adds a page; its title() is the tab label. Returned reference stays valid for the TabWidget's lifetime.
+        // Adds a page; its title() is the tab label. The page is built now, but joins the tabs
+        // on the next dispatch (count() doesn't include it until then). The returned reference
+        // stays valid until the page is removed or the TabWidget is destroyed.
         template <WidgetConcept W = Widget, class... Args>
         W& add_tab(Args&&... args) {
-            auto& page = add<W>(std::forward<Args>(args)...);
-            page.set_parent(this);
-            // The first page starts selected; later ones stay hidden until chosen.
-            if (count() > 1) {
-                page.display(YGDisplayNone);
-            }
-            // A new tab widens the strip.
-            tabBar.layout().mark_dirty();
-            return page;
+            auto page = std::make_unique<W>(std::forward<Args>(args)...);
+            auto& ref = *page;
+            attach_page(std::move(page));
+            return ref;
         }
+
+        // Removes and destroys the page at index on the next dispatch. The index is resolved
+        // then, so queued adds and removes apply in call order.
+        void remove_tab(size_t index);
 
         [[nodiscard]] size_t selected() const;
         TabWidget& set_selected(size_t index);

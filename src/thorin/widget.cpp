@@ -242,13 +242,7 @@ namespace thorin {
     }
 
     Thorin& Widget::app() {
-        if (window_ != nullptr) {
-            return window_->app();
-        }
-
-        auto p = parent();
-        DEBUG_ASSERT(p != nullptr, "Widget::app: no window_ and no parent to fall back to", title_);
-        return p->app();
+        return Thorin::current();
     }
 
     Layout& Widget::layout() {

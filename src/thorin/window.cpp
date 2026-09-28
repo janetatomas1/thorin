@@ -51,13 +51,13 @@ namespace thorin {
     void Window::set_root_widget(std::unique_ptr<Widget> widget) {
         DEBUG_ASSERT(widget != nullptr, "set_root_widget called with null widget");
 
+        widget->set_window(this);
         app().add_action([this, widget = std::move(widget)]() mutable  {
             if (rootWidget_ != nullptr) {
                 rootWidget_->destroy();
             }
 
             rootWidget_ = std::move(widget);
-            rootWidget_->set_window(this);
             rootWidget_->init();
         });
     }

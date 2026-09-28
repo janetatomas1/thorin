@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <imgui_internal.h>
 #include <libassert/assert.hpp>
 
@@ -84,6 +86,42 @@ namespace thorin {
         items()[tabBar.selected_].display(YGDisplayNone);
         tabBar.selected_ = index;
         items()[tabBar.selected_].display(YGDisplayFlex);
+    }
+
+    void TabWidget::attach_page(std::unique_ptr<Widget> page) {
+        app().add_action([this, page = std::move(page)]() mutable {
+            auto& ref = adopt(std::move(page));
+            ref.set_parent(this);
+            // The first page starts selected; later ones stay hidden until chosen.
+            if (count() > 1) {
+                ref.display(YGDisplayNone);
+            }
+            // A new tab widens the strip.
+            tabBar.layout().mark_dirty();
+        });
+    }
+
+    void TabWidget::remove_tab(size_t index) {
+        app().add_action([this, index] {
+            DEBUG_ASSERT(index < count(), "TabWidget::remove_tab index out of range", index, count());
+
+            size_t& selected = tabBar.selected_;
+            const bool wasSelected = index == selected;
+            remove(index);
+
+            // Keep the same page selected; if it was the removed one, its successor (or the new
+            // last page) takes over and has to be shown.
+            if (index < selected) {
+                --selected;
+            } else if (wasSelected && count() > 0) {
+                selected = std::min(selected, count() - 1);
+                at(selected).display(YGDisplayFlex);
+            } else if (count() == 0) {
+                selected = 0;
+            }
+
+            tabBar.layout().mark_dirty();
+        });
     }
 
     TabWidget& TabWidget::set_selected(size_t index) {
