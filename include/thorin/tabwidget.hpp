@@ -28,6 +28,9 @@ namespace thorin {
 
         TabBar tabBar = TabBar(this);
 
+        // Shows page index and hides the previously selected one.
+        void display_page(size_t index);
+
     public:
         using Container::count;
         using Container::at;
@@ -40,6 +43,10 @@ namespace thorin {
         W& add_tab(Args&&... args) {
             auto& page = add<W>(std::forward<Args>(args)...);
             page.set_parent(this);
+            // The first page starts selected; later ones stay hidden until chosen.
+            if (count() > 1) {
+                page.display(YGDisplayNone);
+            }
             // A new tab widens the strip.
             tabBar.layout().mark_dirty();
             return page;

@@ -2,6 +2,7 @@
 #include <libassert/assert.hpp>
 
 #include "thorin/tabwidget.hpp"
+#include "thorin/thorin.hpp"
 
 using namespace thorin::literals;
 
@@ -11,23 +12,36 @@ namespace thorin {
     }
 
     bool TabWidget::TabBar::show() {
-        size_t before = selected_;
+        bool changed = false;
         if (ImGui::BeginTabBar(title_id().c_str(), flags_)){
             auto tabs = tabWidget->items();
             size_t index = 0;
             for (const auto& tab : tabs) {
-                if (ImGui::BeginTabItem(tab.title_id().c_str())) {
+                // selected_ is the source of truth: ImGui is told every frame (a no-op once it
+                // matches), so set_selected() needs nothing else to switch the tab.
+                const ImGuiTabItemFlags itemFlags = index == selected_
+                    ? ImGuiTabItemFlags_SetSelected
+                    : ImGuiTabItemFlags_None;
+
+                if (ImGui::BeginTabItem(tab.title_id().c_str(), nullptr, itemFlags)) {
                     ImGui::EndTabItem();
-                    selected_ = index;
+                }
+
+                // Deferred: the page boxes for this frame are already laid out, and the switch
+                // must land before the next frame passes SetSelected for the old tab.
+                if (ImGui::IsItemClicked() && index != selected_) {
+                    app().add_action([tabWidget = tabWidget, index] {
+                        tabWidget->display_page(index);
+                    });
+                    changed = true;
                 }
                 index++;
             }
 
             ImGui::EndTabBar();
-            return before == selected_;
         }
 
-        return false;
+        return changed;
     }
 
     ImVec2 TabWidget::TabBar::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
@@ -62,8 +76,19 @@ namespace thorin {
         return tabBar.selected_;
     }
 
-    TabWidget& TabWidget::set_selected(size_t index) {
+    void TabWidget::display_page(size_t index) {
+        if (index == tabBar.selected_) {
+            return;
+        }
+
+        items()[tabBar.selected_].display(YGDisplayNone);
         tabBar.selected_ = index;
+        items()[tabBar.selected_].display(YGDisplayFlex);
+    }
+
+    TabWidget& TabWidget::set_selected(size_t index) {
+        DEBUG_ASSERT(index < count(), "TabWidget::set_selected index out of range", index, count());
+        display_page(index);
         return *this;
     }
 
@@ -79,7 +104,11 @@ namespace thorin {
 
     bool TabWidget::show() {
         tabBar.render();
-        items()[tabBar.selected_].render();
+
+        if (count() > 0) {
+            items()[tabBar.selected_].render();
+        }
+
         return false;
     }
 }
