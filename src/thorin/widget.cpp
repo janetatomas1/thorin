@@ -54,7 +54,8 @@ namespace thorin {
     }
 
     void Widget::destroy() {
-        for (size_t i = 0; i < layout_.child_count(); ++i) {
+        // Reverse of init(): later children may depend on earlier ones.
+        for (size_t i = layout_.child_count(); i-- > 0;) {
             auto owner = layout_.child(i)->owner();
             DEBUG_ASSERT(owner != nullptr, "Widget::destroy: child Layout has no owner", i);
             owner->destroy();

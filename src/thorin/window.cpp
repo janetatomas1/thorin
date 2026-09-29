@@ -20,6 +20,9 @@ namespace thorin {
 
     void Window::destroy() {
         DEBUG_ASSERT(backend_ != nullptr, "Window::destroy called with no backend");
+        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::destroy called with no root widget");
+        // Before the backend, so widgets can still release what they hold in it.
+        rootWidget_->destroy();
         backend_->destroy();
     }
 
