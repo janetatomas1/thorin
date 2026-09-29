@@ -23,10 +23,12 @@ namespace thorin {
 
     void Popup::open() {
         open_ = true;
+        openRequested_ = true;
     }
 
     void Popup::close() {
         open_ = false;
+        openRequested_ = false;
     }
 
     bool Popup::is_open() const {
@@ -35,8 +37,11 @@ namespace thorin {
 
     bool Popup::show() {
         // OpenPopup and the Begin call must see the same ID stack, so both happen here.
-        if (open_ && !ImGui::IsPopupOpen(title_id().c_str())) {
-            ImGui::OpenPopup(title_id().c_str());
+        if (openRequested_) {
+            if (!ImGui::IsPopupOpen(title_id().c_str())) {
+                ImGui::OpenPopup(title_id().c_str());
+            }
+            openRequested_ = false;
         }
 
         // render() put the cursor at this widget's box; the popup is a separate window,
@@ -56,10 +61,6 @@ namespace thorin {
             // Only ever cleared here: a pending close() must survive until CloseCurrentPopup below.
             open_ = false;
             return false;
-        }
-
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-            open_ = false;
         }
 
         // Local (0, 0) is the window's top-left corner, under the title bar if there is one:

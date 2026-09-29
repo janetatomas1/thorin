@@ -12,9 +12,13 @@ namespace thorin {
     class Popup : public Widget {
         // Yoga owns the box: moving or resizing would be undone the next frame.
         ImGuiWindowFlags flags_ = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
-        // Wanted state; show() opens or closes the ImGui popup to match it, and clears it
-        // when ImGui closes the popup itself.
+        // Wanted state; show() closes the ImGui popup to match it, and clears it when ImGui
+        // closes the popup itself.
         bool open_ = false;
+        // Set by open() until show() calls OpenPopup. Kept apart from open_: ImGui closes a
+        // popup (click outside) after show() ran, so the next frame open_ is still true while
+        // the popup is closed, which would otherwise look like a request to open it.
+        bool openRequested_ = false;
 
     protected:
         // The ImGui Begin call for this kind of popup; returns whether it is showing.
