@@ -19,6 +19,7 @@ set(
     childwindow
     selectable
     modal
+    popup
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
