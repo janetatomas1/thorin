@@ -16,6 +16,7 @@
 #include <thorin/drag.hpp>
 #include <thorin/dropdown.hpp>
 #include <thorin/input.hpp>
+#include <thorin/progressbar.hpp>
 #include <thorin/radiobutton.hpp>
 #include <thorin/radiogroup.hpp>
 #include <thorin/slider.hpp>
@@ -249,6 +250,17 @@ TEST_F(Measure, ColorPickerNoSidePreview) {
     ColorPicker<> picker("Accent", &root);
     picker.set_flags(ImGuiColorEditFlags_NoSidePreview);
     expect_matches(picker);
+}
+
+TEST_F(Measure, ProgressBar) {
+    ProgressBar bar(&root);
+    bar.set_fraction(0.5f);
+    expect_matches(bar);
+}
+
+TEST_F(Measure, ExplicitBoxProgressBar) {
+    ProgressBar bar(&root);
+    expect_box(bar, 300.0f, 32.0f);
 }
 
 TEST_F(Measure, ExplicitBoxSlider) {

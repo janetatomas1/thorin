@@ -20,6 +20,7 @@ set(
     selectable
     modal
     popup
+    progressbar
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})

@@ -78,7 +78,6 @@ based on ImGui's own sizing, and `mark_dirty()` in setters that change size.
 
 | Widget           | ImGui call                              | Measure notes                                      |
 |------------------|-----------------------------------------|----------------------------------------------------|
-| ProgressBar      | `ProgressBar`                           | field width, frame height; takes a size directly   |
 | Separator        | `Separator` / `SeparatorText`           | fills width; 1 px or text height                   |
 | ColorButton      | `ColorButton`                           | takes a size; default frame-height square          |
 | VSlider          | `VSliderScalar`                         | takes a size; needs an intrinsic height            |

@@ -33,6 +33,7 @@ set(
     ${THORIN_SOURCE_DIR}/selectable.cpp
     ${THORIN_SOURCE_DIR}/popup.cpp
     ${THORIN_SOURCE_DIR}/modal.cpp
+    ${THORIN_SOURCE_DIR}/progressbar.cpp
 )
 
 find_package(sdl REQUIRED)
