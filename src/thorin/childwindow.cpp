@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include <imgui_internal.h>
 
 #include "thorin/childwindow.hpp"
@@ -32,27 +30,6 @@ namespace thorin {
         const ImGuiStyle& style = ImGui::GetStyle();
         const float borderSize = (childFlags_ & ImGuiChildFlags_Borders) ? style.ChildBorderSize : 0.0f;
 
-        // Scroll range from Yoga: the children's far edges plus the trailing padding and border
-        // line, which ImGui wouldn't count from item positions alone. Child positions are
-        // already local to this window (the layout is an origin).
-        ImVec2 content{0.0f, 0.0f};
-        for (size_t i = 0; i < layout().child_count(); ++i) {
-            auto child = layout().child(i);
-            if (!child->visible()) {
-                continue;
-            }
-
-            // Through const: on a mutable object, margin(YGEdge) is ambiguous with the setter.
-            const Layout& box = *child;
-            content.x = std::max(content.x, box.x() + box.width() + box.margin(YGEdgeRight));
-            content.y = std::max(content.y, box.y() + box.height() + box.margin(YGEdgeBottom));
-        }
-
-        const Widget& self = *this;
-        content.x += self.padding(YGEdgeRight) + borderSize;
-        content.y += self.padding(YGEdgeBottom) + borderSize;
-        ImGui::SetNextWindowContentSize(content);
-
         // Yoga padding is the only inset: SetCursorPos ignores WindowPadding, but ImGui would
         // still shrink the clip rect by it.
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
@@ -68,6 +45,14 @@ namespace thorin {
         bool changed = false;
         if (visible) {
             changed = Widget::show();
+
+            // Scroll range from what was drawn here: ImGui sizes the content by the items' far
+            // corner, so children drawn in their own window (popups) don't count. It doesn't know
+            // about the trailing padding and border line, so they are added to that corner.
+            const Widget& self = *this;
+            ImGuiWindow* child = ImGui::GetCurrentWindow();
+            child->DC.CursorMaxPos.x += self.padding(YGEdgeRight) + borderSize;
+            child->DC.CursorMaxPos.y += self.padding(YGEdgeBottom) + borderSize;
         }
 
         // Unlike most Begin/End pairs, EndChild is required even when BeginChild returns false.

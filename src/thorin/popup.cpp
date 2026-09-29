@@ -54,7 +54,9 @@ namespace thorin {
 
         // Yoga padding is the only inset: SetCursorPos ignores WindowPadding, but ImGui would
         // still shrink the clip rect by it.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
         const bool visible = begin(flags_);
+        ImGui::PopStyleVar();
 
         if (!visible) {
             // Picks up closes ImGui did on its own (click outside, Escape), so they don't reopen.

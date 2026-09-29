@@ -1,6 +1,6 @@
 # Roadmap
 
-Ideas for what to build next, grouped by area. Nothing here is implemented yet.
+Ideas for what to build next, grouped by area. Sections marked (done) record what was built.
 Design details for measuring and styling live in [measure.md](measure.md).
 
 ## Finish the measure work (done)
@@ -47,16 +47,17 @@ bool Widget::show() {
 - Containers that draw something themselves (`RadioGroup`) can keep their override or call
   the base.
 
-### Scroll containers
+### Scroll containers (done)
 
-Content bigger than the window is simply cut off today. Combine Yoga
-`overflow(YGOverflowScroll)` with `ImGui::BeginChild` / `EndChild`:
+`ChildWindow` draws its Yoga box as an ImGui child window; ImGui handles scrollbars and
+clipping.
 
-- The container's box becomes a child window; ImGui handles scrollbars and clipping.
-- Children are positioned relative to the child window, so `render()`'s `SetCursorPos`
-  must use positions relative to the scroll container, not the root.
-- Yoga must lay the content out with unbounded size on the scroll axis. That size becomes
-  the child window's content size.
+- Its layout is an origin (`Layout::set_origin`): children's positions are relative to it,
+  which is what `SetCursorPos` inside `BeginChild` expects.
+- The scroll range is ImGui's own, from the items drawn in the child window, plus the
+  trailing Yoga padding and border. Popups inside it are drawn in their own window, so
+  they don't stretch it.
+- Scrollbars are given room through the Yoga border on the right / bottom edge.
 
 ## Styling
 
@@ -82,12 +83,11 @@ based on ImGui's own sizing, and `mark_dirty()` in setters that change size.
 | ColorButton      | `ColorButton`                           | takes a size; default frame-height square          |
 | VSlider          | `VSliderScalar`                         | takes a size; needs an intrinsic height            |
 | Image            | `Image`                                 | texture size, or aspect ratio via Yoga             |
-| Selectable       | `Selectable`                            | label size; `SpanAllColumns` fills width           |
 | PlotLines/Histogram | `PlotLines` / `PlotHistogram`        | field width + label; takes a graph size            |
 
 ### Collapsible containers
 
-CollapsingHeader, TreeNode, TabBar:
+CollapsingHeader, TreeNode. (`TabWidget` is done and follows this pattern.)
 
 - The header or tab strip is drawn by the container itself.
 - When collapsed, or when a tab isn't selected, children get `display(YGDisplayNone)`, so Yoga
@@ -96,13 +96,10 @@ CollapsingHeader, TreeNode, TabBar:
 - These containers draw something *and* have children, so they can't use a measure function.
   The header would be its own leaf child placed first.
 
-### Overlays
+### Overlays (done)
 
-Tooltip, Popup, Modal:
-
-- They float above the layout rather than taking space in it, so they aren't children in the
-  Yoga tree, or they are absolutely positioned.
-- A widget outside the tree has no parent, so `window()` / `app()` can't walk up. These
-  widgets need `window_` set directly (see measure.md, parenthood).
-- Each has its own ImGui window, so it could have its own root `Layout`, with
-  `calculate_layout` run inside its `Begin` / `End`.
+- **Tooltip:** `Widget::set_tooltip`, shown while the widget's box is hovered.
+- **Popup, Modal:** ordinary Yoga children, absolutely positioned (no space taken in the
+  parent) and origin layouts. `show()` opens the ImGui popup at the Yoga box's screen
+  position and size; children are laid out inside it. `Modal` is a `Popup` with
+  `BeginPopupModal`. They nest in each other and in `ChildWindow`.
