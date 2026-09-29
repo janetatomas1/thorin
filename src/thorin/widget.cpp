@@ -45,6 +45,22 @@ namespace thorin {
         return *this;
     }
 
+    void Widget::init() {
+        for (size_t i = 0; i < layout_.child_count(); ++i) {
+            auto owner = layout_.child(i)->owner();
+            DEBUG_ASSERT(owner != nullptr, "Widget::init: child Layout has no owner", i);
+            owner->init();
+        }
+    }
+
+    void Widget::destroy() {
+        for (size_t i = 0; i < layout_.child_count(); ++i) {
+            auto owner = layout_.child(i)->owner();
+            DEBUG_ASSERT(owner != nullptr, "Widget::destroy: child Layout has no owner", i);
+            owner->destroy();
+        }
+    }
+
     ImVec2 Widget::measure(float, YGMeasureMode, float, YGMeasureMode) {
         return ImVec2{0.0f, 0.0f};
     }

@@ -60,8 +60,10 @@ namespace thorin {
         Widget& operator=(Widget&& other) noexcept;
 
         virtual ~Widget() = default;
-        virtual void init() {}
-        virtual void destroy() {}
+        // Default: calls init() / destroy() on the children, in Yoga order. Overrides call the
+        // base version to keep reaching the children.
+        virtual void init();
+        virtual void destroy();
         virtual ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode);
         [[nodiscard]] uint64_t id() const;
         [[nodiscard]] const std::string& title() const;
