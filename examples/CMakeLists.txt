@@ -18,6 +18,7 @@ set(
     tabwidget
     childwindow
     selectable
+    modal
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
