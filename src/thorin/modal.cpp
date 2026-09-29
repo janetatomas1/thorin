@@ -18,13 +18,11 @@ namespace thorin {
     }
 
     void Modal::open() {
-        pendingOpen_ = true;
-        pendingClose_ = false;
+        open_ = true;
     }
 
     void Modal::close() {
-        pendingClose_ = true;
-        pendingOpen_ = false;
+        open_ = false;
     }
 
     bool Modal::is_open() const {
@@ -33,9 +31,8 @@ namespace thorin {
 
     bool Modal::show() {
         // OpenPopup and BeginPopupModal must see the same ID stack, so both happen here.
-        if (pendingOpen_) {
+        if (open_ && !ImGui::IsPopupOpen(title_id().c_str())) {
             ImGui::OpenPopup(title_id().c_str());
-            pendingOpen_ = false;
         }
 
         // render() put the cursor at this widget's box; the popup is a separate window,
@@ -49,11 +46,10 @@ namespace thorin {
         // Yoga padding is the only inset: SetCursorPos ignores WindowPadding, but ImGui would
         // still shrink the clip rect by it.
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
-        open_ = ImGui::BeginPopupModal(title_id().c_str(), nullptr, flags_);
+        const bool visible = ImGui::BeginPopupModal(title_id().c_str(), nullptr, flags_);
         ImGui::PopStyleVar();
 
-        if (!open_) {
-            pendingClose_ = false;
+        if (!visible) {
             return false;
         }
 
@@ -65,9 +61,8 @@ namespace thorin {
 
         const bool changed = Widget::show();
 
-        if (pendingClose_) {
+        if (!open_) {
             ImGui::CloseCurrentPopup();
-            pendingClose_ = false;
         }
 
         ImGui::EndPopup();

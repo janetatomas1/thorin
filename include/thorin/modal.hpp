@@ -12,9 +12,8 @@ namespace thorin {
     class Modal : public Widget {
         // Yoga owns the box: moving or resizing would be undone the next frame.
         ImGuiWindowFlags flags_ = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
+        // Wanted state; show() opens or closes the ImGui popup to match it.
         bool open_ = false;
-        bool pendingOpen_ = false;
-        bool pendingClose_ = false;
 
     public:
         Modal(const std::string& title = "", Widget* parent = nullptr);
@@ -25,7 +24,6 @@ namespace thorin {
         // Take effect on the next show().
         void open();
         void close();
-        // Whether the popup was open at the last show().
         [[nodiscard]] bool is_open() const;
 
         bool show() override;
