@@ -78,7 +78,6 @@ based on ImGui's own sizing, and `mark_dirty()` in setters that change size.
 
 | Widget           | ImGui call                              | Measure notes                                      |
 |------------------|-----------------------------------------|----------------------------------------------------|
-| Separator        | `Separator` / `SeparatorText`           | fills width; 1 px or text height                   |
 | ColorButton      | `ColorButton`                           | takes a size; default frame-height square          |
 | VSlider          | `VSliderScalar`                         | takes a size; needs an intrinsic height            |
 | Image            | `Image`                                 | texture size, or aspect ratio via Yoga             |

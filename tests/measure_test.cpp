@@ -17,6 +17,7 @@
 #include <thorin/dropdown.hpp>
 #include <thorin/input.hpp>
 #include <thorin/progressbar.hpp>
+#include <thorin/separator.hpp>
 #include <thorin/radiobutton.hpp>
 #include <thorin/radiogroup.hpp>
 #include <thorin/slider.hpp>
@@ -256,6 +257,33 @@ TEST_F(Measure, ProgressBar) {
     ProgressBar bar(&root);
     bar.set_fraction(0.5f);
     expect_matches(bar);
+}
+
+// Separators stretch across the column (align_self), so the root's width.
+TEST_F(Measure, Separator) {
+    Separator separator("", &root);
+    const Sizes s = sizes(separator);
+    EXPECT_NEAR(s.layout.x, displayWidth, tolerance);
+    EXPECT_NEAR(s.drawn.x, displayWidth, tolerance);
+    EXPECT_NEAR(s.layout.y, s.drawn.y, tolerance);
+}
+
+TEST_F(Measure, SeparatorText) {
+    Separator separator("Section", &root);
+    expect_matches(separator);
+}
+
+TEST_F(Measure, SeparatorTextLeftWidth) {
+    Separator separator("Section", &root);
+    separator.set_left_width(40.0f).width(300.0f);
+    expect_matches(separator);
+}
+
+TEST_F(Measure, SeparatorExplicitWidth) {
+    Separator separator("", &root);
+    separator.width(200.0f);
+    const Sizes s = sizes(separator);
+    EXPECT_NEAR(s.drawn.x, 200.0f, tolerance);
 }
 
 TEST_F(Measure, ExplicitBoxProgressBar) {

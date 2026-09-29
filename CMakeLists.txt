@@ -34,6 +34,7 @@ set(
     ${THORIN_SOURCE_DIR}/popup.cpp
     ${THORIN_SOURCE_DIR}/modal.cpp
     ${THORIN_SOURCE_DIR}/progressbar.cpp
+    ${THORIN_SOURCE_DIR}/separator.cpp
 )
 
 find_package(sdl REQUIRED)
