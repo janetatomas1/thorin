@@ -4,6 +4,7 @@
 #include <thorin/button.hpp>
 #include <thorin/checkbox.hpp>
 #include <iostream>
+#include <string>
 
 using namespace thorin;
 using namespace literals;
@@ -31,12 +32,27 @@ struct AboutPage: Widget {
     }
 };
 
+// Pages added at runtime by the "Add tab" button.
+struct NewPage: Widget {
+    Text text;
+
+    NewPage(const std::string& title): Widget(title), text("This is " + title, this) {
+        padding(10);
+    }
+};
+
 struct TabWidgetExample: Widget {
+    int added = 0;
+    Button addTab = Button("Add tab", [this] {
+        tabs.add_tab<NewPage>("Tab " + std::to_string(++added));
+    }, this);
     TabWidget tabs = TabWidget(this);
 
     TabWidgetExample(const std::string& title): Widget(title) {
-        column();
+        column(10);
         padding(10);
+
+        addTab.align_self(YGAlignFlexStart);
 
         tabs.add_tab<GeneralPage>();
         tabs.add_tab<AboutPage>();

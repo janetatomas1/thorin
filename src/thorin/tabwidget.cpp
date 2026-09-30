@@ -16,6 +16,16 @@ namespace thorin {
     bool TabWidget::TabBar::show() {
         bool changed = false;
         if (ImGui::BeginTabBar(title_id().c_str(), flags_)){
+            // The tabs share the bar's width equally. With too many tabs the share drops below
+            // the labels' width and ImGui shortens them with "...".
+            const ImGuiStyle& style = ImGui::GetStyle();
+            const float count = static_cast<float>(tabWidget->count());
+            float available = width() - style.ItemInnerSpacing.x * (count - 1.0f);
+            if (flags_ & ImGuiTabBarFlags_TabListPopupButton) {
+                available -= ImGui::GetFontSize() + style.FramePadding.y;
+            }
+            const float tabWidth = std::max(available / count, 1.0f);
+
             auto tabs = tabWidget->items();
             size_t index = 0;
             for (const auto& tab : tabs) {
@@ -25,6 +35,7 @@ namespace thorin {
                     ? ImGuiTabItemFlags_SetSelected
                     : ImGuiTabItemFlags_None;
 
+                ImGui::SetNextItemWidth(tabWidth);
                 if (ImGui::BeginTabItem(tab.title_id().c_str(), nullptr, itemFlags)) {
                     ImGui::EndTabItem();
                 }
@@ -66,10 +77,12 @@ namespace thorin {
             tabsWidth += ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y;
         }
 
-        return ImVec2{
+        const ImVec2 size{
             fit_measure(tabsWidth, width, widthMode),
             fit_measure(ImGui::GetFrameHeight(), height, heightMode)
         };
+
+        return size;
     }
 
     TabWidget::TabWidget(Widget* parent): Widget("", parent) {}
