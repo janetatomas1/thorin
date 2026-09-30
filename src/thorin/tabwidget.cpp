@@ -16,8 +16,8 @@ namespace thorin {
     bool TabWidget::TabBar::show() {
         bool changed = false;
         if (ImGui::BeginTabBar(title_id().c_str(), flags_)){
-            // The tabs share the bar's width equally. With too many tabs the share drops below
-            // the labels' width and ImGui shortens them with "...".
+            // With stretch_, the tabs share the bar's width equally. With too many tabs the share
+            // drops below the labels' width and ImGui shortens them with "...".
             const ImGuiStyle& style = ImGui::GetStyle();
             const float count = static_cast<float>(tabWidget->count());
             float available = width() - style.ItemInnerSpacing.x * (count - 1.0f);
@@ -35,7 +35,9 @@ namespace thorin {
                     ? ImGuiTabItemFlags_SetSelected
                     : ImGuiTabItemFlags_None;
 
-                ImGui::SetNextItemWidth(tabWidth);
+                if (stretch_) {
+                    ImGui::SetNextItemWidth(tabWidth);
+                }
                 if (ImGui::BeginTabItem(tab.title_id().c_str(), nullptr, itemFlags)) {
                     ImGui::EndTabItem();
                 }
@@ -151,6 +153,15 @@ namespace thorin {
 
     ImGuiTabBarFlags TabWidget::flags() const {
         return tabBar.flags_;
+    }
+
+    TabWidget& TabWidget::set_stretch(bool stretch) {
+        tabBar.stretch_ = stretch;
+        return *this;
+    }
+
+    bool TabWidget::stretch() const {
+        return tabBar.stretch_;
     }
 
     bool TabWidget::show() {

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
 #include <string>
+
+#include <libassert/assert.hpp>
 
 #include "thorin/container.hpp"
 
@@ -12,6 +15,7 @@ namespace thorin {
     class TabWidget : public Widget, protected Container<Widget> {
         struct TabBar: Widget {
             ImGuiTabBarFlags flags_ = ImGuiTabBarFlags_None;
+            bool stretch_ = true;
             TabWidget *tabWidget;
             size_t selected_ = 0;
             std::string groupID;
@@ -51,6 +55,15 @@ namespace thorin {
             return ref;
         }
 
+        // Same as above for a page built by the caller; takes ownership of it.
+        template <WidgetConcept W>
+        W& add_tab(std::unique_ptr<W> page) {
+            DEBUG_ASSERT(page != nullptr, "TabWidget::add_tab called with null");
+            auto& ref = *page;
+            attach_page(std::move(page));
+            return ref;
+        }
+
         // Removes and destroys the page at index on the next dispatch. The index is resolved
         // then, so queued adds and removes apply in call order.
         void remove_tab(size_t index);
@@ -60,6 +73,12 @@ namespace thorin {
 
         TabWidget& set_flags(ImGuiTabBarFlags flags);
         [[nodiscard]] ImGuiTabBarFlags flags() const;
+
+        // When true (the default), the tabs share the bar's width equally; with too many tabs the
+        // share drops below the labels' width and ImGui shortens them with "...". When false, tabs
+        // have their natural width.
+        TabWidget& set_stretch(bool stretch);
+        [[nodiscard]] bool stretch() const;
 
         bool show() override;
     };
