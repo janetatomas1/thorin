@@ -20,8 +20,6 @@ namespace thorin {
         void destroy() override;
         void update(Widget *rootWidget) override;
         void process_event(const SDL_Event& event) override;
-
-        // Makes this window's GL context and ImGui context the current ones.
-        void make_current();
+        void make_current() override;
     };
 }

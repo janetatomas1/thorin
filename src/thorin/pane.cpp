@@ -1,6 +1,10 @@
+#include <algorithm>
+
 #include <imgui_internal.h>
+#include <libassert/assert.hpp>
 
 #include "thorin/pane.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     Pane::Pane(const std::string& title, Widget* parent): Widget(title, parent) {
@@ -8,18 +12,44 @@ namespace thorin {
         position_type(YGPositionTypeAbsolute);
     }
 
-    Pane& Pane::set_initial_dock(ImGuiDir side, float ratio) {
-        initialSide_ = side;
-        initialRatio_ = ratio;
+    Pane& Pane::set_dock(ImGuiDir side) {
+        dockSide_ = side;
         return *this;
     }
 
-    ImGuiDir Pane::initial_side() const {
-        return initialSide_;
+    ImGuiDir Pane::dock() const {
+        return dockSide_;
     }
 
-    float Pane::initial_ratio() const {
-        return initialRatio_;
+    Pane& Pane::set_ratio(float ratio) {
+        DEBUG_ASSERT(ratio > 0.0f && ratio <= 1.0f, "Pane::set_ratio ratio out of (0, 1]", ratio);
+
+        app().add_action([this, ratio] {
+            ratio_ = ratio;
+            // Not laid out yet: build() reads ratio_.
+            if (!placed_) {
+                return;
+            }
+
+            // Actions run between frames, with any window's ImGui context current.
+            window()->backend()->make_current();
+            ImGuiWindow* imguiWindow = ImGui::FindWindowByName(title_id().c_str());
+            if (imguiWindow == nullptr || imguiWindow->DockNode == nullptr || imguiWindow->DockNode->ParentNode == nullptr) {
+                return;
+            }
+
+            // A locked size is kept exactly on the next layout and the sibling takes the rest, as
+            // when the user drags the split.
+            ImGuiDockNode* node = imguiWindow->DockNode;
+            const ImGuiAxis axis = static_cast<ImGuiAxis>(node->ParentNode->SplitAxis);
+            node->Size[axis] = std::max(ratio_ * ImGui::DockNodeGetRootNode(node)->Size[axis], 1.0f);
+            node->WantLockSizeOnce = true;
+        });
+        return *this;
+    }
+
+    float Pane::ratio() const {
+        return ratio_;
     }
 
     Pane& Pane::set_dock_flags(ImGuiDockNodeFlags flags) {

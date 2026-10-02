@@ -10,7 +10,7 @@
 namespace thorin {
     // An ImGui dock space covering this widget's Yoga box, holding Panes that users can drag,
     // tab together, split and float. The first time it shows, panes are placed by their
-    // initial_side(): split off at that side, or tabbed in the middle. Panes added later join the
+    // dock(): split off at that side, or tabbed in the middle. Panes added later join the
     // middle as tabs. The layout isn't saved between runs.
     // This widget has no intrinsic size: give it one (width/height, flex_grow).
     // Container is protected: panes are added through add_pane(), which parents them to the area.
