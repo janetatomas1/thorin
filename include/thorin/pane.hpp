@@ -16,8 +16,8 @@ namespace thorin {
 
         ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None;
         ImGuiWindowFlags windowFlags_ = ImGuiWindowFlags_None;
-        ImGuiDir initialSide_ = ImGuiDir_None;
-        float initialRatio_ = 0.25f;
+        ImGuiDir dockSide_ = ImGuiDir_None;
+        float ratio_ = 0.25f;
         // Set by DockArea once the pane has been given a dock node.
         bool placed_ = false;
         // Node the pane's window is docked into on its next draw, or 0. Docking goes through
@@ -29,13 +29,20 @@ namespace thorin {
         Pane(const std::string& title = "", Widget* parent = nullptr);
 
         // Where the pane starts in its DockArea: attached to the side edge (ImGuiDir_Left, ...),
-        // ratio of the whole area wide (left/right) or tall (up/down); or ImGuiDir_None (the
+        // ratio() of the whole area wide (left/right) or tall (up/down); or ImGuiDir_None (the
         // default) for a tab in the middle. Sided panes are split off in add order, each from what
         // the earlier ones left, so the first one spans the whole edge. Only read when the area
         // first shows; later the user decides where panes are.
-        Pane& set_initial_dock(ImGuiDir side, float ratio = 0.25f);
-        [[nodiscard]] ImGuiDir initial_side() const;
-        [[nodiscard]] float initial_ratio() const;
+        Pane& set_dock(ImGuiDir side);
+        [[nodiscard]] ImGuiDir dock() const;
+
+        // Resizes the pane's dock node to ratio of the whole area along its split: width for a
+        // left/right split, height for up/down. Applied on the next dispatch; before the area's
+        // first layout it only replaces the initial ratio. Nothing is resized while the pane is
+        // floating or alone in the area.
+        Pane& set_ratio(float ratio);
+        // The ratio last set. Not updated when the user drags a split.
+        [[nodiscard]] float ratio() const;
 
         // Flags for the dock node hosting this pane, while it is docked. Besides the public
         // ImGuiDockNodeFlags, the ones in imgui_internal.h apply here, e.g. ImGuiDockNodeFlags_NoTabBar

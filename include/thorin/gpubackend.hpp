@@ -24,6 +24,8 @@ namespace thorin {
         virtual void update(Widget *rootWidget) = 0;
         virtual void destroy() = 0;
         virtual void process_event(const SDL_Event& event) = 0;
+        // Makes this window's GPU and ImGui contexts the current ones.
+        virtual void make_current() = 0;
         void set_window(Window *window);
         Window* window();
         void maximize();

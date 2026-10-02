@@ -35,7 +35,7 @@ struct Output: Pane {
     Output(): Pane("Output") {
         column(2);
         padding(10);
-        set_initial_dock(ImGuiDir_Down, 0.3f);
+        set_dock(ImGuiDir_Down).set_ratio(0.3f);
         log("Ready.");
     }
 
@@ -87,7 +87,7 @@ struct Explorer: Pane {
     }, this) {
         column();
         padding(10);
-        set_initial_dock(ImGuiDir_Left, 0.2f);
+        set_dock(ImGuiDir_Left).set_ratio(0.2f);
 
         list.set_flags(ImGuiMultiSelectFlags_SingleSelect | ImGuiMultiSelectFlags_ScopeRect);
         for (const File& f : files) {
@@ -107,8 +107,8 @@ struct DockAreaExample: Widget {
         // Split off in add order: the explorer takes the left of the whole area, the output the
         // bottom of what is left; editor and notes are tabs in the middle. The explorer needs the
         // editor and output, so those are built first and added after it.
-        area.add_pane(std::make_unique<Editor>()).set_initial_dock(ImGuiDir_Left, 0.2f);
-        area.add_pane(std::make_unique<Editor>()).set_initial_dock(ImGuiDir_Down, 0.2f);
+        area.add_pane(std::make_unique<Editor>()).set_dock(ImGuiDir_Left).set_ratio(0.2f);
+        area.add_pane(std::make_unique<Editor>()).set_dock(ImGuiDir_Down).set_ratio(0.2f);
     }
 };
 

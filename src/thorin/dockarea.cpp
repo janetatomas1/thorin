@@ -44,15 +44,15 @@ namespace thorin {
         ImGuiID middle = dockId;
         ImVec2 remaining = size();
         for (Pane& pane : items()) {
-            if (pane.initialSide_ != ImGuiDir_None) {
-                const bool horizontal = pane.initialSide_ == ImGuiDir_Left || pane.initialSide_ == ImGuiDir_Right;
+            if (pane.dockSide_ != ImGuiDir_None) {
+                const bool horizontal = pane.dockSide_ == ImGuiDir_Left || pane.dockSide_ == ImGuiDir_Right;
                 float& remainingSize = horizontal ? remaining.x : remaining.y;
-                const float wanted = pane.initialRatio_ * (horizontal ? width() : height());
+                const float wanted = pane.ratio_ * (horizontal ? width() : height());
                 const float ratio = remainingSize > 0.0f ? std::min(wanted / remainingSize, 1.0f) : 0.0f;
                 remainingSize = std::max(remainingSize - wanted, 0.0f);
 
                 ImGuiID side = 0;
-                ImGui::DockBuilderSplitNode(middle, pane.initialSide_, ratio, &side, &middle);
+                ImGui::DockBuilderSplitNode(middle, pane.dockSide_, ratio, &side, &middle);
                 pane.dockNode_ = side;
                 pane.placed_ = true;
             }
