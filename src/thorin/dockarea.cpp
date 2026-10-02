@@ -90,6 +90,12 @@ namespace thorin {
 
         bool changed = false;
         for (Pane& pane : items()) {
+            // A closed pane calls no Begin, so a dock id set for it would go to the next pane's
+            // window. Its node waits until it is opened.
+            if (!pane.is_open()) {
+                continue;
+            }
+
             if (!pane.placed_) {
                 pane.dockNode_ = middle;
                 pane.placed_ = true;
