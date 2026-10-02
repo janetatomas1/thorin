@@ -20,9 +20,13 @@ namespace thorin {
         int width = 1920,
         height = 1080;
         std::string title = "Thorin";
+        // NoBringToFrontOnFocus: clicking the root must not cover floating windows (dock pages).
+        // NoDocking: pages can't be docked into the root itself, only into dock spaces.
         int windowFlags = ImGuiWindowFlags_NoSavedSettings
         | ImGuiWindowFlags_NoTitleBar
-        | ImGuiWindowFlags_NoResize;
+        | ImGuiWindowFlags_NoResize
+        | ImGuiWindowFlags_NoBringToFrontOnFocus
+        | ImGuiWindowFlags_NoDocking;
         SDL_WindowFlags sdlFlags = SDL_WINDOW_OPENGL
         | SDL_WINDOW_RESIZABLE
         | SDL_WINDOW_HIGH_PIXEL_DENSITY;
