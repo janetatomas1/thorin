@@ -70,7 +70,54 @@ namespace thorin {
         return windowFlags_;
     }
 
+    Pane& Pane::set_closable(bool closable) {
+        closable_ = closable;
+        return *this;
+    }
+
+    bool Pane::closable() const {
+        return closable_;
+    }
+
+    void Pane::open() {
+        open_ = true;
+    }
+
+    void Pane::close() {
+        open_ = false;
+    }
+
+    bool Pane::is_open() const {
+        return open_;
+    }
+
+    void Pane::set_collapsed(bool collapsed) {
+        app().add_action([this, collapsed] {
+            // Actions run between frames, with any window's ImGui context current.
+            window()->backend()->make_current();
+            if (ImGuiWindow* imguiWindow = ImGui::FindWindowByName(title_id().c_str())) {
+                ImGui::SetWindowCollapsed(imguiWindow, collapsed);
+            }
+        });
+    }
+
+    void Pane::minimize() {
+        set_collapsed(true);
+    }
+
+    void Pane::restore() {
+        set_collapsed(false);
+    }
+
+    bool Pane::is_minimized() const {
+        return minimized_;
+    }
+
     bool Pane::show() {
+        if (!open_) {
+            return false;
+        }
+
         if (dockFlags_ != ImGuiDockNodeFlags_None) {
             ImGuiWindowClass windowClass;
             windowClass.DockNodeFlagsOverrideSet = dockFlags_;
@@ -80,8 +127,9 @@ namespace thorin {
         // Yoga padding is the only inset, as in Popup and ChildWindow. The ids change every run,
         // so saving the window's settings is pointless.
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
-        const bool visible = ImGui::Begin(title_id().c_str(), nullptr, windowFlags_ | ImGuiWindowFlags_NoSavedSettings);
+        const bool visible = ImGui::Begin(title_id().c_str(), closable_ ? &open_ : nullptr, windowFlags_ | ImGuiWindowFlags_NoSavedSettings);
         ImGui::PopStyleVar();
+        minimized_ = ImGui::IsWindowCollapsed();
 
         bool changed = false;
         if (visible) {
