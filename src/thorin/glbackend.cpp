@@ -70,6 +70,7 @@ namespace thorin {
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         ImGui::StyleColorsDark();
         ImGuiStyle& style = ImGui::GetStyle();
