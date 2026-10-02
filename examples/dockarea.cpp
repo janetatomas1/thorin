@@ -107,8 +107,8 @@ struct DockAreaExample: Widget {
         // Split off in add order: the explorer takes the left of the whole area, the output the
         // bottom of what is left; editor and notes are tabs in the middle. The explorer needs the
         // editor and output, so those are built first and added after it.
-        auto editor = std::make_unique<Editor>();
-        area.add_pane(std::move(editor)).set_initial_dock(ImGuiDir_Left, 0.3f);
+        area.add_pane(std::make_unique<Editor>()).set_initial_dock(ImGuiDir_Left, 0.2f);
+        area.add_pane(std::make_unique<Editor>()).set_initial_dock(ImGuiDir_Down, 0.2f);
     }
 };
 

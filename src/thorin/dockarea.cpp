@@ -53,14 +53,14 @@ namespace thorin {
 
                 ImGuiID side = 0;
                 ImGui::DockBuilderSplitNode(middle, pane.initialSide_, ratio, &side, &middle);
-                ImGui::DockBuilderDockWindow(pane.title_id().c_str(), side);
+                pane.dockNode_ = side;
                 pane.placed_ = true;
             }
         }
 
         for (Pane& pane : items()) {
             if (!pane.placed_) {
-                ImGui::DockBuilderDockWindow(pane.title_id().c_str(), middle);
+                pane.dockNode_ = middle;
                 pane.placed_ = true;
             }
         }
@@ -91,8 +91,13 @@ namespace thorin {
         bool changed = false;
         for (Pane& pane : items()) {
             if (!pane.placed_) {
-                ImGui::SetNextWindowDockID(middle);
+                pane.dockNode_ = middle;
                 pane.placed_ = true;
+            }
+
+            if (pane.dockNode_ != 0) {
+                ImGui::SetNextWindowDockID(pane.dockNode_);
+                pane.dockNode_ = 0;
             }
 
             changed |= pane.draw();

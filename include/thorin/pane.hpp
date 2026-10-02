@@ -18,8 +18,12 @@ namespace thorin {
         ImGuiWindowFlags windowFlags_ = ImGuiWindowFlags_None;
         ImGuiDir initialSide_ = ImGuiDir_None;
         float initialRatio_ = 0.25f;
-        // Set by DockArea once the pane has been docked into it.
+        // Set by DockArea once the pane has been given a dock node.
         bool placed_ = false;
+        // Node the pane's window is docked into on its next draw, or 0. Docking goes through
+        // SetNextWindowDockID because DockBuilderDockWindow only stores the node in the window's
+        // settings when the window doesn't exist yet, and NoSavedSettings windows never read them.
+        ImGuiID dockNode_ = 0;
 
     public:
         Pane(const std::string& title = "", Widget* parent = nullptr);
