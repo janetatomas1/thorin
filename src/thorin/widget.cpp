@@ -13,6 +13,9 @@ namespace thorin {
     id_(Thorin::random()),
     title_(title),
     titleID_(std::format("{}##{}", title, id_)) {
+        const bool inserted = registry_.emplace(id_, this).second;
+        DEBUG_ASSERT(inserted, "Widget id collision", id_);
+
         layout_.set_owner(this);
         if (parent != nullptr) {
             parent->layout().add_child(layout());
@@ -28,11 +31,26 @@ namespace thorin {
         window_(other.window_),
         layout_(std::move(other.layout_)) {
         layout_.set_owner(this);
+        // The id moves with the widget; the moved-from one no longer owns an entry.
+        registry_[id_] = this;
+        other.id_ = 0;
+    }
+
+    Widget::~Widget() {
+        if (id_ != 0) {
+            registry_.erase(id_);
+        }
     }
 
     Widget& Widget::operator=(Widget&& other) noexcept {
         if (this != &other) {
+            // This widget's own actions are dropped; queued ones for other now reach it.
+            if (id_ != 0) {
+                registry_.erase(id_);
+            }
             id_ = other.id_;
+            registry_[id_] = this;
+            other.id_ = 0;
             title_ = std::move(other.title_);
             titleID_ = std::move(other.titleID_);
             tooltip_ = std::move(other.tooltip_);
@@ -131,6 +149,11 @@ namespace thorin {
 
     uint64_t Widget::id() const {
         return id_;
+    }
+
+    Widget* Widget::find(uint64_t id) {
+        auto it = registry_.find(id);
+        return it != registry_.end() ? it->second : nullptr;
     }
 
     const std::string& Widget::title() const {

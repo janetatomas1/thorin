@@ -141,9 +141,9 @@ namespace thorin {
             layout().mark_dirty();
 
             if (onChange_) {
-                app().add_action([this, selected = selected_] {
-                    if (onChange_) {
-                        onChange_(selected);
+                post([selected = selected_](auto& self) {
+                    if (self.onChange_) {
+                        self.onChange_(selected);
                     }
                 });
             }

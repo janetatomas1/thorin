@@ -16,20 +16,20 @@ namespace thorin {
     }
 
     Selectable& Selectable::add_item(const std::string& label) {
-        app().add_action([this, label] {
-            labels_.push_back(label);
-            selected_.push_back(false);
-            layout().mark_dirty();
+        post([label](auto& self) {
+            self.labels_.push_back(label);
+            self.selected_.push_back(false);
+            self.layout().mark_dirty();
         });
         return *this;
     }
 
     Selectable& Selectable::remove_item(size_t index) {
-        app().add_action([this, index] {
-            DEBUG_ASSERT(index < labels_.size(), "Selectable::remove_item index out of range", index, labels_.size());
-            labels_.erase(labels_.begin() + static_cast<std::ptrdiff_t>(index));
-            selected_.erase(selected_.begin() + static_cast<std::ptrdiff_t>(index));
-            layout().mark_dirty();
+        post([index](auto& self) {
+            DEBUG_ASSERT(index < self.labels_.size(), "Selectable::remove_item index out of range", index, self.labels_.size());
+            self.labels_.erase(self.labels_.begin() + static_cast<std::ptrdiff_t>(index));
+            self.selected_.erase(self.selected_.begin() + static_cast<std::ptrdiff_t>(index));
+            self.layout().mark_dirty();
         });
         return *this;
     }
@@ -117,9 +117,9 @@ namespace thorin {
 
         const bool changed = selected_ != before;
         if (changed && onChange_) {
-            app().add_action([this, indices = selected()] {
-                if (onChange_) {
-                    onChange_(indices);
+            post([indices = selected()](auto& self) {
+                if (self.onChange_) {
+                    self.onChange_(indices);
                 }
             });
         }

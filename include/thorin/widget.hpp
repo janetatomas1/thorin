@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <concepts>
+#include <unordered_map>
 
 #include "thorin/layout.hpp"
 
@@ -21,6 +22,9 @@ namespace thorin {
         Window* window_ = nullptr;
 
         Layout layout_;
+
+        // Live widgets by id, for post() and find().
+        static inline std::unordered_map<uint64_t, Widget*> registry_;
 
     protected:
         // Width of the visible label (text after "##" hidden), 0 when there is none. ImGui context required.
@@ -59,13 +63,28 @@ namespace thorin {
         Widget(Widget&& other) noexcept;
         Widget& operator=(Widget&& other) noexcept;
 
-        virtual ~Widget() = default;
+        virtual ~Widget();
         // Default: calls init() on the children in Yoga order, destroy() in reverse order.
         // Overrides call the base version to keep reaching the children.
         virtual void init();
         virtual void destroy();
         virtual ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode);
         [[nodiscard]] uint64_t id() const;
+        // The live widget with this id, or nullptr once it is destroyed.
+        [[nodiscard]] static Widget* find(uint64_t id);
+
+        // Runs fn on the next dispatch with this widget, as its own type, if it still exists then;
+        // the action is dropped if the widget was destroyed meanwhile. Actions run in call order.
+        // A moved widget keeps its id, so fn gets the moved-to object. Use self in fn, never a
+        // captured this: without this captured, any member access through it doesn't compile.
+        template <class Self, std::invocable<Self&> F>
+        void post(this Self& self, F fn) {
+            self.app().add_action([id = self.id(), fn = std::move(fn)]() mutable {
+                if (Widget* widget = find(id)) {
+                    fn(static_cast<Self&>(*widget));
+                }
+            });
+        }
         [[nodiscard]] const std::string& title() const;
         [[nodiscard]] const std::string& title_id() const;
         Widget& set_title(const std::string& title);

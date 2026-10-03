@@ -25,9 +25,9 @@ namespace thorin {
         bool clicked = ImGui::RadioButton(title_id().c_str(), groupValue_, value_);
 
         if (clicked && !wasSelected && onSelect_) {
-            app().add_action([this] {
-                if (onSelect_) {
-                    onSelect_();
+            post([](auto& self) {
+                if (self.onSelect_) {
+                    self.onSelect_();
                 }
             });
         }
