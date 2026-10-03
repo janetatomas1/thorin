@@ -46,9 +46,9 @@ namespace thorin {
 
         if (ImGui::MenuItem(title_id().c_str(), shortcut, checkable_ ? &checked_ : nullptr)) {
             if (callback_) {
-                app().add_action([this] {
-                    if (callback_) {
-                        callback_();
+                post([](auto& self) {
+                    if (self.callback_) {
+                        self.callback_();
                     }
                 });
             }

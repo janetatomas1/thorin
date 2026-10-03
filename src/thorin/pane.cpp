@@ -24,16 +24,16 @@ namespace thorin {
     Pane& Pane::set_ratio(float ratio) {
         DEBUG_ASSERT(ratio > 0.0f && ratio <= 1.0f, "Pane::set_ratio ratio out of (0, 1]", ratio);
 
-        app().add_action([this, ratio] {
-            ratio_ = ratio;
+        post([ratio](Pane& self) {
+            self.ratio_ = ratio;
             // Not laid out yet: build() reads ratio_.
-            if (!placed_) {
+            if (!self.placed_) {
                 return;
             }
 
             // Actions run between frames, with any window's ImGui context current.
-            window()->backend()->make_current();
-            ImGuiWindow* imguiWindow = ImGui::FindWindowByName(title_id().c_str());
+            self.window()->backend()->make_current();
+            ImGuiWindow* imguiWindow = ImGui::FindWindowByName(self.title_id().c_str());
             if (imguiWindow == nullptr || imguiWindow->DockNode == nullptr || imguiWindow->DockNode->ParentNode == nullptr) {
                 return;
             }
@@ -42,7 +42,7 @@ namespace thorin {
             // when the user drags the split.
             ImGuiDockNode* node = imguiWindow->DockNode;
             const ImGuiAxis axis = static_cast<ImGuiAxis>(node->ParentNode->SplitAxis);
-            node->Size[axis] = std::max(ratio_ * ImGui::DockNodeGetRootNode(node)->Size[axis], 1.0f);
+            node->Size[axis] = std::max(self.ratio_ * ImGui::DockNodeGetRootNode(node)->Size[axis], 1.0f);
             node->WantLockSizeOnce = true;
         });
         return *this;
@@ -92,10 +92,10 @@ namespace thorin {
     }
 
     void Pane::set_collapsed(bool collapsed) {
-        app().add_action([this, collapsed] {
+        post([collapsed](Pane& self) {
             // Actions run between frames, with any window's ImGui context current.
-            window()->backend()->make_current();
-            if (ImGuiWindow* imguiWindow = ImGui::FindWindowByName(title_id().c_str())) {
+            self.window()->backend()->make_current();
+            if (ImGuiWindow* imguiWindow = ImGui::FindWindowByName(self.title_id().c_str())) {
                 ImGui::SetWindowCollapsed(imguiWindow, collapsed);
             }
         });

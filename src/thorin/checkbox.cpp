@@ -16,9 +16,9 @@ namespace thorin {
         bool changed = ImGui::Checkbox(title_id().c_str(), &value_);
 
         if (changed && onChange_) {
-            app().add_action([this, value = value_] {
-                if (onChange_) {
-                    onChange_(value);
+            post([value = value_](auto& self) {
+                if (self.onChange_) {
+                    self.onChange_(value);
                 }
             });
         }

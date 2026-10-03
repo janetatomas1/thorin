@@ -18,9 +18,9 @@ namespace thorin {
     bool Button::show() {
         if (ImGui::Button(title_id().c_str(), size())){
             if (callback_) {
-                app().add_action([this] {
-                    if (callback_) {
-                        callback_();
+                post([](auto& self) {
+                    if (self.callback_) {
+                        self.callback_();
                     }
                 });
             }

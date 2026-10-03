@@ -45,8 +45,8 @@ namespace thorin {
                 // Deferred: the page boxes for this frame are already laid out, and the switch
                 // must land before the next frame passes SetSelected for the old tab.
                 if (ImGui::IsItemClicked() && index != selected_) {
-                    app().add_action([tabWidget = tabWidget, index] {
-                        tabWidget->display_page(index);
+                    tabWidget->post([index](auto& self) {
+                        self.display_page(index);
                     });
                     changed = true;
                 }
@@ -104,38 +104,38 @@ namespace thorin {
     }
 
     void TabWidget::attach_page(std::unique_ptr<Widget> page) {
-        app().add_action([this, page = std::move(page)]() mutable {
-            auto& ref = adopt(std::move(page));
-            ref.set_parent(this);
+        post([page = std::move(page)](auto& self) mutable {
+            auto& ref = self.adopt(std::move(page));
+            ref.set_parent(&self);
             // The first page starts selected; later ones stay hidden until chosen.
-            if (count() > 1) {
+            if (self.count() > 1) {
                 ref.display(YGDisplayNone);
             }
             // A new tab widens the strip.
-            tabBar.layout().mark_dirty();
+            self.tabBar.layout().mark_dirty();
         });
     }
 
     void TabWidget::remove_tab(size_t index) {
-        app().add_action([this, index] {
-            DEBUG_ASSERT(index < count(), "TabWidget::remove_tab index out of range", index, count());
+        post([index](auto& self) {
+            DEBUG_ASSERT(index < self.count(), "TabWidget::remove_tab index out of range", index, self.count());
 
-            size_t& selected = tabBar.selected_;
+            size_t& selected = self.tabBar.selected_;
             const bool wasSelected = index == selected;
-            remove(index);
+            self.remove(index);
 
             // Keep the same page selected; if it was the removed one, its successor (or the new
             // last page) takes over and has to be shown.
             if (index < selected) {
                 --selected;
-            } else if (wasSelected && count() > 0) {
-                selected = std::min(selected, count() - 1);
-                at(selected).display(YGDisplayFlex);
-            } else if (count() == 0) {
+            } else if (wasSelected && self.count() > 0) {
+                selected = std::min(selected, self.count() - 1);
+                self.at(selected).display(YGDisplayFlex);
+            } else if (self.count() == 0) {
                 selected = 0;
             }
 
-            tabBar.layout().mark_dirty();
+            self.tabBar.layout().mark_dirty();
         });
     }
 

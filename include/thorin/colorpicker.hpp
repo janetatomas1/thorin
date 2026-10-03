@@ -191,9 +191,9 @@ namespace thorin {
             std::copy(color, color + N, value_.begin());
 
             if (onChange_) {
-                app().add_action([this, value = value_] {
-                    if (onChange_) {
-                        onChange_(value);
+                post([value = value_](auto& self) {
+                    if (self.onChange_) {
+                        self.onChange_(value);
                     }
                 });
             }

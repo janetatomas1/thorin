@@ -93,9 +93,9 @@ namespace thorin {
         pop_frame_height(pushed);
 
         if (changed && onChange_) {
-            app().add_action([this, value = value_] {
-                if (onChange_) {
-                    onChange_(value);
+            post([value = value_](auto& self) {
+                if (self.onChange_) {
+                    self.onChange_(value);
                 }
             });
         }

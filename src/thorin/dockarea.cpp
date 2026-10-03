@@ -10,16 +10,16 @@ namespace thorin {
     DockArea::DockArea(Widget* parent): Widget("", parent) {}
 
     void DockArea::attach_pane(std::unique_ptr<Pane> pane) {
-        app().add_action([this, pane = std::move(pane)]() mutable {
-            adopt(std::move(pane)).set_parent(this);
+        post([pane = std::move(pane)](auto& self) mutable {
+            self.adopt(std::move(pane)).set_parent(&self);
         });
     }
 
     void DockArea::remove_pane(size_t index) {
-        app().add_action([this, index] {
-            DEBUG_ASSERT(index < count(), "DockArea::remove_pane index out of range", index, count());
+        post([index](auto& self) {
+            DEBUG_ASSERT(index < self.count(), "DockArea::remove_pane index out of range", index, self.count());
             // The pane's window is no longer submitted, so ImGui drops it from its node.
-            remove(index);
+            self.remove(index);
         });
     }
 
