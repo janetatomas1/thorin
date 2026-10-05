@@ -5,14 +5,6 @@
 
 namespace thorin {
     namespace {
-        void mark_dirty_tree(Layout& layout) {
-            layout.mark_dirty();
-
-            for (size_t i = 0; i < layout.child_count(); ++i) {
-                mark_dirty_tree(*layout.child(i));
-            }
-        }
-
         template<typename T>
         std::optional<T> get(const std::vector<std::pair<int, T>>& entries, int idx) {
             const auto it = std::ranges::find(entries, idx, &std::pair<int, T>::first);
@@ -45,7 +37,7 @@ namespace thorin {
 
     void Style::mark_dirty() const {
         if (widget_ != nullptr) {
-            mark_dirty_tree(widget_->layout());
+            widget_->layout().mark_dirty_tree();
         }
     }
 

@@ -38,6 +38,7 @@ set(
     ${THORIN_SOURCE_DIR}/pane.cpp
     ${THORIN_SOURCE_DIR}/dockarea.cpp
     ${THORIN_SOURCE_DIR}/style.cpp
+    ${THORIN_SOURCE_DIR}/color.cpp
 )
 
 find_package(sdl REQUIRED)
