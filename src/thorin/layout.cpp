@@ -2,6 +2,7 @@
 #include <libassert/assert.hpp>
 
 #include <algorithm>
+#include <vector>
 
 #include "thorin/layout.hpp"
 #include "thorin/widget.hpp"
@@ -25,7 +26,23 @@ namespace thorin {
             DEBUG_ASSERT(layout != nullptr, "measured Yoga node has no Layout context");
             DEBUG_ASSERT(layout->owner() != nullptr, "measured Layout has no owner");
 
+            // Layout runs before anything is drawn, so no ancestor's style is pushed yet. Push
+            // them root first, as draw() would have, so the widget measures as it is drawn.
+            std::vector<Widget*> chain;
+            for (Widget* widget = layout->owner(); widget != nullptr; widget = widget->parent()) {
+                chain.push_back(widget);
+            }
+
+            for (auto it = chain.rbegin(); it != chain.rend(); ++it) {
+                (*it)->style().push();
+            }
+
             ImVec2 size = layout->owner()->measure(width, widthMode, height, heightMode);
+
+            for (Widget* widget : chain) {
+                widget->style().pop();
+            }
+
             return YGSize{size.x, size.y};
         }
     }

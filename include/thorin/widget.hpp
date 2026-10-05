@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "thorin/layout.hpp"
+#include "thorin/style.hpp"
 
 namespace thorin {
     class Window;
@@ -22,6 +23,7 @@ namespace thorin {
         Window* window_ = nullptr;
 
         Layout layout_;
+        Style style_{this};
 
         // Live widgets by id, for post() and find().
         static inline std::unordered_map<uint64_t, Widget*> registry_;
@@ -107,6 +109,8 @@ namespace thorin {
         void set_parent(Widget* parent);
         Thorin& app();
         Layout& layout();
+        // Pushed around show(), so it applies to the children too; measure sees it as well.
+        Style& style();
 
         Widget& margin(LayoutValue value, YGEdge edge = YGEdgeAll);
         Widget& margin(float points, YGEdge edge = YGEdgeAll);
