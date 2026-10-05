@@ -53,11 +53,20 @@ namespace thorin {
         for (const auto& [idx, value] : vec2s_) {
             ImGui::PushStyleVar(idx, value);
         }
+
+        if (fontSize_ > 0.0f) {
+            // nullptr keeps the current font
+            ImGui::PushFont(nullptr, fontSize_);
+        }
     }
 
     void Style::pop() const {
         ImGui::PopStyleColor(static_cast<int>(colors_.size()));
         ImGui::PopStyleVar(static_cast<int>(floats_.size() + vec2s_.size()));
+
+        if (fontSize_ > 0.0f) {
+            ImGui::PopFont();
+        }
     }
 
     std::optional<ImVec4> Style::color(ImGuiCol idx) const {
@@ -66,6 +75,16 @@ namespace thorin {
 
     Style& Style::color(ImGuiCol idx, std::optional<ImVec4> color) {
         set(colors_, idx, color);
+        return *this;
+    }
+
+    float Style::font_size() const {
+        return fontSize_;
+    }
+
+    Style& Style::set_font_size(float value) {
+        fontSize_ = value;
+        mark_dirty();
         return *this;
     }
 

@@ -17,6 +17,7 @@ namespace thorin {
         std::vector<std::pair<ImGuiCol, ImVec4>> colors_;
         std::vector<std::pair<ImGuiStyleVar, float>> floats_;
         std::vector<std::pair<ImGuiStyleVar, ImVec2>> vec2s_;
+        float fontSize_ = 0.0f;
 
         // Style vars change measured sizes, for the widget and everything inside it.
         void mark_dirty() const;
@@ -39,6 +40,11 @@ namespace thorin {
 
         [[nodiscard]] std::optional<ImVec4> color(ImGuiCol idx) const;
         Style& color(ImGuiCol idx, std::optional<ImVec4> color);
+
+        // Unscaled size, like ImGuiStyle::FontSizeBase; global scaling still applies on top.
+        // 0 = keep the current size.
+        [[nodiscard]] float font_size() const;
+        Style& set_font_size(float value);
 
         [[nodiscard]] std::optional<float> alpha() const;
         Style& set_alpha(std::optional<float> value);
