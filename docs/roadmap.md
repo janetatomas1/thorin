@@ -1,7 +1,8 @@
 # Roadmap
 
 Ideas for what to build next, grouped by area. Sections marked (done) record what was built.
-Design details for measuring and styling live in [measure.md](measure.md).
+Design details for measuring live in [measure.md](measure.md); its styling section describes an
+earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 
 ## Finish the measure work (done)
 
@@ -59,15 +60,30 @@ clipping.
   they don't stretch it.
 - Scrollbars are given room through the Yoga border on the right / bottom edge.
 
-## Styling
+## Styling (done)
 
-Designed in [measure.md](measure.md#styling):
+Every widget owns a `Style` (`Widget::style()`), holding only the values that were set:
 
-- `Styled<W, S...>` with `Font`, `Color` and `Padding` parts. Styles are pushed in both
-  `show()` and `measure()`.
-- `Window::set_style`, which applies a per-window global style change and marks measured
-  nodes dirty.
-- Templated `RadioGroup<W = RadioButton>`, so each option can be a styled leaf.
+- Colours by index: `color(ImGuiCol)` / `color(ImGuiCol, value)`. Each style var has a named
+  getter / setter (`set_frame_padding`, `set_alpha`, ...), kept apart by type in a float and an
+  `ImVec2` vector. Getters return `std::optional`; setting `std::nullopt` removes the value.
+- `Widget::draw()` pushes the style around `show()`, so children inherit it like in ImGui. It is
+  popped before the tooltip.
+- `measure_trampoline` pushes the styles of the widget and all its ancestors, root first,
+  before calling `measure()`. Layout runs before anything is drawn, so this is how a widget is
+  measured with the style it is drawn with.
+- Style-var setters mark the widget's whole subtree dirty (colours don't): the leaves under a
+  container inherit its vars, and `Layout::mark_dirty()` alone does nothing on a container.
+- `Style` holds a `Widget*` for that; it is moved with the widget and can't be copied.
+
+Still open:
+
+- **Fonts.** `Style` covers colours and style vars only; `PushFont` isn't part of it yet.
+- **Re-parenting.** `set_parent()` marks only the widget dirty, not its subtree, though the
+  subtree now inherits a different style.
+- **Widgets drawn outside Yoga** (menu entries, table cells) get their own style but not their
+  owner's, since `parent()` doesn't reach the owner.
+- **Window-wide style:** a `Style` applied to everything in a `Window`.
 
 ## New widgets
 
@@ -83,9 +99,15 @@ based on ImGui's own sizing, and `mark_dirty()` in setters that change size.
 | Image            | `Image`                                 | texture size, or aspect ratio via Yoga             |
 | PlotLines/Histogram | `PlotLines` / `PlotHistogram`        | field width + label; takes a graph size            |
 
+### Done
+
+`Separator` (with `SeparatorText` title, vertical variant, title alignment) and `ProgressBar`
+(overlay text, indeterminate mode).
+
 ### Collapsible containers
 
-CollapsingHeader, TreeNode. (`TabWidget` is done and follows this pattern.)
+CollapsingHeader, TreeNode. (`TabWidget` is done and follows this pattern; by default its tabs
+share the strip's width equally, `set_stretch(false)` gives them their natural width.)
 
 - The header or tab strip is drawn by the container itself.
 - When collapsed, or when a tab isn't selected, children get `display(YGDisplayNone)`, so Yoga
@@ -101,3 +123,37 @@ CollapsingHeader, TreeNode. (`TabWidget` is done and follows this pattern.)
   parent) and origin layouts. `show()` opens the ImGui popup at the Yoga box's screen
   position and size; children are laid out inside it. `Modal` is a `Popup` with
   `BeginPopupModal`. They nest in each other and in `ChildWindow`.
+
+### Docking (done)
+
+- **DockArea:** an ImGui dock space over its Yoga box. Panes are added with `add_pane()` and
+  joined on the next dispatch; `remove_pane()` is deferred too.
+- **Pane:** a widget drawn in its own ImGui window, absolutely positioned and an origin layout
+  like `Popup`, sized to its window each frame. `set_dock(side)` and `set_ratio()` set where it
+  starts and how much of the area it takes; edges and ratios are respected when the area is first
+  built. Panes can be closable (a closed pane keeps its children and takes no space, `open()`
+  brings it back) and minimized while floating. The layout isn't saved between runs.
+
+## Widget lifecycle (done)
+
+- **init / destroy:** `Widget::init()` and `destroy()` reach the children recursively, `init()`
+  in Yoga order and `destroy()` in reverse.
+- **post():** `widget.post(fn)` queues `fn` to run on the next dispatch with the widget as its
+  own type. Widgets are looked up by id at that point, so the action is dropped if the widget
+  was destroyed meanwhile, and a moved widget gets it at its new address. Callbacks such as
+  `Button`'s go through it.
+
+## Tools
+
+### Inspector
+
+An overlay any thorin app can toggle, like browser devtools:
+
+- The widget tree, walked through the Yoga tree (`Layout::child()`, `owner()`), with each
+  widget's type, title and id.
+- The selected widget's Yoga box drawn over the app (margin, border, padding, content), plus
+  its computed position and size, measure results and flex properties.
+- Its `Style`: the values set on it and the ones it inherits from ancestors.
+- Picking: hover a widget in the app to select it in the tree.
+
+Mostly reads data that already exists, and makes debugging layout and styling much faster.
