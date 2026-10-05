@@ -7,14 +7,32 @@
 #include <imgui.h>
 
 namespace thorin {
+    class Widget;
+
     // ImGui style overrides: only the colours and vars that were set, each kept with its ImGui
     // index. Unset (std::nullopt) = whatever ImGui's style is when pushed.
     class Style {
+        Widget* widget_ = nullptr;
+
         std::vector<std::pair<ImGuiCol, ImVec4>> colors_;
         std::vector<std::pair<ImGuiStyleVar, float>> floats_;
         std::vector<std::pair<ImGuiStyleVar, ImVec2>> vec2s_;
 
+        // Style vars change measured sizes, for the widget and everything inside it.
+        void mark_dirty() const;
+
     public:
+        // widget is re-measured when a style var changes; may be nullptr.
+        explicit Style(Widget* widget = nullptr);
+
+        Style(const Style& other) = delete;
+        Style& operator=(const Style& other) = delete;
+
+        Style(Style&& other) noexcept = default;
+        Style& operator=(Style&& other) noexcept = default;
+
+        void set_widget(Widget* widget);
+
         // Pushes every set value onto ImGui's style stacks; pop() takes them off again.
         void push() const;
         void pop() const;

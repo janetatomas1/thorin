@@ -29,8 +29,10 @@ namespace thorin {
         tooltip_(std::move(other.tooltip_)),
         enabled_(other.enabled_),
         window_(other.window_),
-        layout_(std::move(other.layout_)) {
+        layout_(std::move(other.layout_)),
+        style_(std::move(other.style_)) {
         layout_.set_owner(this);
+        style_.set_widget(this);
         // The id moves with the widget; the moved-from one no longer owns an entry.
         registry_[id_] = this;
         other.id_ = 0;
@@ -58,6 +60,8 @@ namespace thorin {
             window_ = other.window_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
+            style_ = std::move(other.style_);
+            style_.set_widget(this);
         }
 
         return *this;
@@ -195,6 +199,8 @@ namespace thorin {
     }
 
     bool Widget::draw() {
+        style_.push();
+
         if (!enabled_) {
             ImGui::BeginDisabled();
         }
@@ -215,6 +221,9 @@ namespace thorin {
         if (!enabled_) {
             ImGui::EndDisabled();
         }
+
+        // Popped before the tooltip too, which is its own window and keeps ImGui's style.
+        style_.pop();
 
         if (!tooltip_.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled)) {
             ImGui::SetTooltip("%s", tooltip_.c_str());
@@ -287,6 +296,10 @@ namespace thorin {
 
     Layout& Widget::layout() {
         return layout_;
+    }
+
+    Style& Widget::style() {
+        return style_;
     }
 
     Widget& Widget::margin(LayoutValue value, YGEdge edge) {

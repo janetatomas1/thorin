@@ -1,9 +1,18 @@
 #include <algorithm>
 
 #include "thorin/style.hpp"
+#include "thorin/widget.hpp"
 
 namespace thorin {
     namespace {
+        void mark_dirty_tree(Layout& layout) {
+            layout.mark_dirty();
+
+            for (size_t i = 0; i < layout.child_count(); ++i) {
+                mark_dirty_tree(*layout.child(i));
+            }
+        }
+
         template<typename T>
         std::optional<T> get(const std::vector<std::pair<int, T>>& entries, int idx) {
             const auto it = std::ranges::find(entries, idx, &std::pair<int, T>::first);
@@ -24,6 +33,19 @@ namespace thorin {
             } else {
                 entries.emplace_back(idx, *value);
             }
+        }
+    }
+
+    Style::Style(Widget* widget): widget_(widget) {
+    }
+
+    void Style::set_widget(Widget* widget) {
+        widget_ = widget;
+    }
+
+    void Style::mark_dirty() const {
+        if (widget_ != nullptr) {
+            mark_dirty_tree(widget_->layout());
         }
     }
 
@@ -61,6 +83,7 @@ namespace thorin {
 
     Style& Style::set_alpha(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_Alpha, value);
+        mark_dirty();
         return *this;
     }
 
@@ -70,6 +93,7 @@ namespace thorin {
 
     Style& Style::set_disabled_alpha(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_DisabledAlpha, value);
+        mark_dirty();
         return *this;
     }
 
@@ -79,6 +103,7 @@ namespace thorin {
 
     Style& Style::set_window_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_WindowRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -88,6 +113,7 @@ namespace thorin {
 
     Style& Style::set_window_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_WindowBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -97,6 +123,7 @@ namespace thorin {
 
     Style& Style::set_child_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ChildRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -106,6 +133,7 @@ namespace thorin {
 
     Style& Style::set_child_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ChildBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -115,6 +143,7 @@ namespace thorin {
 
     Style& Style::set_popup_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_PopupRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -124,6 +153,7 @@ namespace thorin {
 
     Style& Style::set_popup_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_PopupBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -133,6 +163,7 @@ namespace thorin {
 
     Style& Style::set_frame_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_FrameRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -142,6 +173,7 @@ namespace thorin {
 
     Style& Style::set_frame_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_FrameBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -151,6 +183,7 @@ namespace thorin {
 
     Style& Style::set_indent_spacing(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_IndentSpacing, value);
+        mark_dirty();
         return *this;
     }
 
@@ -160,6 +193,7 @@ namespace thorin {
 
     Style& Style::set_scrollbar_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ScrollbarSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -169,6 +203,7 @@ namespace thorin {
 
     Style& Style::set_scrollbar_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ScrollbarRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -178,6 +213,7 @@ namespace thorin {
 
     Style& Style::set_scrollbar_padding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ScrollbarPadding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -187,6 +223,7 @@ namespace thorin {
 
     Style& Style::set_grab_min_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_GrabMinSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -196,6 +233,7 @@ namespace thorin {
 
     Style& Style::set_grab_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_GrabRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -205,6 +243,7 @@ namespace thorin {
 
     Style& Style::set_image_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ImageRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -214,6 +253,7 @@ namespace thorin {
 
     Style& Style::set_image_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_ImageBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -223,6 +263,7 @@ namespace thorin {
 
     Style& Style::set_tab_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -232,6 +273,7 @@ namespace thorin {
 
     Style& Style::set_tab_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -241,6 +283,7 @@ namespace thorin {
 
     Style& Style::set_tab_min_width_base(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabMinWidthBase, value);
+        mark_dirty();
         return *this;
     }
 
@@ -250,6 +293,7 @@ namespace thorin {
 
     Style& Style::set_tab_min_width_shrink(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabMinWidthShrink, value);
+        mark_dirty();
         return *this;
     }
 
@@ -259,6 +303,7 @@ namespace thorin {
 
     Style& Style::set_tab_bar_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabBarBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -268,6 +313,7 @@ namespace thorin {
 
     Style& Style::set_tab_bar_overline_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TabBarOverlineSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -277,6 +323,7 @@ namespace thorin {
 
     Style& Style::set_table_angled_headers_angle(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TableAngledHeadersAngle, value);
+        mark_dirty();
         return *this;
     }
 
@@ -286,6 +333,7 @@ namespace thorin {
 
     Style& Style::set_tree_lines_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TreeLinesSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -295,6 +343,7 @@ namespace thorin {
 
     Style& Style::set_tree_lines_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_TreeLinesRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -304,6 +353,7 @@ namespace thorin {
 
     Style& Style::set_menu_item_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_MenuItemRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -313,6 +363,7 @@ namespace thorin {
 
     Style& Style::set_selectable_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_SelectableRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -322,6 +373,7 @@ namespace thorin {
 
     Style& Style::set_drag_drop_target_rounding(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_DragDropTargetRounding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -331,6 +383,7 @@ namespace thorin {
 
     Style& Style::set_separator_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_SeparatorSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -340,6 +393,7 @@ namespace thorin {
 
     Style& Style::set_separator_text_border_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_SeparatorTextBorderSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -349,6 +403,7 @@ namespace thorin {
 
     Style& Style::set_docking_separator_size(std::optional<float> value) {
         set(floats_, ImGuiStyleVar_DockingSeparatorSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -358,6 +413,7 @@ namespace thorin {
 
     Style& Style::set_window_padding(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_WindowPadding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -367,6 +423,7 @@ namespace thorin {
 
     Style& Style::set_window_min_size(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_WindowMinSize, value);
+        mark_dirty();
         return *this;
     }
 
@@ -376,6 +433,7 @@ namespace thorin {
 
     Style& Style::set_window_title_align(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_WindowTitleAlign, value);
+        mark_dirty();
         return *this;
     }
 
@@ -385,6 +443,7 @@ namespace thorin {
 
     Style& Style::set_frame_padding(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_FramePadding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -394,6 +453,7 @@ namespace thorin {
 
     Style& Style::set_item_spacing(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_ItemSpacing, value);
+        mark_dirty();
         return *this;
     }
 
@@ -403,6 +463,7 @@ namespace thorin {
 
     Style& Style::set_item_inner_spacing(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_ItemInnerSpacing, value);
+        mark_dirty();
         return *this;
     }
 
@@ -412,6 +473,7 @@ namespace thorin {
 
     Style& Style::set_cell_padding(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_CellPadding, value);
+        mark_dirty();
         return *this;
     }
 
@@ -421,6 +483,7 @@ namespace thorin {
 
     Style& Style::set_table_angled_headers_text_align(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_TableAngledHeadersTextAlign, value);
+        mark_dirty();
         return *this;
     }
 
@@ -430,6 +493,7 @@ namespace thorin {
 
     Style& Style::set_button_text_align(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_ButtonTextAlign, value);
+        mark_dirty();
         return *this;
     }
 
@@ -439,6 +503,7 @@ namespace thorin {
 
     Style& Style::set_selectable_text_align(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_SelectableTextAlign, value);
+        mark_dirty();
         return *this;
     }
 
@@ -448,6 +513,7 @@ namespace thorin {
 
     Style& Style::set_separator_text_align(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_SeparatorTextAlign, value);
+        mark_dirty();
         return *this;
     }
 
@@ -457,6 +523,7 @@ namespace thorin {
 
     Style& Style::set_separator_text_padding(std::optional<ImVec2> value) {
         set(vec2s_, ImGuiStyleVar_SeparatorTextPadding, value);
+        mark_dirty();
         return *this;
     }
 }
