@@ -54,9 +54,9 @@ namespace thorin {
             ImGui::PushStyleVar(idx, value);
         }
 
-        if (fontSize_ > 0.0f) {
-            // nullptr keeps the current font
-            ImGui::PushFont(nullptr, fontSize_);
+        if (font_ || fontSize_ > 0.0f) {
+            // nullptr keeps the current font, 0 keeps the current size
+            ImGui::PushFont(font_, fontSize_);
         }
     }
 
@@ -64,7 +64,7 @@ namespace thorin {
         ImGui::PopStyleColor(static_cast<int>(colors_.size()));
         ImGui::PopStyleVar(static_cast<int>(floats_.size() + vec2s_.size()));
 
-        if (fontSize_ > 0.0f) {
+        if (font_ || fontSize_ > 0.0f) {
             ImGui::PopFont();
         }
     }
@@ -75,6 +75,16 @@ namespace thorin {
 
     Style& Style::color(ImGuiCol idx, std::optional<ImVec4> color) {
         set(colors_, idx, color);
+        return *this;
+    }
+
+    ImFont* Style::font() const {
+        return font_;
+    }
+
+    Style& Style::set_font(ImFont* font) {
+        font_ = font;
+        mark_dirty();
         return *this;
     }
 
