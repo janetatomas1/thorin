@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <libassert/assert.hpp>
 
 #include "thorin/window.hpp"
@@ -106,5 +108,20 @@ namespace thorin {
     int Window::width() const {
         DEBUG_ASSERT(backend_ != nullptr, "Window::width called with no backend");
         return backend_->width();
+    }
+
+    ImFont* Window::load_font(const std::filesystem::path& path) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
+        backend_->make_current();
+        return ImGui::GetIO().Fonts->AddFontFromFileTTF(path.string().c_str());
+    }
+
+    ImFont* Window::load_font(std::span<const std::byte> data) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
+        backend_->make_current();
+        // The atlas owns (and frees) its copy of the data.
+        void* copy = IM_ALLOC(data.size());
+        std::memcpy(copy, data.data(), data.size());
+        return ImGui::GetIO().Fonts->AddFontFromMemoryTTF(copy, static_cast<int>(data.size()));
     }
 }

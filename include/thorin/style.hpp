@@ -17,6 +17,7 @@ namespace thorin {
         std::vector<std::pair<ImGuiCol, ImVec4>> colors_;
         std::vector<std::pair<ImGuiStyleVar, float>> floats_;
         std::vector<std::pair<ImGuiStyleVar, ImVec2>> vec2s_;
+        ImFont* font_ = nullptr;
         float fontSize_ = 0.0f;
 
         // Style vars change measured sizes, for the widget and everything inside it.
@@ -24,7 +25,7 @@ namespace thorin {
 
     public:
         // widget is re-measured when a style var changes; may be nullptr.
-        explicit Style(Widget* widget = nullptr);
+        Style(Widget* widget = nullptr);
 
         Style(const Style& other) = delete;
         Style& operator=(const Style& other) = delete;
@@ -40,6 +41,10 @@ namespace thorin {
 
         [[nodiscard]] std::optional<ImVec4> color(ImGuiCol idx) const;
         Style& color(ImGuiCol idx, std::optional<ImVec4> color);
+
+        // Belongs to the current ImGui context's atlas. nullptr = keep the current font.
+        [[nodiscard]] ImFont* font() const;
+        Style& set_font(ImFont* font);
 
         // Unscaled size, like ImGuiStyle::FontSizeBase; global scaling still applies on top.
         // 0 = keep the current size.
