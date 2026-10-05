@@ -132,6 +132,14 @@ namespace thorin {
         }
     }
 
+    void Layout::mark_dirty_tree() {
+        mark_dirty();
+
+        for (size_t i = 0; i < child_count(); ++i) {
+            child(i)->mark_dirty_tree();
+        }
+    }
+
     void Layout::remove_from_parent() {
         DEBUG_ASSERT(node_ != nullptr, "remove_from_parent called on moved-from Layout");
 

@@ -68,6 +68,8 @@ namespace thorin {
         void enable_measure();
         // Invalidates Yoga's cached measurement. No-op on nodes without a measure function.
         void mark_dirty();
+        // mark_dirty() on this node and every node below it.
+        void mark_dirty_tree();
         void add_child(Layout &child, size_t index = std::string::npos);
         void remove_from_parent();
         void calculate_layout(float width, float height);
