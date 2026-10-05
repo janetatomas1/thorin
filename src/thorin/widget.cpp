@@ -622,4 +622,436 @@ namespace thorin {
     float Widget::border(YGEdge edge) const {
         return layout_.border(edge);
     }
+
+    Widget& Widget::color(ImGuiCol idx, std::optional<ImVec4> color) {
+        style_.color(idx, color);
+        return *this;
+    }
+
+    Widget& Widget::set_font(ImFont* font) {
+        style_.set_font(font);
+        return *this;
+    }
+
+    Widget& Widget::set_font_size(float value) {
+        style_.set_font_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_alpha(std::optional<float> value) {
+        style_.set_alpha(value);
+        return *this;
+    }
+
+    Widget& Widget::set_disabled_alpha(std::optional<float> value) {
+        style_.set_disabled_alpha(value);
+        return *this;
+    }
+
+    Widget& Widget::set_window_rounding(std::optional<float> value) {
+        style_.set_window_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_window_border_size(std::optional<float> value) {
+        style_.set_window_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_child_rounding(std::optional<float> value) {
+        style_.set_child_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_child_border_size(std::optional<float> value) {
+        style_.set_child_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_popup_rounding(std::optional<float> value) {
+        style_.set_popup_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_popup_border_size(std::optional<float> value) {
+        style_.set_popup_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_frame_rounding(std::optional<float> value) {
+        style_.set_frame_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_frame_border_size(std::optional<float> value) {
+        style_.set_frame_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_indent_spacing(std::optional<float> value) {
+        style_.set_indent_spacing(value);
+        return *this;
+    }
+
+    Widget& Widget::set_scrollbar_size(std::optional<float> value) {
+        style_.set_scrollbar_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_scrollbar_rounding(std::optional<float> value) {
+        style_.set_scrollbar_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_scrollbar_padding(std::optional<float> value) {
+        style_.set_scrollbar_padding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_grab_min_size(std::optional<float> value) {
+        style_.set_grab_min_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_grab_rounding(std::optional<float> value) {
+        style_.set_grab_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_image_rounding(std::optional<float> value) {
+        style_.set_image_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_image_border_size(std::optional<float> value) {
+        style_.set_image_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_rounding(std::optional<float> value) {
+        style_.set_tab_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_border_size(std::optional<float> value) {
+        style_.set_tab_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_min_width_base(std::optional<float> value) {
+        style_.set_tab_min_width_base(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_min_width_shrink(std::optional<float> value) {
+        style_.set_tab_min_width_shrink(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_bar_border_size(std::optional<float> value) {
+        style_.set_tab_bar_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tab_bar_overline_size(std::optional<float> value) {
+        style_.set_tab_bar_overline_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_table_angled_headers_angle(std::optional<float> value) {
+        style_.set_table_angled_headers_angle(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tree_lines_size(std::optional<float> value) {
+        style_.set_tree_lines_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_tree_lines_rounding(std::optional<float> value) {
+        style_.set_tree_lines_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_menu_item_rounding(std::optional<float> value) {
+        style_.set_menu_item_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_selectable_rounding(std::optional<float> value) {
+        style_.set_selectable_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_drag_drop_target_rounding(std::optional<float> value) {
+        style_.set_drag_drop_target_rounding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_separator_size(std::optional<float> value) {
+        style_.set_separator_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_separator_text_border_size(std::optional<float> value) {
+        style_.set_separator_text_border_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_docking_separator_size(std::optional<float> value) {
+        style_.set_docking_separator_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_window_padding(std::optional<ImVec2> value) {
+        style_.set_window_padding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_window_min_size(std::optional<ImVec2> value) {
+        style_.set_window_min_size(value);
+        return *this;
+    }
+
+    Widget& Widget::set_window_title_align(std::optional<ImVec2> value) {
+        style_.set_window_title_align(value);
+        return *this;
+    }
+
+    Widget& Widget::set_frame_padding(std::optional<ImVec2> value) {
+        style_.set_frame_padding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_item_spacing(std::optional<ImVec2> value) {
+        style_.set_item_spacing(value);
+        return *this;
+    }
+
+    Widget& Widget::set_item_inner_spacing(std::optional<ImVec2> value) {
+        style_.set_item_inner_spacing(value);
+        return *this;
+    }
+
+    Widget& Widget::set_cell_padding(std::optional<ImVec2> value) {
+        style_.set_cell_padding(value);
+        return *this;
+    }
+
+    Widget& Widget::set_table_angled_headers_text_align(std::optional<ImVec2> value) {
+        style_.set_table_angled_headers_text_align(value);
+        return *this;
+    }
+
+    Widget& Widget::set_button_text_align(std::optional<ImVec2> value) {
+        style_.set_button_text_align(value);
+        return *this;
+    }
+
+    Widget& Widget::set_selectable_text_align(std::optional<ImVec2> value) {
+        style_.set_selectable_text_align(value);
+        return *this;
+    }
+
+    Widget& Widget::set_separator_text_align(std::optional<ImVec2> value) {
+        style_.set_separator_text_align(value);
+        return *this;
+    }
+
+    Widget& Widget::set_separator_text_padding(std::optional<ImVec2> value) {
+        style_.set_separator_text_padding(value);
+        return *this;
+    }
+
+    std::optional<ImVec4> Widget::color(ImGuiCol idx) const {
+        return style_.color(idx);
+    }
+
+    ImFont* Widget::font() const {
+        return style_.font();
+    }
+
+    float Widget::font_size() const {
+        return style_.font_size();
+    }
+
+    std::optional<float> Widget::alpha() const {
+        return style_.alpha();
+    }
+
+    std::optional<float> Widget::disabled_alpha() const {
+        return style_.disabled_alpha();
+    }
+
+    std::optional<float> Widget::window_rounding() const {
+        return style_.window_rounding();
+    }
+
+    std::optional<float> Widget::window_border_size() const {
+        return style_.window_border_size();
+    }
+
+    std::optional<float> Widget::child_rounding() const {
+        return style_.child_rounding();
+    }
+
+    std::optional<float> Widget::child_border_size() const {
+        return style_.child_border_size();
+    }
+
+    std::optional<float> Widget::popup_rounding() const {
+        return style_.popup_rounding();
+    }
+
+    std::optional<float> Widget::popup_border_size() const {
+        return style_.popup_border_size();
+    }
+
+    std::optional<float> Widget::frame_rounding() const {
+        return style_.frame_rounding();
+    }
+
+    std::optional<float> Widget::frame_border_size() const {
+        return style_.frame_border_size();
+    }
+
+    std::optional<float> Widget::indent_spacing() const {
+        return style_.indent_spacing();
+    }
+
+    std::optional<float> Widget::scrollbar_size() const {
+        return style_.scrollbar_size();
+    }
+
+    std::optional<float> Widget::scrollbar_rounding() const {
+        return style_.scrollbar_rounding();
+    }
+
+    std::optional<float> Widget::scrollbar_padding() const {
+        return style_.scrollbar_padding();
+    }
+
+    std::optional<float> Widget::grab_min_size() const {
+        return style_.grab_min_size();
+    }
+
+    std::optional<float> Widget::grab_rounding() const {
+        return style_.grab_rounding();
+    }
+
+    std::optional<float> Widget::image_rounding() const {
+        return style_.image_rounding();
+    }
+
+    std::optional<float> Widget::image_border_size() const {
+        return style_.image_border_size();
+    }
+
+    std::optional<float> Widget::tab_rounding() const {
+        return style_.tab_rounding();
+    }
+
+    std::optional<float> Widget::tab_border_size() const {
+        return style_.tab_border_size();
+    }
+
+    std::optional<float> Widget::tab_min_width_base() const {
+        return style_.tab_min_width_base();
+    }
+
+    std::optional<float> Widget::tab_min_width_shrink() const {
+        return style_.tab_min_width_shrink();
+    }
+
+    std::optional<float> Widget::tab_bar_border_size() const {
+        return style_.tab_bar_border_size();
+    }
+
+    std::optional<float> Widget::tab_bar_overline_size() const {
+        return style_.tab_bar_overline_size();
+    }
+
+    std::optional<float> Widget::table_angled_headers_angle() const {
+        return style_.table_angled_headers_angle();
+    }
+
+    std::optional<float> Widget::tree_lines_size() const {
+        return style_.tree_lines_size();
+    }
+
+    std::optional<float> Widget::tree_lines_rounding() const {
+        return style_.tree_lines_rounding();
+    }
+
+    std::optional<float> Widget::menu_item_rounding() const {
+        return style_.menu_item_rounding();
+    }
+
+    std::optional<float> Widget::selectable_rounding() const {
+        return style_.selectable_rounding();
+    }
+
+    std::optional<float> Widget::drag_drop_target_rounding() const {
+        return style_.drag_drop_target_rounding();
+    }
+
+    std::optional<float> Widget::separator_size() const {
+        return style_.separator_size();
+    }
+
+    std::optional<float> Widget::separator_text_border_size() const {
+        return style_.separator_text_border_size();
+    }
+
+    std::optional<float> Widget::docking_separator_size() const {
+        return style_.docking_separator_size();
+    }
+
+    std::optional<ImVec2> Widget::window_padding() const {
+        return style_.window_padding();
+    }
+
+    std::optional<ImVec2> Widget::window_min_size() const {
+        return style_.window_min_size();
+    }
+
+    std::optional<ImVec2> Widget::window_title_align() const {
+        return style_.window_title_align();
+    }
+
+    std::optional<ImVec2> Widget::frame_padding() const {
+        return style_.frame_padding();
+    }
+
+    std::optional<ImVec2> Widget::item_spacing() const {
+        return style_.item_spacing();
+    }
+
+    std::optional<ImVec2> Widget::item_inner_spacing() const {
+        return style_.item_inner_spacing();
+    }
+
+    std::optional<ImVec2> Widget::cell_padding() const {
+        return style_.cell_padding();
+    }
+
+    std::optional<ImVec2> Widget::table_angled_headers_text_align() const {
+        return style_.table_angled_headers_text_align();
+    }
+
+    std::optional<ImVec2> Widget::button_text_align() const {
+        return style_.button_text_align();
+    }
+
+    std::optional<ImVec2> Widget::selectable_text_align() const {
+        return style_.selectable_text_align();
+    }
+
+    std::optional<ImVec2> Widget::separator_text_align() const {
+        return style_.separator_text_align();
+    }
+
+    std::optional<ImVec2> Widget::separator_text_padding() const {
+        return style_.separator_text_padding();
+    }
 }
