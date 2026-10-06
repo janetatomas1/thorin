@@ -51,5 +51,8 @@ namespace thorin {
         [[nodiscard]] ImFont* load_font(const std::filesystem::path& path);
         // Copies data.
         [[nodiscard]] ImFont* load_font(std::span<const std::byte> data);
+        // Primary font for the whole window (ImGuiIO::FontDefault); widget styles still override it.
+        // Must come from this window's load_font(). nullptr = ImGui's default font.
+        void set_font(ImFont* font);
     };
 }

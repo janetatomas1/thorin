@@ -4,7 +4,7 @@
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
-#include "thorin/glbackend.hpp"
+#include "thorin/gl/glbackend.hpp"
 
 namespace thorin {
     Window::Window(const WindowConfig &config, std::unique_ptr<Widget> widget)
@@ -123,5 +123,14 @@ namespace thorin {
         void* copy = IM_ALLOC(data.size());
         std::memcpy(copy, data.data(), data.size());
         return ImGui::GetIO().Fonts->AddFontFromMemoryTTF(copy, static_cast<int>(data.size()));
+    }
+
+    void Window::set_font(ImFont* font) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::set_font called with no backend");
+        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::set_font called with no root widget");
+        backend_->make_current();
+        ImGui::GetIO().FontDefault = font;
+        // Every widget is measured with the font, so the whole tree needs a new layout.
+        rootWidget_->layout().mark_dirty_tree();
     }
 }
