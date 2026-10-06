@@ -18,6 +18,7 @@ set(
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
     ${THORIN_SOURCE_DIR}/gl/glbackend.cpp
     ${THORIN_SOURCE_DIR}/gl/renderwidget.cpp
+    ${THORIN_SOURCE_DIR}/gl/imagebutton.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
     ${THORIN_SOURCE_DIR}/checkbox.cpp
     ${THORIN_SOURCE_DIR}/radiobutton.cpp
