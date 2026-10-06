@@ -1,3 +1,4 @@
+
 # Roadmap
 
 Ideas for what to build next, grouped by area. Sections marked (done) record what was built.
@@ -76,14 +77,22 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
   container inherit its vars, and `Layout::mark_dirty()` alone does nothing on a container.
 - `Style` holds a `Widget*` for that; it is moved with the widget and can't be copied.
 
+- **Fonts.** `Style::set_font(ImFont*)` and `set_font_size()` push `PushFont` with the rest.
+  An `ImFont*` belongs to one window's atlas; `Window::load_font()` (file or memory) adds one
+  there and returns it, so a font is loaded once and shared between styles.
+- **Widget shortcuts.** `Widget` forwards every `Style` getter and setter, like it does for
+  `Layout`.
+- **Re-parenting.** `set_parent()` marks the whole subtree dirty, since it now inherits a
+  different style.
+- **Widgets drawn outside Yoga** (menu entries, table cells) are drawn inside their owner's
+  `draw()`, so they inherit its style. Owners that measure them (`Table`, `MenuBar`) push the
+  entry's own style around it.
+- **Window-wide style** is ImGui's global style; there is no thorin wrapper for it.
+
 Still open:
 
-- **Fonts.** `Style` covers colours and style vars only; `PushFont` isn't part of it yet.
-- **Re-parenting.** `set_parent()` marks only the widget dirty, not its subtree, though the
-  subtree now inherits a different style.
-- **Widgets drawn outside Yoga** (menu entries, table cells) get their own style but not their
-  owner's, since `parent()` doesn't reach the owner.
-- **Window-wide style:** a `Style` applied to everything in a `Window`.
+- Changing a table cell's or menu's style doesn't dirty the owner, so its measured size stays
+  stale until something else does.
 
 ## New widgets
 
