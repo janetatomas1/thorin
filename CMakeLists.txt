@@ -16,7 +16,8 @@ set(
     ${THORIN_SOURCE_DIR}/widget.cpp
     ${THORIN_SOURCE_DIR}/layout.cpp
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
-    ${THORIN_SOURCE_DIR}/glbackend.cpp
+    ${THORIN_SOURCE_DIR}/gl/glbackend.cpp
+    ${THORIN_SOURCE_DIR}/gl/renderwidget.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
     ${THORIN_SOURCE_DIR}/checkbox.cpp
     ${THORIN_SOURCE_DIR}/radiobutton.cpp
@@ -43,6 +44,7 @@ set(
 
 find_package(sdl REQUIRED)
 find_package(glbinding REQUIRED)
+find_package(globjects REQUIRED)
 find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
 find_package(function2 REQUIRED)
@@ -60,6 +62,7 @@ target_link_libraries(
     PUBLIC
     sdl::sdl
     glbinding::glbinding
+    globjects::globjects
     concurrentqueue::concurrentqueue
     imgui::imgui
     function2::function2

@@ -1,12 +1,12 @@
 #include <glbinding/gl/gl.h>
-#include <glbinding/glbinding.h>
+#include <globjects/globjects.h>
 
 #include <SDL3/SDL.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_opengl3.h>
 #include <libassert/assert.hpp>
 
-#include "thorin/glbackend.hpp"
+#include "thorin/gl/glbackend.hpp"
 
 #include <iostream>
 
@@ -59,7 +59,8 @@ namespace thorin {
         SDL_SetWindowPosition(handle_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_ShowWindow(handle_);
 
-        glbinding::initialize(
+        // Also initializes glbinding for this context.
+        globjects::init(
             [](const char* name) {
                 return SDL_GL_GetProcAddress(name);
             }
@@ -144,6 +145,8 @@ namespace thorin {
         DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
 
         SDL_GL_MakeCurrent(handle_, gl_context);
+        // Each window registers its own context in globjects::init.
+        globjects::setCurrentContext();
         ImGui::SetCurrentContext(imguiContext_);
     }
 }

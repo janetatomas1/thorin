@@ -80,6 +80,7 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
 - **Fonts.** `Style::set_font(ImFont*)` and `set_font_size()` push `PushFont` with the rest.
   An `ImFont*` belongs to one window's atlas; `Window::load_font()` (file or memory) adds one
   there and returns it, so a font is loaded once and shared between styles.
+  `Window::set_font()` makes one the window's primary font (`ImGuiIO::FontDefault`).
 - **Widget shortcuts.** `Widget` forwards every `Style` getter and setter, like it does for
   `Layout`.
 - **Re-parenting.** `set_parent()` marks the whole subtree dirty, since it now inherits a
