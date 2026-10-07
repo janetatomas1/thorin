@@ -22,6 +22,9 @@ namespace thorin {
         // Also creates framebuffer() with the texture as its colour attachment; nullptr removes both.
         // Call with the window's GL context current.
         RenderWidget& set_texture(std::unique_ptr<globjects::Texture> texture);
+        // Reallocates texture() at the new size, keeping its internal format; the contents are lost.
+        // The framebuffer keeps the attachment. Does nothing without a texture. Needs the GL context current.
+        RenderWidget& resize(int width, int height);
         // Bind it to render into texture(). Has no depth attachment; add one if needed.
         [[nodiscard]] globjects::Framebuffer* framebuffer() const;
 

@@ -38,7 +38,7 @@ struct RenderWidgetExample: Widget {
         const float t = static_cast<float>(ImGui::GetTime());
         view.framebuffer()->clearBuffer(GL_COLOR, 0, glm::vec4(
             0.5f + 0.5f * std::sin(t),
-            0.5f + 0.5f * std::sin(t + 2.0f),
+            0.5f + 0.5f * std::cos(t + 2.0f),
             0.5f + 0.5f * std::sin(t + 4.0f),
             1.0f
         ));
