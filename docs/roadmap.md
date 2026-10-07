@@ -153,6 +153,56 @@ share the strip's width equally, `set_stretch(false)` gives them their natural w
   was destroyed meanwhile, and a moved widget gets it at its new address. Callbacks such as
   `Button`'s go through it.
 
+## Frame pacing
+
+The main loop sleeps a hard-coded `SDL_Delay(20)` per iteration (`WindowManager::update`) and
+every window swaps with vsync on (`SDL_GL_SetSwapInterval(1)` in `GLBackend::init`). The two
+waits stack: the swap waits for the refresh after the sleep, about 30 fps at 60 Hz, and each
+extra window can cost another refresh.
+
+Replace both with an app-wide `FrameConfig` and a per-window swap interval:
+
+```cpp
+enum class FramePolicy { Continuous, OnDemand };
+
+struct FrameConfig {
+    FramePolicy policy = FramePolicy::Continuous;
+    int targetFps = 60;         // Continuous: the cap. OnDemand: max rate while redrawing. 0 = uncapped
+    int idleTimeoutMs = 500;    // OnDemand: wake at least this often, -1 = only on events
+    int minSleepMs = 1;         // always yield a little, even when a frame is over budget
+};
+
+// WindowConfig
+int swapInterval = 0;           // 1 = vsync, 0 = off, -1 = adaptive (fall back to 1 if it fails)
+```
+
+- **Continuous** sleeps `max(budget - elapsed, minSleep)` after each frame (`SDL_GetTicksNS`,
+  `SDL_DelayPrecise`). It covers a frame-rate cap, a fixed delay (`targetFps = 0`, the sleep is
+  `minSleep`), and uncapped (`targetFps = 0`, `minSleepMs = 0`).
+- **OnDemand** blocks in `SDL_WaitEventTimeout(nullptr, idleTimeoutMs)` while nothing asks
+  for a redraw, and runs like Continuous while something does. `idleTimeoutMs = -1` is purely
+  event-driven.
+- **Vsync** is `swapInterval`, separate from the policy; pure vsync is `Continuous` with
+  `targetFps = 0` and `swapInterval = 1`.
+- The policy is a `switch` in a `WindowManager::wait()` called where `SDL_Delay(20)` is now.
+
+### Redraw requests
+
+`Thorin::request_redraw(int frames = 2)` keeps an OnDemand loop drawing for that many frames.
+Every SDL event requests a redraw (ImGui needs a frame or two to settle hover and layout), and
+an animating widget (e.g. `RenderWidget`) requests one from its `render()` every frame it is
+drawn.
+
+Needed before OnDemand is usable:
+
+- `ActionManager` delays count dispatches, so delayed actions stall while the loop sleeps. Keep
+  redrawing while the delay ring has pending actions.
+- `add_action` is thread-safe, but a sleeping loop won't see it until the timeout. It should
+  also `SDL_PushEvent` a user event to wake the loop.
+
+Later: skip `update()` for minimized or occluded windows (`SDL_WINDOW_MINIMIZED`,
+`SDL_WINDOW_OCCLUDED`).
+
 ## Tools
 
 ### Inspector
