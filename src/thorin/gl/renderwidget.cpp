@@ -21,6 +21,15 @@ namespace thorin {
         return *this;
     }
 
+    RenderWidget& RenderWidget::resize(int width, int height) {
+        if (texture_ != nullptr) {
+            const auto format = static_cast<gl::GLenum>(texture_->getLevelParameter(0, gl::GL_TEXTURE_INTERNAL_FORMAT));
+            // No data is uploaded, but format and type must still be valid for a colour format.
+            texture_->image2D(0, format, width, height, 0, gl::GL_RGBA, gl::GL_UNSIGNED_BYTE, nullptr);
+        }
+        return *this;
+    }
+
     globjects::Framebuffer* RenderWidget::framebuffer() const {
         return framebuffer_.get();
     }
