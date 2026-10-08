@@ -28,6 +28,7 @@ namespace thorin {
         virtual void make_current() = 0;
         void set_window(Window *window);
         Window* window();
+        [[nodiscard]] SDL_Window* handle() const;
         void maximize();
         void minimize();
         void set_size(int width, int height);

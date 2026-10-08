@@ -55,7 +55,9 @@ namespace thorin {
         [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, gl_context);
         DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
 
-        SDL_GL_SetSwapInterval(1);
+        // No vsync: the frame policy paces the loop (DisplayMatched for the display's rate). Vsync would
+        // stack one refresh wait per window.
+        SDL_GL_SetSwapInterval(0);
         SDL_SetWindowPosition(handle_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
         SDL_ShowWindow(handle_);
 
