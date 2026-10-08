@@ -22,6 +22,8 @@ namespace thorin {
             return false;
         }
 
+        render();
+
         // ImGui adds FramePadding around the image; take it out so the button fills the box.
         const ImVec2 padding = ImGui::GetStyle().FramePadding;
         const ImVec2 imageSize{

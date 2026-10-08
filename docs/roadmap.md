@@ -9,9 +9,7 @@ earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 
 Before writing a real app with thorin, in this order:
 
-1. **RenderWidget: render callback, auto-size, depth** (see [OpenGL](#opengl)), together since
-   they all touch `RenderWidget`. The render callback should call `request_redraw()`.
-2. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
+1. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
 
 Then the app, to find out what is actually missing.
 
@@ -165,16 +163,16 @@ share the strip's width equally, `set_stretch(false)` gives them their natural w
 
 ## OpenGL
 
-`RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment. Rendering
-into it is done by hand in the parent's `show()`; a real 3D view needs more.
+`RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment.
 
-- **Render callback.** `set_on_render([](globjects::Framebuffer& fb, int width, int height) {...})`.
-  `RenderWidget::show()` binds the framebuffer, sets `glViewport` to the texture size, calls it,
-  unbinds and restores the viewport, then draws the image.
-- **Auto-size.** An option to resize the texture to the Yoga box whenever the box changes, times
-  the display scale: windows use `SDL_WINDOW_HIGH_PIXEL_DENSITY`, so the box in points is not the
-  pixel count. Resize only on change, since `resize()` reallocates.
-- **Depth attachment.** An optional depth renderbuffer, resized with the texture.
+- **Render callback (done).** `set_on_render([](RenderWidget& self) {...})`.
+  `RenderWidget::render()` (called from `show()`, and from `ImageButton::show()`) binds the
+  framebuffer, sets `glViewport` to the texture size, calls it, restores the previous framebuffer
+  and viewport, and calls `request_redraw()`.
+- **Auto-size (done).** `set_auto_size(true)` resizes the texture to the Yoga box times
+  `io.DisplayFramebufferScale` whenever that changes, skipping an empty box. Needs a texture.
+- **Depth attachment (done).** `set_depth(true)` attaches a `GL_DEPTH_COMPONENT24` renderbuffer,
+  resized with the texture. Off by default.
 - **Mouse input.** For camera controls: hovered, mouse position relative to the view, drag delta
   per button, wheel. ImGui has these after the `Image` call (`IsItemHovered`, `GetMousePos()` minus
   `GetItemRectMin()`, `GetMouseDragDelta`, `io.MouseWheel`); an `InvisibleButton` over the image
