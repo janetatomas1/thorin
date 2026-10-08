@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.28)
-project(thorin)
+project(thorin VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -70,10 +70,16 @@ target_link_libraries(
     yoga::yoga
     libassert::assert
 )
+configure_file(
+    ${THORIN_HEADER_DIR}/thorin/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/thorin/version.hpp
+    @ONLY
+)
 target_include_directories(
     thorin
     PUBLIC
     ${THORIN_HEADER_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 add_subdirectory(${THORIN_EXAMPLES_DIR})
 

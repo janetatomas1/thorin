@@ -5,6 +5,18 @@ Ideas for what to build next, grouped by area. Sections marked (done) record wha
 Design details for measuring live in [measure.md](measure.md); its styling section describes an
 earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 
+## Next
+
+Before writing a real app with thorin, in this order:
+
+1. **Frame pacing, `Continuous` only** (see [Frame pacing](#frame-pacing)): `FrameConfig` with
+   `Continuous` and `swapInterval`. `OnDemand` and redraw requests wait.
+2. **RenderWidget: render callback, auto-size, depth** (see [OpenGL](#opengl)), together since
+   they all touch `RenderWidget`.
+3. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
+
+Then the app, to find out what is actually missing.
+
 ## Finish the measure work (done)
 
 - **Explicit heights on frame widgets.** Slider, Drag, Input, TextInput (single line),
@@ -152,6 +164,27 @@ share the strip's width equally, `set_stretch(false)` gives them their natural w
   own type. Widgets are looked up by id at that point, so the action is dropped if the widget
   was destroyed meanwhile, and a moved widget gets it at its new address. Callbacks such as
   `Button`'s go through it.
+
+## OpenGL
+
+`RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment. Rendering
+into it is done by hand in the parent's `show()`; a real 3D view needs more.
+
+- **Render callback.** `set_on_render([](globjects::Framebuffer& fb, int width, int height) {...})`.
+  `RenderWidget::show()` binds the framebuffer, sets `glViewport` to the texture size, calls it,
+  unbinds and restores the viewport, then draws the image.
+- **Auto-size.** An option to resize the texture to the Yoga box whenever the box changes, times
+  the display scale: windows use `SDL_WINDOW_HIGH_PIXEL_DENSITY`, so the box in points is not the
+  pixel count. Resize only on change, since `resize()` reallocates.
+- **Depth attachment.** An optional depth renderbuffer, resized with the texture.
+- **Mouse input.** For camera controls: hovered, mouse position relative to the view, drag delta
+  per button, wheel. ImGui has these after the `Image` call (`IsItemHovered`, `GetMousePos()` minus
+  `GetItemRectMin()`, `GetMouseDragDelta`, `io.MouseWheel`); an `InvisibleButton` over the image
+  keeps drags from moving the window.
+
+Later: sharing GL objects between windows. Each window has its own context and nothing is
+shared (`SDL_GL_SHARE_WITH_CURRENT_CONTEXT`); only needed when several windows show the same
+textures or meshes.
 
 ## Frame pacing
 
