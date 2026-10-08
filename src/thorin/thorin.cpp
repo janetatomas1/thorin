@@ -53,7 +53,7 @@ namespace thorin {
     }
 
     void Thorin::exit() {
-        actionManager_.add_action([this]() {
+        add_action([this]() {
             shouldExit_ = true;
         });
     }
@@ -62,9 +62,26 @@ namespace thorin {
         return frame_;
     }
 
+    const FrameConfig& Thorin::frame_config() const {
+        return windowManager_.frame_config();
+    }
+
+    void Thorin::set_frame_config(const FrameConfig &config) {
+        windowManager_.set_frame_config(config);
+    }
+
+    void Thorin::request_redraw(int frames) {
+        windowManager_.request_redraw(frames);
+    }
+
+    bool Thorin::actions_pending() const {
+        return actionManager_.pending();
+    }
+
     void Thorin::add_action(action &&fn, uint64_t delay) {
         DEBUG_ASSERT(fn != nullptr, "add_action called with an empty/null action");
         actionManager_.add_action(std::move(fn), delay);
+        windowManager_.wake();
     }
 
     uint64_t Thorin::add_window(std::unique_ptr<Window> window) {

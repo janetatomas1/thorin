@@ -13,6 +13,10 @@ namespace thorin {
         window_ = window;
     }
 
+    SDL_Window* GPUBackend::handle() const {
+        return handle_;
+    }
+
     Window* GPUBackend::window() {
         return window_;
     }

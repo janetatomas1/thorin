@@ -9,11 +9,9 @@ earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 
 Before writing a real app with thorin, in this order:
 
-1. **Frame pacing, `Continuous` only** (see [Frame pacing](#frame-pacing)): `FrameConfig` with
-   `Continuous` and `swapInterval`. `OnDemand` and redraw requests wait.
-2. **RenderWidget: render callback, auto-size, depth** (see [OpenGL](#opengl)), together since
-   they all touch `RenderWidget`.
-3. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
+1. **RenderWidget: render callback, auto-size, depth** (see [OpenGL](#opengl)), together since
+   they all touch `RenderWidget`. The render callback should call `request_redraw()`.
+2. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
 
 Then the app, to find out what is actually missing.
 
@@ -186,7 +184,17 @@ Later: sharing GL objects between windows. Each window has its own context and n
 shared (`SDL_GL_SHARE_WITH_CURRENT_CONTEXT`); only needed when several windows show the same
 textures or meshes.
 
-## Frame pacing
+## Frame pacing (done)
+
+Implemented with one `FramePolicy` per mode instead of the `Continuous` field combinations below:
+`TargetFps`, `FixedDelay` (`delayMs`), `Uncapped`, `OnDemand`, `DisplayMatched`, `FocusBased`
+(`idleFps` while unfocused) and `Adaptive` (`idleFps` after `activeTimeoutMs` without activity), dispatched
+through a wait-function table indexed by the enum (`windowmanager.cpp`). `FrameConfig` and the
+redraw counter live in `WindowManager`; `Thorin::set_frame_config` and `Thorin::request_redraw`
+forward to it. There is no vsync and no `swapInterval`: every window swaps with interval 0, and
+`DisplayMatched` sleeps to the fastest refresh rate among the windows' displays, so waits don't
+stack per window. `add_action` pushes a registered wake event. Still open: the
+minimized/occluded skip at the end, and `RenderWidget` requesting redraws (it has no `render()` yet).
 
 The main loop sleeps a hard-coded `SDL_Delay(20)` per iteration (`WindowManager::update`) and
 every window swaps with vsync on (`SDL_GL_SetSwapInterval(1)` in `GLBackend::init`). The two

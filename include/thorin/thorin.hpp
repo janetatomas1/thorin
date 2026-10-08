@@ -43,6 +43,14 @@ namespace thorin {
             return randomGenerator_.random();
         }
         [[nodiscard]] uint64_t frame() const;
+        [[nodiscard]] const FrameConfig& frame_config() const;
+        void set_frame_config(const FrameConfig &config);
+        // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
+        // frame they are drawn.
+        void request_redraw(int frames = 2);
+        // Whether any action is queued or delayed.
+        [[nodiscard]] bool actions_pending() const;
+        // Thread-safe; also wakes an OnDemand loop.
         void add_action(
             action &&fn,
             uint64_t delay = 0

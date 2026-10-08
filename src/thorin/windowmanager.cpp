@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <array>
+
 #include <imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <libassert/assert.hpp>
@@ -7,11 +10,160 @@
 
 
 namespace thorin {
+    namespace {
+        // frameStartNs is when the previous frame started, lastEventNs when the last event was polled.
+        // refreshRate and focused are only filled in for the policies that use them; refreshRate is 0 when unknown.
+        struct WaitState {
+            const FrameConfig &config;
+            uint64_t frameStartNs;
+            uint64_t lastEventNs;
+            bool redrawPending;
+            float refreshRate;
+            bool focused;
+        };
+        using WaitFn = void (*)(const WaitState &state);
+
+        void sleep_budget(const WaitState &state, uint64_t budget) {
+            const uint64_t minSleep = SDL_MS_TO_NS(static_cast<uint64_t>(state.config.minSleepMs));
+            const uint64_t elapsed = SDL_GetTicksNS() - state.frameStartNs;
+            const uint64_t sleep = std::max(budget > elapsed ? budget - elapsed : 0, minSleep);
+
+            if (sleep > 0) {
+                SDL_DelayPrecise(sleep);
+            }
+        }
+
+        uint64_t fps_budget(int fps) {
+            return SDL_NS_PER_SECOND / static_cast<uint64_t>(fps);
+        }
+
+        void wait_target_fps(const WaitState &state) {
+            sleep_budget(state, fps_budget(state.config.targetFps));
+        }
+
+        void wait_fixed_delay(const WaitState &state) {
+            SDL_DelayPrecise(SDL_MS_TO_NS(static_cast<uint64_t>(state.config.delayMs)));
+        }
+
+        void wait_uncapped(const WaitState &) {}
+
+        void wait_on_demand(const WaitState &state) {
+            if (state.redrawPending) {
+                wait_target_fps(state);
+            } else {
+                // Leaves the event in the queue for the poll in update().
+                SDL_WaitEventTimeout(nullptr, state.config.idleTimeoutMs);
+            }
+        }
+
+        void wait_display_matched(const WaitState &state) {
+            if (state.refreshRate > 0.0f) {
+                sleep_budget(state, static_cast<uint64_t>(static_cast<double>(SDL_NS_PER_SECOND) / state.refreshRate));
+            } else {
+                wait_target_fps(state);
+            }
+        }
+
+        void wait_focus_based(const WaitState &state) {
+            // A plain sleep, so a focus change waits for the end of the idle frame.
+            sleep_budget(state, fps_budget(state.focused ? state.config.targetFps : state.config.idleFps));
+        }
+
+        void wait_adaptive(const WaitState &state) {
+            const uint64_t now = SDL_GetTicksNS();
+            const uint64_t activeTimeout = SDL_MS_TO_NS(static_cast<uint64_t>(state.config.activeTimeoutMs));
+
+            if (state.redrawPending || now - state.lastEventNs < activeTimeout) {
+                wait_target_fps(state);
+                return;
+            }
+
+            // Idle: wait out the rest of the idle frame, but wake on the first event.
+            const uint64_t budget = fps_budget(state.config.idleFps);
+            const uint64_t elapsed = now - state.frameStartNs;
+            const uint64_t remaining = budget > elapsed ? budget - elapsed : 0;
+            SDL_WaitEventTimeout(nullptr, static_cast<Sint32>(SDL_NS_TO_MS(remaining)));
+        }
+
+        // Indexed by FramePolicy.
+        constexpr std::array<WaitFn, 7> waits = {
+            wait_target_fps,
+            wait_fixed_delay,
+            wait_uncapped,
+            wait_on_demand,
+            wait_display_matched,
+            wait_focus_based,
+            wait_adaptive,
+        };
+        static_assert(static_cast<size_t>(FramePolicy::Adaptive) == waits.size() - 1);
+    }
+
     WindowManager::WindowManager(Thorin &app) : app_(app) {}
 
     void WindowManager::init() {
         [[maybe_unused]] bool ok = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
         DEBUG_ASSERT(ok, "SDL_Init failed", SDL_GetError());
+
+        wakeEvent_ = SDL_RegisterEvents(1);
+        DEBUG_ASSERT(wakeEvent_ != 0, "SDL_RegisterEvents failed");
+    }
+
+    void WindowManager::wake() {
+        SDL_Event event{};
+        event.type = wakeEvent_;
+        SDL_PushEvent(&event);
+    }
+
+    const FrameConfig& WindowManager::frame_config() const {
+        return frameConfig_;
+    }
+
+    void WindowManager::set_frame_config(const FrameConfig &config) {
+        DEBUG_ASSERT(config.targetFps > 0, "targetFps must be positive", config.targetFps);
+        DEBUG_ASSERT(config.minSleepMs >= 0, "minSleepMs is negative", config.minSleepMs);
+        DEBUG_ASSERT(config.delayMs >= 0, "delayMs is negative", config.delayMs);
+        DEBUG_ASSERT(config.idleTimeoutMs >= -1, "idleTimeoutMs is below -1", config.idleTimeoutMs);
+        DEBUG_ASSERT(config.idleFps > 0, "idleFps must be positive", config.idleFps);
+        DEBUG_ASSERT(config.activeTimeoutMs >= 0, "activeTimeoutMs is negative", config.activeTimeoutMs);
+        frameConfig_ = config;
+    }
+
+    void WindowManager::request_redraw(int frames) {
+        DEBUG_ASSERT(frames >= 0, "request_redraw called with a negative frame count", frames);
+        redrawFrames_ = std::max(redrawFrames_, frames);
+    }
+
+    bool WindowManager::redraw_pending() const {
+        return redrawFrames_ > 0 || app_.actions_pending();
+    }
+
+    void WindowManager::wait() {
+        const auto index = static_cast<size_t>(frameConfig_.policy);
+        DEBUG_ASSERT(index < waits.size(), "unknown frame policy", index);
+
+        const float refreshRate = frameConfig_.policy == FramePolicy::DisplayMatched ? refresh_rate() : 0.0f;
+        const bool isFocused = frameConfig_.policy == FramePolicy::FocusBased && focused();
+        waits[index]({frameConfig_, frameStartNs_, lastEventNs_, redraw_pending(), refreshRate, isFocused});
+        frameStartNs_ = SDL_GetTicksNS();
+    }
+
+    float WindowManager::refresh_rate() const {
+        float rate = 0.0f;
+
+        for (const auto &window: windows_) {
+            const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetDisplayForWindow(window->backend()->handle()));
+
+            if (mode != nullptr) {
+                rate = std::max(rate, mode->refresh_rate);
+            }
+        }
+        return rate;
+    }
+
+    bool WindowManager::focused() const {
+        return std::any_of(windows_.begin(), windows_.end(), [](const auto &window) {
+            return (SDL_GetWindowFlags(window->backend()->handle()) & SDL_WINDOW_INPUT_FOCUS) != 0;
+        });
     }
 
     void WindowManager::destroy() {
@@ -26,10 +178,14 @@ namespace thorin {
     }
 
     void WindowManager::update() {
-        SDL_Delay(20);
+        wait();
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
+            // ImGui needs a frame or two after an event to settle hover and layout.
+            request_redraw();
+            lastEventNs_ = SDL_GetTicksNS();
+
             // Every window has its own ImGui context, so an event has to reach the context of its window.
             // Events that belong to no window (e.g. gamepad hot-plug) go to all of them.
             SDL_Window* handle = SDL_GetWindowFromEvent(&event);
@@ -55,6 +211,7 @@ namespace thorin {
         for (auto &window: windows_) {
             window->update();
         }
+        redrawFrames_ = std::max(redrawFrames_ - 1, 0);
     }
 
     size_t WindowManager::count() const {

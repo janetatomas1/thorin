@@ -9,6 +9,7 @@ namespace thorin {
         moodycamel::ConcurrentQueue<std::pair<action, uint64_t>> immediate_;
         std::vector<std::vector<action>> ring_;
         uint32_t frameIndex_ = 0;
+        size_t delayed_ = 0;
 
     public:
         ActionManager(uint64_t maxDelayFrames = 256);
@@ -16,5 +17,7 @@ namespace thorin {
         // The largest delay is maxDelayFrames - 1; a longer one runs at that limit.
         void add_action(action &&fn, uint64_t delay = 0);
         void dispatch();
+        // Whether any action is queued or waiting in the delay ring.
+        [[nodiscard]] bool pending() const;
     };
 }

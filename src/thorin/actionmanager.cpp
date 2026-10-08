@@ -37,11 +37,13 @@ namespace thorin {
                 const size_t index = (frameIndex_ + offset) % ring_.size();
                 DEBUG_ASSERT(index < ring_.size(), "computed ring index out of range", index, ring_.size());
                 ring_[index].push_back(std::move(queued.first));
+                delayed_ += 1;
             }
         }
 
         // run delayed actions
         auto& bucket = ring_[frameIndex_];
+        delayed_ -= bucket.size();
         for (auto& act : bucket) {
             DEBUG_ASSERT(act != nullptr, "delayed bucket contains a null/empty action");
             act();
@@ -49,5 +51,9 @@ namespace thorin {
         bucket.clear();
 
         frameIndex_ = (frameIndex_ + 1) % ring_.size();
+    }
+
+    bool ActionManager::pending() const {
+        return delayed_ > 0 || immediate_.size_approx() > 0;
     }
 }
