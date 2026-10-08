@@ -1,30 +1,6 @@
-
 set(
     THORIN_EXAMPLE_NAMES
-    helloworld
-    button
-    checkbox
-    dropdown
-    radiogroup
-    textinput
-    text
-    drag
-    slider
-    input
-    coloredit
-    colorpicker
-    menubar
-    table
-    tabwidget
-    childwindow
-    selectable
-    modal
-    popup
-    progressbar
-    separator
-    dockarea
-    imagebutton
-    renderwidget
+    zion
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
