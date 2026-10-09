@@ -31,5 +31,8 @@ namespace thorin {
         | SDL_WINDOW_RESIZABLE
         | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         WindowState windowState = WindowState::MAXIMIZED;
+        // ImGui settings file (docking layout, table state) for this window's context; empty disables it.
+        // Each window has its own context, so windows must not share a file.
+        std::string iniFile;
     };
 }
