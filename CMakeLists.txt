@@ -33,6 +33,8 @@ set(
     ${THORIN_SOURCE_DIR}/tabwidget.cpp
     ${THORIN_SOURCE_DIR}/childwindow.cpp
     ${THORIN_SOURCE_DIR}/selectable.cpp
+    ${THORIN_SOURCE_DIR}/treenode.cpp
+    ${THORIN_SOURCE_DIR}/treeview.cpp
     ${THORIN_SOURCE_DIR}/popup.cpp
     ${THORIN_SOURCE_DIR}/modal.cpp
     ${THORIN_SOURCE_DIR}/progressbar.cpp
