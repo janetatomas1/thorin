@@ -57,8 +57,54 @@ namespace thorin {
         return values_.empty();
     }
 
+    SeriesRing::SeriesRing(std::size_t capacity): capacity_(capacity) {
+        DEBUG_ASSERT(capacity > 0, "SeriesRing capacity must be > 0");
+        values_.reserve(capacity);
+    }
+
+    std::span<const double> SeriesRing::values() const {
+        return values_;
+    }
+
+    std::size_t SeriesRing::offset() const {
+        return head_;
+    }
+
+    std::size_t SeriesRing::size() const {
+        return values_.size();
+    }
+
+    std::size_t SeriesRing::capacity() const {
+        return capacity_;
+    }
+
+    bool SeriesRing::empty() const {
+        return values_.empty();
+    }
+
+    SeriesRing& SeriesRing::add(double value) {
+        if (values_.size() < capacity_) {
+            values_.push_back(value);
+        } else {
+            values_[head_] = value;
+            head_ = (head_ + 1) % capacity_;
+        }
+        return *this;
+    }
+
+    SeriesRing& SeriesRing::clear() {
+        values_.clear();
+        head_ = 0;
+        return *this;
+    }
+
     std::span<const double> values(const SeriesData& data) {
         return std::visit([](const auto& d) { return d.values(); }, data);
+    }
+
+    std::size_t offset(const SeriesData& data) {
+        const auto* ring = std::get_if<SeriesRing>(&data);
+        return ring ? ring->offset() : 0;
     }
 
     Series::Series(const std::string& label)
@@ -91,6 +137,21 @@ namespace thorin {
         return *this;
     }
 
+    ImAxis Series::x_axis() const {
+        return xAxis_;
+    }
+
+    ImAxis Series::y_axis() const {
+        return yAxis_;
+    }
+
+    Series& Series::set_axes(ImAxis x, ImAxis y) {
+        DEBUG_ASSERT(x >= ImAxis_X1 && x <= ImAxis_X3 && y >= ImAxis_Y1 && y <= ImAxis_Y3, "Series::set_axes: x must be X1..X3, y Y1..Y3", x, y);
+        xAxis_ = x;
+        yAxis_ = y;
+        return *this;
+    }
+
     XYSeries::XYSeries(const std::string& label, SeriesData xs, SeriesData ys)
     : Series(label), xs_(std::move(xs)), ys_(std::move(ys)) {}
 
@@ -120,6 +181,11 @@ namespace thorin {
         return static_cast<int>(std::min(values(xs_).size(), values(ys_).size()));
     }
 
+    int XYSeries::offset() const {
+        DEBUG_ASSERT(thorin::offset(xs_) == thorin::offset(ys_), "XYSeries: xs and ys rings out of step", thorin::offset(xs_), thorin::offset(ys_));
+        return static_cast<int>(thorin::offset(xs_));
+    }
+
     float LineSeries::line_weight() const {
         return lineWeight_;
     }
@@ -133,6 +199,7 @@ namespace thorin {
         ImPlotSpec spec;
         spec.LineColor = color().value_or(IMPLOT_AUTO_COL);
         spec.LineWeight = lineWeight_;
+        spec.Offset = offset();
         ImPlot::PlotLine(label_id().c_str(), xs().data(), ys().data(), count(), spec);
     }
 
@@ -150,6 +217,7 @@ namespace thorin {
         ImPlotSpec spec;
         spec.LineColor = color().value_or(IMPLOT_AUTO_COL);
         spec.LineWeight = lineWeight_;
+        spec.Offset = offset();
         ImPlot::PlotScatter(label_id().c_str(), xs().data(), ys().data(), count(), spec);
     }
 
@@ -165,6 +233,7 @@ namespace thorin {
     void BarSeries::plot() const {
         ImPlotSpec spec;
         spec.FillColor = color().value_or(IMPLOT_AUTO_COL);
+        spec.Offset = offset();
         ImPlot::PlotBars(label_id().c_str(), xs().data(), ys().data(), count(), barWidth_, spec);
     }
 }

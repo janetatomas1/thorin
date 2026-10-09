@@ -1,6 +1,5 @@
 #include <cmath>
 #include <string>
-#include <variant>
 
 #include <thorin/thorin.hpp>
 #include <thorin/chartwidget.hpp>
@@ -8,14 +7,16 @@
 using namespace thorin;
 
 // Chart: sine and cosine sampled every frame, scrolling through the last 10 seconds
-// in a ChartWidget that fills the window.
+// in a ChartWidget that fills the window. Rings keep the last capacity samples, enough for
+// 10 s at up to 240 fps.
 
 struct Chart: Widget {
     static constexpr double window = 10.0;
+    static constexpr std::size_t capacity = 2400;
 
     ChartWidget chart = ChartWidget("Sine and cosine", this);
-    LineSeries& sine = chart.add_series<LineSeries>("sin(t)", SeriesBuffer(), SeriesBuffer());
-    LineSeries& cosine = chart.add_series<LineSeries>("cos(t)", SeriesBuffer(), SeriesBuffer());
+    LineSeries& sine = chart.add_series<LineSeries>("sin(t)", SeriesRing(capacity), SeriesRing(capacity));
+    LineSeries& cosine = chart.add_series<LineSeries>("cos(t)", SeriesRing(capacity), SeriesRing(capacity));
 
     Chart(const std::string& title): Widget(title) {
         column();
@@ -25,16 +26,9 @@ struct Chart: Widget {
         chart.set_y_axis({.label = "y", .limits = ImPlotRange(-1.2, 1.2)});
     }
 
-    // Appends (t, y) and drops the points that scrolled out of the window.
     static void sample(LineSeries& series, double t, double y) {
-        auto& xs = std::get<SeriesBuffer>(series.xs_data());
-        auto& ys = std::get<SeriesBuffer>(series.ys_data());
-        xs.add(t);
-        ys.add(y);
-        while (xs.values().front() < t - window) {
-            xs.remove(0);
-            ys.remove(0);
-        }
+        series.xs<SeriesRing>().add(t);
+        series.ys<SeriesRing>().add(y);
     }
 
     bool show() override {
