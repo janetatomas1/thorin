@@ -7,6 +7,15 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ## [Unreleased]
 
+### Added
+
+- `TreeNode`: a collapsible node with an ImGui tree node header. Its children can be any widgets;
+  they are indented by `IndentSpacing` and hidden from Yoga while it is closed. Nest TreeNodes to
+  build a tree; `set_flags(ImGuiTreeNodeFlags_Framed)` gives a collapsing header. ImGui's tree
+  lines work (`DrawLinesFull` / `DrawLinesToNodes` on the nodes, or `style.TreeLinesFlags`).
+- `TreeView`: a scrolling, bordered child window for a tree of TreeNodes, with `expand_all()` and
+  `collapse_all()`.
+
 ### Changed
 
 - `WindowConfig::iniFile` sets the ImGui settings file for that window's context. It is empty by

@@ -8,6 +8,7 @@
 #include <string>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <thorin/button.hpp>
 #include <thorin/checkbox.hpp>
@@ -23,6 +24,8 @@
 #include <thorin/slider.hpp>
 #include <thorin/text.hpp>
 #include <thorin/textinput.hpp>
+#include <thorin/treenode.hpp>
+#include <thorin/treeview.hpp>
 #include <thorin/widget.hpp>
 #include <thorin/windowconfig.hpp>
 
@@ -336,6 +339,95 @@ TEST_F(Measure, ExplicitHeightWidensSquares) {
     Dropdown dropdown("Color", &root);
     dropdown.set_flags(ImGuiComboFlags_NoPreview).height(32.0f);
     expect_matches(dropdown);
+}
+
+// TreeNode
+
+TEST_F(Measure, TreeNodeClosedTakesHeaderOnly) {
+    TreeNode node("Node", &root);
+    Text child("Child", &node);
+
+    // The first frame hides the child; the second lays out without it.
+    frame([&] { node.render(); });
+    frame([&] { node.render(); });
+    EXPECT_FALSE(child.layout().visible());
+    EXPECT_NEAR(node.height(), ImGui::GetFontSize(), tolerance);
+}
+
+TEST_F(Measure, TreeNodeOpenIndentsChildren) {
+    TreeNode node("Node", &root);
+    Text child("Child", &node);
+    node.set_open(true);
+
+    // The first frame sets the indent; the second lays out with it.
+    frame([&] { node.render(); });
+    frame([&] { node.render(); });
+    EXPECT_TRUE(child.layout().visible());
+    EXPECT_NEAR(child.x() - node.x(), ImGui::GetStyle().IndentSpacing, tolerance);
+    EXPECT_NEAR(node.height(), ImGui::GetFontSize() + child.height(), tolerance);
+}
+
+TEST_F(Measure, TreeNodeFramedHeaderFillsBox) {
+    TreeNode node("Node", &root);
+    node.set_flags(ImGuiTreeNodeFlags_Framed).width(200.0f);
+
+    frame([&] { node.render(); });
+    const Sizes s = sizes(node);
+    EXPECT_NEAR(s.drawn.x, 200.0f, tolerance);
+    EXPECT_NEAR(s.drawn.y, ImGui::GetFrameHeight(), tolerance);
+    EXPECT_NEAR(s.layout.y, ImGui::GetFrameHeight(), tolerance);
+}
+
+TEST_F(Measure, TreeNodeDrawsLinesInsideBalancedScope) {
+    TreeNode node("Node", &root);
+    // Not a direct child: the line still reaches it, the scope spans all the node's children.
+    Widget wrapper("", &node);
+    TreeNode child("Child", &wrapper);
+    // Each child draws its own connector, so it needs the flag too; the parent's decides.
+    child.set_flags(ImGuiTreeNodeFlags_DrawLinesToNodes);
+    node.set_open(true);
+
+    // Vertices drawn into the window, and whether the node left ImGui's stacks as it found them.
+    auto draw = [&](ImGuiTreeNodeFlags flags) {
+        node.set_flags(flags);
+        size_t vertices = 0;
+        bool balanced = false;
+        frame([&] {
+            ImGuiWindow* window = ImGui::GetCurrentWindow();
+            const int ids = window->IDStack.Size;
+            const int before = window->DrawList->VtxBuffer.Size;
+            node.render();
+            vertices = static_cast<size_t>(window->DrawList->VtxBuffer.Size - before);
+            balanced = window->IDStack.Size == ids && window->DC.TreeDepth == 0 && GImGui->TreeNodeStack.Size == 0;
+        });
+        return std::pair{vertices, balanced};
+    };
+
+    draw(ImGuiTreeNodeFlags_None);
+    const auto [plain, plainBalanced] = draw(ImGuiTreeNodeFlags_None);
+    const auto [lines, linesBalanced] = draw(ImGuiTreeNodeFlags_DrawLinesToNodes);
+    EXPECT_TRUE(plainBalanced);
+    EXPECT_TRUE(linesBalanced);
+    EXPECT_GT(lines, plain);
+}
+
+TEST_F(Measure, TreeViewExpandsNestedNodes) {
+    TreeView view("Tree", &root);
+    TreeNode outer("Outer", &view);
+    // Not a direct child of a TreeNode: expand_all() still reaches it.
+    Widget wrapper("", &outer);
+    TreeNode inner("Inner", &wrapper);
+    TreeNode leaf("Leaf", &inner);
+    leaf.set_flags(ImGuiTreeNodeFlags_Leaf);
+
+    view.expand_all();
+    EXPECT_TRUE(outer.is_open());
+    EXPECT_TRUE(inner.is_open());
+    EXPECT_FALSE(leaf.is_open());
+
+    view.collapse_all();
+    EXPECT_FALSE(outer.is_open());
+    EXPECT_FALSE(inner.is_open());
 }
 
 // Moves

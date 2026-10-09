@@ -124,8 +124,9 @@ based on ImGui's own sizing, and `mark_dirty()` in setters that change size.
 
 ### Collapsible containers
 
-CollapsingHeader, TreeNode. (`TabWidget` is done and follows this pattern; by default its tabs
-share the strip's width equally, `set_stretch(false)` gives them their natural width.)
+`TabWidget` and `TreeNode` are done and follow this pattern. TabWidget's tabs share the strip's
+width equally by default, `set_stretch(false)` gives them their natural width. A CollapsingHeader
+is a `TreeNode` with `ImGuiTreeNodeFlags_Framed`.
 
 - The header or tab strip is drawn by the container itself.
 - When collapsed, or when a tab isn't selected, children get `display(YGDisplayNone)`, so Yoga
