@@ -39,6 +39,8 @@ set(
     ${THORIN_SOURCE_DIR}/separator.cpp
     ${THORIN_SOURCE_DIR}/pane.cpp
     ${THORIN_SOURCE_DIR}/dockarea.cpp
+    ${THORIN_SOURCE_DIR}/series.cpp
+    ${THORIN_SOURCE_DIR}/chartwidget.cpp
     ${THORIN_SOURCE_DIR}/style.cpp
     ${THORIN_SOURCE_DIR}/color.cpp
 )
