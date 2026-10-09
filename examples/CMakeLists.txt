@@ -2,6 +2,7 @@ set(
     THORIN_EXAMPLE_NAMES
     zion
     chart
+    chart3d
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
