@@ -1,9 +1,11 @@
 #include <algorithm>
+#include <format>
 
 #include <implot.h>
 #include <libassert/assert.hpp>
 
 #include "thorin/series.hpp"
+#include "thorin/thorin.hpp"
 
 namespace thorin {
     SeriesBuffer::SeriesBuffer(std::vector<double> values): values_(std::move(values)) {}
@@ -59,14 +61,24 @@ namespace thorin {
         return std::visit([](const auto& d) { return d.values(); }, data);
     }
 
-    Series::Series(const std::string& label): label_(label) {}
+    Series::Series(const std::string& label)
+    : id_(Thorin::random()), label_(label), labelID_(std::format("{}##{}", label, id_)) {}
+
+    uint64_t Series::id() const {
+        return id_;
+    }
 
     const std::string& Series::label() const {
         return label_;
     }
 
+    const std::string& Series::label_id() const {
+        return labelID_;
+    }
+
     Series& Series::set_label(const std::string& label) {
         label_ = label;
+        labelID_ = std::format("{}##{}", label, id_);
         return *this;
     }
 
@@ -121,7 +133,7 @@ namespace thorin {
         ImPlotSpec spec;
         spec.LineColor = color().value_or(IMPLOT_AUTO_COL);
         spec.LineWeight = lineWeight_;
-        ImPlot::PlotLine(label().c_str(), xs().data(), ys().data(), count(), spec);
+        ImPlot::PlotLine(label_id().c_str(), xs().data(), ys().data(), count(), spec);
     }
 
     float ScatterSeries::line_weight() const {
@@ -138,7 +150,7 @@ namespace thorin {
         ImPlotSpec spec;
         spec.LineColor = color().value_or(IMPLOT_AUTO_COL);
         spec.LineWeight = lineWeight_;
-        ImPlot::PlotScatter(label().c_str(), xs().data(), ys().data(), count(), spec);
+        ImPlot::PlotScatter(label_id().c_str(), xs().data(), ys().data(), count(), spec);
     }
 
     double BarSeries::bar_width() const {
@@ -153,6 +165,6 @@ namespace thorin {
     void BarSeries::plot() const {
         ImPlotSpec spec;
         spec.FillColor = color().value_or(IMPLOT_AUTO_COL);
-        ImPlot::PlotBars(label().c_str(), xs().data(), ys().data(), count(), barWidth_, spec);
+        ImPlot::PlotBars(label_id().c_str(), xs().data(), ys().data(), count(), barWidth_, spec);
     }
 }

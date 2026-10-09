@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <string>
@@ -49,7 +50,9 @@ namespace thorin {
     // One plot item of a ChartWidget. Subclasses draw themselves in plot(),
     // which runs between ImPlot::BeginPlot and EndPlot.
     class Series {
+        uint64_t id_;
         std::string label_;
+        std::string labelID_;
         std::optional<ImVec4> color_;
 
     public:
@@ -58,8 +61,12 @@ namespace thorin {
 
         virtual void plot() const = 0;
 
+        // Unique per series, fixed for its lifetime.
+        [[nodiscard]] uint64_t id() const;
         // Legend entry; "##" hides it, as in ImGui.
         [[nodiscard]] const std::string& label() const;
+        // label() with "##id": the ImPlot item id, so series with the same label don't share state.
+        [[nodiscard]] const std::string& label_id() const;
         Series& set_label(const std::string& label);
         // Empty = ImPlot picks the next colormap color.
         [[nodiscard]] std::optional<ImVec4> color() const;

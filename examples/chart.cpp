@@ -21,8 +21,8 @@ struct Chart: Widget {
         column();
         padding(10);
         chart.flex_grow(1);
-        chart.set_axis_labels("t [s]", "y");
-        chart.set_y_limits(ImPlotRange(-1.2, 1.2));
+        chart.set_x_axis({.label = "t", .format = "%.0f s"});
+        chart.set_y_axis({.label = "y", .limits = ImPlotRange(-1.2, 1.2)});
     }
 
     // Appends (t, y) and drops the points that scrolled out of the window.
@@ -41,7 +41,7 @@ struct Chart: Widget {
         const double t = ImGui::GetTime();
         sample(sine, t, std::sin(t));
         sample(cosine, t, std::cos(t));
-        chart.set_x_limits(ImPlotRange(t - window, t));
+        chart.x_axis().limits = ImPlotRange(t - window, t);
         return Widget::show();
     }
 };
