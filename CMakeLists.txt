@@ -41,6 +41,8 @@ set(
     ${THORIN_SOURCE_DIR}/dockarea.cpp
     ${THORIN_SOURCE_DIR}/series.cpp
     ${THORIN_SOURCE_DIR}/chartwidget.cpp
+    ${THORIN_SOURCE_DIR}/series3d.cpp
+    ${THORIN_SOURCE_DIR}/chart3dwidget.cpp
     ${THORIN_SOURCE_DIR}/style.cpp
     ${THORIN_SOURCE_DIR}/color.cpp
 )
