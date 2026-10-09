@@ -7,4 +7,4 @@ add_executable(
     main.cpp
     measure_test.cpp
 )
-target_link_libraries(thorin_tests PRIVATE thorin GTest::gtest)
+target_link_libraries(thorin_tests PRIVATE thorin gtest::gtest)

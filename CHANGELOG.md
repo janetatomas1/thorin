@@ -7,6 +7,12 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ## [Unreleased]
 
+### Changed
+
+- `WindowConfig::iniFile` sets the ImGui settings file for that window's context. It is empty by
+  default, which turns saving off. Before, every window wrote to the same `imgui.ini` in the
+  working directory and they overwrote each other's settings.
+
 ## [0.1.0] - 2026-10-07
 
 First version: the features thorin has today.

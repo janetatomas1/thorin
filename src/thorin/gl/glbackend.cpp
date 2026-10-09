@@ -76,6 +76,8 @@ namespace thorin {
         implotContext_ = ImPlot::CreateContext();
         implot3dContext_ = ImPlot3D::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
+        // ImGui keeps the pointer, not a copy; config_ outlives the context.
+        io.IniFilename = config_.iniFile.empty() ? nullptr : config_.iniFile.c_str();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
