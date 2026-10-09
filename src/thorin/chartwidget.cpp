@@ -3,6 +3,19 @@
 #include "thorin/chartwidget.hpp"
 
 namespace thorin {
+    namespace {
+        void setup_axis(ImAxis id, const Axis& axis) {
+            ImPlot::SetupAxis(id, axis.label.empty() ? nullptr : axis.label.c_str(), axis.flags);
+            ImPlot::SetupAxisScale(id, axis.scale);
+            if (axis.limits) {
+                ImPlot::SetupAxisLimits(id, axis.limits->Min, axis.limits->Max, ImPlotCond_Always);
+            }
+            if (!axis.format.empty()) {
+                ImPlot::SetupAxisFormat(id, axis.format.c_str());
+            }
+        }
+    }
+
     ChartWidget::ChartWidget(const std::string& title, Widget* parent): Widget(title, parent) {
         layout().enable_measure();
     }
@@ -16,6 +29,24 @@ namespace thorin {
         std::erase_if(series_, [&](const auto& s) { return s.get() == &series; });
     }
 
+    void ChartWidget::remove_series(const std::string& label) {
+        std::erase_if(series_, [&](const auto& s) { return s->label() == label; });
+    }
+
+    Series* ChartWidget::get_series(const std::string& label) {
+        const auto it = std::ranges::find_if(series_, [&](const auto& s) { return s->label() == label; });
+        return it == series_.end() ? nullptr : it->get();
+    }
+
+    void ChartWidget::remove_series(uint64_t id) {
+        std::erase_if(series_, [&](const auto& s) { return s->id() == id; });
+    }
+
+    Series* ChartWidget::get_series(uint64_t id) {
+        const auto it = std::ranges::find_if(series_, [&](const auto& s) { return s->id() == id; });
+        return it == series_.end() ? nullptr : it->get();
+    }
+
     void ChartWidget::clear_series() {
         series_.clear();
     }
@@ -24,35 +55,29 @@ namespace thorin {
         return series_;
     }
 
-    const std::string& ChartWidget::x_label() const {
-        return xLabel_;
+    Axis& ChartWidget::x_axis() {
+        return xAxis_;
     }
 
-    const std::string& ChartWidget::y_label() const {
-        return yLabel_;
+    const Axis& ChartWidget::x_axis() const {
+        return xAxis_;
     }
 
-    ChartWidget& ChartWidget::set_axis_labels(const std::string& x, const std::string& y) {
-        xLabel_ = x;
-        yLabel_ = y;
+    ChartWidget& ChartWidget::set_x_axis(Axis axis) {
+        xAxis_ = std::move(axis);
         return *this;
     }
 
-    std::optional<ImPlotRange> ChartWidget::x_limits() const {
-        return xLimits_;
+    Axis& ChartWidget::y_axis() {
+        return yAxis_;
     }
 
-    ChartWidget& ChartWidget::set_x_limits(std::optional<ImPlotRange> limits) {
-        xLimits_ = limits;
-        return *this;
+    const Axis& ChartWidget::y_axis() const {
+        return yAxis_;
     }
 
-    std::optional<ImPlotRange> ChartWidget::y_limits() const {
-        return yLimits_;
-    }
-
-    ChartWidget& ChartWidget::set_y_limits(std::optional<ImPlotRange> limits) {
-        yLimits_ = limits;
+    ChartWidget& ChartWidget::set_y_axis(Axis axis) {
+        yAxis_ = std::move(axis);
         return *this;
     }
 
@@ -70,16 +95,8 @@ namespace thorin {
         if (!ImPlot::BeginPlot(title_id().c_str(), size(), flags_)) {
             return false;
         }
-        ImPlot::SetupAxes(
-            xLabel_.empty() ? nullptr : xLabel_.c_str(),
-            yLabel_.empty() ? nullptr : yLabel_.c_str()
-        );
-        if (xLimits_) {
-            ImPlot::SetupAxisLimits(ImAxis_X1, xLimits_->Min, xLimits_->Max, ImPlotCond_Always);
-        }
-        if (yLimits_) {
-            ImPlot::SetupAxisLimits(ImAxis_Y1, yLimits_->Min, yLimits_->Max, ImPlotCond_Always);
-        }
+        setup_axis(ImAxis_X1, xAxis_);
+        setup_axis(ImAxis_Y1, yAxis_);
         for (const auto& series : series_) {
             series->plot();
         }
