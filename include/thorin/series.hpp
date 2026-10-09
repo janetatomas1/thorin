@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <imgui.h>
+#include <implot.h>
 
 namespace thorin {
     // Values a series owns.
@@ -43,9 +44,32 @@ namespace thorin {
         [[nodiscard]] bool empty() const;
     };
 
-    // Values a series plots: owned or borrowed.
-    using SeriesData = std::variant<SeriesBuffer, SeriesView>;
+    // The last capacity values a series owns: once full, add() overwrites the oldest.
+    // values() is in storage order; the oldest value is at offset().
+    class SeriesRing {
+        std::vector<double> values_;
+        std::size_t capacity_;
+        std::size_t head_ = 0;
+
+    public:
+        // capacity > 0.
+        explicit SeriesRing(std::size_t capacity);
+
+        [[nodiscard]] std::span<const double> values() const;
+        [[nodiscard]] std::size_t offset() const;
+        [[nodiscard]] std::size_t size() const;
+        [[nodiscard]] std::size_t capacity() const;
+        [[nodiscard]] bool empty() const;
+
+        SeriesRing& add(double value);
+        SeriesRing& clear();
+    };
+
+    // Values a series plots: owned, borrowed, or a ring.
+    using SeriesData = std::variant<SeriesBuffer, SeriesView, SeriesRing>;
     [[nodiscard]] std::span<const double> values(const SeriesData& data);
+    // Index of the oldest value: SeriesRing::offset(), 0 for the others.
+    [[nodiscard]] std::size_t offset(const SeriesData& data);
 
     // One plot item of a ChartWidget. Subclasses draw themselves in plot(),
     // which runs between ImPlot::BeginPlot and EndPlot.
@@ -54,6 +78,8 @@ namespace thorin {
         std::string label_;
         std::string labelID_;
         std::optional<ImVec4> color_;
+        ImAxis xAxis_ = ImAxis_X1;
+        ImAxis yAxis_ = ImAxis_Y1;
 
     public:
         explicit Series(const std::string& label);
@@ -71,17 +97,22 @@ namespace thorin {
         // Empty = ImPlot picks the next colormap color.
         [[nodiscard]] std::optional<ImVec4> color() const;
         Series& set_color(std::optional<ImVec4> color);
+        // The chart axes this series is drawn against: x one of ImAxis_X1..X3, y one of ImAxis_Y1..Y3.
+        [[nodiscard]] ImAxis x_axis() const;
+        [[nodiscard]] ImAxis y_axis() const;
+        Series& set_axes(ImAxis x, ImAxis y);
     };
 
     // A series of (x, y) points; xs and ys are plotted up to the shorter of the two.
+    // Rings for xs and ys must stay in step (same capacity, added together) so they share one offset.
     class XYSeries : public Series {
         SeriesData xs_;
         SeriesData ys_;
 
     protected:
-        [[nodiscard]] std::span<const double> xs() const;
-        [[nodiscard]] std::span<const double> ys() const;
         [[nodiscard]] int count() const;
+        // The shared offset of xs and ys, for ImPlotSpec::Offset.
+        [[nodiscard]] int offset() const;
 
     public:
         XYSeries(const std::string& label, SeriesData xs, SeriesData ys);
@@ -89,6 +120,19 @@ namespace thorin {
         // E.g. std::get_if<SeriesBuffer>(&series.xs_data()) to add or remove owned values.
         [[nodiscard]] SeriesData& xs_data();
         [[nodiscard]] SeriesData& ys_data();
+
+        // The values whatever the data type, in storage order (see offset()).
+        [[nodiscard]] std::span<const double> xs() const;
+        [[nodiscard]] std::span<const double> ys() const;
+        // The data as T, e.g. xs<SeriesRing>().add(t); T must be the type it holds.
+        template <class T>
+        [[nodiscard]] T& xs() { return std::get<T>(xs_); }
+        template <class T>
+        [[nodiscard]] const T& xs() const { return std::get<T>(xs_); }
+        template <class T>
+        [[nodiscard]] T& ys() { return std::get<T>(ys_); }
+        template <class T>
+        [[nodiscard]] const T& ys() const { return std::get<T>(ys_); }
     };
 
     class LineSeries : public XYSeries {
