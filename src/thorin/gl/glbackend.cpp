@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_opengl3.h>
+#include <implot.h>
+#include <implot3d.h>
 #include <libassert/assert.hpp>
 
 #include "thorin/gl/glbackend.hpp"
@@ -70,6 +72,9 @@ namespace thorin {
 
         IMGUI_CHECKVERSION();
         imguiContext_ = ImGui::CreateContext();
+        // Per window like the ImGui context; make_current() switches all three.
+        implotContext_ = ImPlot::CreateContext();
+        implot3dContext_ = ImPlot3D::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -96,6 +101,10 @@ namespace thorin {
         make_current();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
+        ImPlot3D::DestroyContext(implot3dContext_);
+        implot3dContext_ = nullptr;
+        ImPlot::DestroyContext(implotContext_);
+        implotContext_ = nullptr;
         ImGui::DestroyContext(imguiContext_);
         imguiContext_ = nullptr;
 
@@ -150,5 +159,7 @@ namespace thorin {
         // Each window registers its own context in globjects::init.
         globjects::setCurrentContext();
         ImGui::SetCurrentContext(imguiContext_);
+        ImPlot::SetCurrentContext(implotContext_);
+        ImPlot3D::SetCurrentContext(implot3dContext_);
     }
 }

@@ -7,11 +7,15 @@
 #include "thorin/gpubackend.hpp"
 
 struct ImGuiContext;
+struct ImPlotContext;
+struct ImPlot3DContext;
 
 namespace thorin {
     class GLBackend: public GPUBackend {
         SDL_GLContext gl_context;
         ImGuiContext* imguiContext_ = nullptr;
+        ImPlotContext* implotContext_ = nullptr;
+        ImPlot3DContext* implot3dContext_ = nullptr;
         const std::string glsl_version = "#version 330 core";
 
     public:

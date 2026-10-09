@@ -1,6 +1,7 @@
 set(
     THORIN_EXAMPLE_NAMES
     zion
+    chart
 )
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
