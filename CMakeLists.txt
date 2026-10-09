@@ -48,6 +48,8 @@ find_package(glbinding REQUIRED)
 find_package(globjects REQUIRED)
 find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
+find_package(implot REQUIRED)
+find_package(implot3d REQUIRED)
 find_package(function2 REQUIRED)
 find_package(yoga REQUIRED)
 find_package(libassert REQUIRED)
@@ -66,6 +68,8 @@ target_link_libraries(
     globjects::globjects
     concurrentqueue::concurrentqueue
     imgui::imgui
+    implot::implot
+    implot3d::implot3d
     function2::function2
     yoga::yoga
     libassert::assert
