@@ -214,6 +214,16 @@ namespace thorin {
         redrawFrames_ = std::max(redrawFrames_ - 1, 0);
     }
 
+    void WindowManager::apply_theme(const Theme &theme) {
+        for (auto &window: windows_) {
+            window->backend()->make_current();
+            window->backend()->apply_theme(theme);
+            // Style vars change measured sizes.
+            window->root_widget()->layout().mark_dirty_tree();
+        }
+        request_redraw();
+    }
+
     size_t WindowManager::count() const {
         return windows_.size();
     }

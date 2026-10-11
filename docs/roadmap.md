@@ -96,7 +96,9 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
 - **Widgets drawn outside Yoga** (menu entries, table cells) are drawn inside their owner's
   `draw()`, so they inherit its style. Owners that measure them (`Table`, `MenuBar`) push the
   entry's own style around it.
-- **Window-wide style** is ImGui's global style; there is no thorin wrapper for it.
+- **App-wide theme.** `Thorin::set_theme(Theme)` (`ImGuiStyle`, `ImPlotStyle`, `ImPlot3DStyle`, unscaled)
+  is copied into each window's contexts in `GLBackend::init()`, then DPI-scaled. Setting it later
+  re-themes open windows through an action (between frames) and marks their trees dirty.
 
 Still open:
 

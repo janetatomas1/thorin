@@ -6,6 +6,7 @@
 #include "thorin/windowmanager.hpp"
 #include "thorin/randomgenerator.hpp"
 #include "thorin/actionmanager.hpp"
+#include "thorin/theme.hpp"
 
 namespace thorin {
     class Thorin {
@@ -19,6 +20,7 @@ namespace thorin {
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
+        Theme theme_;
 
         void init();
         void destroy();
@@ -45,6 +47,9 @@ namespace thorin {
         [[nodiscard]] uint64_t frame() const;
         [[nodiscard]] const FrameConfig& frame_config() const;
         void set_frame_config(const FrameConfig &config);
+        [[nodiscard]] const Theme& theme() const;
+        // Applies to every window, open or created later. Open windows switch on the next frame.
+        void set_theme(const Theme &theme);
         // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
         // frame they are drawn.
         void request_redraw(int frames = 2);

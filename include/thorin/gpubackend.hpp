@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 
 #include "thorin/windowconfig.hpp"
+#include "thorin/theme.hpp"
 
 
 namespace thorin {
@@ -16,6 +17,8 @@ namespace thorin {
         SDL_Window* handle_ = nullptr;
         Window *window_;
         WindowConfig config_;
+        // Display content scale the theme's sizes are multiplied by.
+        float scale_ = 1.0f;
 
     public:
         GPUBackend(const WindowConfig &config);
@@ -27,6 +30,8 @@ namespace thorin {
         // Makes this window's GPU and ImGui contexts the current ones.
         virtual void make_current() = 0;
         void set_window(Window *window);
+        // Copies the theme into the current ImGui / ImPlot / ImPlot3D contexts, scaled; call make_current() first.
+        void apply_theme(const Theme &theme) const;
         Window* window();
         [[nodiscard]] SDL_Window* handle() const;
         void maximize();

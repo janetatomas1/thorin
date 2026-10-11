@@ -70,6 +70,18 @@ namespace thorin {
         windowManager_.set_frame_config(config);
     }
 
+    const Theme& Thorin::theme() const {
+        return theme_;
+    }
+
+    void Thorin::set_theme(const Theme &theme) {
+        theme_ = theme;
+        // Deferred: replacing the style mid-frame would be undone by the pops of styles pushed before it.
+        add_action([this]() {
+            windowManager_.apply_theme(theme_);
+        });
+    }
+
     void Thorin::request_redraw(int frames) {
         windowManager_.request_redraw(frames);
     }
