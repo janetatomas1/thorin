@@ -100,6 +100,42 @@ namespace thorin {
         });
     }
 
+    const Image& Thorin::add_image(Image image) {
+        return *images_.emplace_back(std::make_unique<Image>(std::move(image)));
+    }
+
+    void Thorin::remove_image(const Image& image) {
+        DEBUG_ASSERT(
+            std::ranges::any_of(images_, [&image](const auto& owned) { return owned.get() == &image; }),
+            "remove_image called with an image not from add_image"
+        );
+        add_action([this, &image]() {
+            DEBUG_ASSERT(background_ != &image, "remove_image called with the app's background");
+            // Checked when it runs, after any set_background() queued before it.
+            for (size_t i = 0; i < windowManager_.count(); i++) {
+                DEBUG_ASSERT(
+                    windowManager_.get_window_at(i)->background() != &image,
+                    "remove_image called with an image a window still uses as its background"
+                );
+            }
+            std::erase_if(images_, [&image](const auto& owned) { return owned.get() == &image; });
+        });
+    }
+
+    void Thorin::set_background(const Image* image, float opacity) {
+        DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
+        background_ = image;
+        backgroundOpacity_ = opacity;
+    }
+
+    const Image* Thorin::background() const {
+        return background_;
+    }
+
+    float Thorin::background_opacity() const {
+        return backgroundOpacity_;
+    }
+
     void Thorin::request_redraw(int frames) {
         windowManager_.request_redraw(frames);
     }

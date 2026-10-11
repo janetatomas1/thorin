@@ -50,6 +50,17 @@ namespace thorin {
         }
     }
 
+    const Image* GPUBackend::background() const {
+        return background_;
+    }
+
+    void GPUBackend::set_background(const Image* image, float opacity) {
+        // Only a new image needs a new texture; opacity is applied when drawing.
+        backgroundDirty_ |= image != background_;
+        background_ = image;
+        backgroundOpacity_ = opacity;
+    }
+
     SDL_Window* GPUBackend::handle() const {
         return handle_;
     }

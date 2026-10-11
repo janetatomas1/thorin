@@ -8,6 +8,7 @@
 #include "thorin/randomgenerator.hpp"
 #include "thorin/actionmanager.hpp"
 #include "thorin/theme.hpp"
+#include "thorin/image.hpp"
 
 namespace thorin {
     class Thorin {
@@ -21,6 +22,10 @@ namespace thorin {
         // Before windowManager_, so the fonts outlive the windows whose atlases borrow them. Heap-allocated so
         // the addresses add_font() hands out survive the vector growing.
         std::vector<std::unique_ptr<Font>> fonts_;
+        // Like fonts_: before windowManager_, heap-allocated for stable addresses.
+        std::vector<std::unique_ptr<Image>> images_;
+        const Image* background_ = nullptr;
+        float backgroundOpacity_ = 1.0f;
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
@@ -59,6 +64,16 @@ namespace thorin {
         // Frees a font from add_font() on the next frame. It must not be the current theme's font (set another
         // theme first); references to it dangle afterwards.
         void remove_font(const Font& font);
+        // The app keeps the image until it exits or remove_image(); windows draw it with set_background().
+        const Image& add_image(Image image);
+        // Frees an image from add_image() on the next frame. Neither the app nor an open window may use it as
+        // its background.
+        void remove_image(const Image& image);
+        // Default background for windows created afterwards: Window::init() takes it unless the window already
+        // has one. Use an image from add_image(); nullptr = none.
+        void set_background(const Image* image, float opacity = 1.0f);
+        [[nodiscard]] const Image* background() const;
+        [[nodiscard]] float background_opacity() const;
         // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
         // frame they are drawn.
         void request_redraw(int frames = 2);

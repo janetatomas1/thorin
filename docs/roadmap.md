@@ -102,8 +102,15 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
   `Theme::font` (`const Font*`, bytes loaded without an ImGui context) is borrowed by each window's atlas
   (`FontDataOwnedByAtlas = false`). Fonts loaded at runtime are owned by the app (`Thorin::add_font`, a
   `std::vector<std::unique_ptr<Font>>` destroyed after the windows); `remove_font` frees one on the next
-  frame, after any pending re-theme has dropped it from the atlases (`RemoveFont` stops reading the bytes). `Font::inter()`, `jetbrains_mono()`, `noto_sans()` view the TTFs in
-  `fonts/` (OFL), turned into static byte arrays by `cmake/embed.cmake`; `THORIN_BUNDLE_FONTS=OFF` leaves them out.
+  frame, after any pending re-theme has dropped it from the atlases (`RemoveFont` stops reading the bytes).
+  `Font::inter()`, `jetbrains_mono()`, `noto_sans()` view the TTFs in `fonts/` (OFL), turned into static byte
+  arrays by `cmake/embed.cmake`; `THORIN_BUNDLE_FONTS=OFF` leaves them out.
+- **Window background image.** `Image` holds RGBA pixels decoded by stb_image (no GL context needed), owned
+  by the app (`Thorin::add_image` / `remove_image`). `Window::set_background(const Image*)` makes that window's
+  backend upload its own texture on the next frame and draw it stretched into the root window's draw list,
+  above `WindowBg` and below every widget.
+  `Thorin::set_background(image, opacity)` is the default: `Window::init()` takes it unless the window already
+  has one.
 
 Still open:
 

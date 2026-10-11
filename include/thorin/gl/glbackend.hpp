@@ -2,7 +2,10 @@
 #pragma once
 
 #include <string>
+#include <memory>
+
 #include <SDL3/SDL.h>
+#include <globjects/Texture.h>
 
 #include "thorin/gpubackend.hpp"
 
@@ -17,6 +20,11 @@ namespace thorin {
         ImPlotContext* implotContext_ = nullptr;
         ImPlot3DContext* implot3dContext_ = nullptr;
         const std::string glsl_version = "#version 330 core";
+        // This window's copy of background_, in its GL context.
+        std::unique_ptr<globjects::Texture> backgroundTexture_;
+
+        // Re-uploads backgroundTexture_ if background_ changed, then draws it over the root window's area.
+        void draw_background();
 
     public:
         GLBackend(const WindowConfig &config = {});

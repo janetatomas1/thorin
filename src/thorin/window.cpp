@@ -18,6 +18,11 @@ namespace thorin {
         backend_->set_window(this);
         rootWidget_->set_window(this);
         backend_->init();
+
+        // The app's default background, unless one was set on this window before it was created.
+        if (backend_->background() == nullptr && app().background() != nullptr) {
+            set_background(app().background(), app().background_opacity());
+        }
     }
 
     void Window::destroy() {
@@ -132,5 +137,16 @@ namespace thorin {
         ImGui::GetIO().FontDefault = font;
         // Every widget is measured with the font, so the whole tree needs a new layout.
         rootWidget_->layout().mark_dirty_tree();
+    }
+
+    void Window::set_background(const Image* image, float opacity) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::set_background called with no backend");
+        DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
+        backend_->set_background(image, opacity);
+    }
+
+    const Image* Window::background() const {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::background called with no backend");
+        return backend_->background();
     }
 }
