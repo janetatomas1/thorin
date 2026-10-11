@@ -99,6 +99,11 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
 - **App-wide theme.** `Thorin::set_theme(Theme)` (`ImGuiStyle`, `ImPlotStyle`, `ImPlot3DStyle`, unscaled)
   is copied into each window's contexts in `GLBackend::init()`, then DPI-scaled. Setting it later
   re-themes open windows through an action (between frames) and marks their trees dirty.
+  `Theme::font` (`const Font*`, bytes loaded without an ImGui context) is borrowed by each window's atlas
+  (`FontDataOwnedByAtlas = false`). Fonts loaded at runtime are owned by the app (`Thorin::add_font`, a
+  `std::vector<std::unique_ptr<Font>>` destroyed after the windows); `remove_font` frees one on the next
+  frame, after any pending re-theme has dropped it from the atlases (`RemoveFont` stops reading the bytes). `Font::inter()`, `jetbrains_mono()`, `noto_sans()` view the TTFs in
+  `fonts/` (OFL), turned into static byte arrays by `cmake/embed.cmake`; `THORIN_BUNDLE_FONTS=OFF` leaves them out.
 
 Still open:
 

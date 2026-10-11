@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "thorin/windowmanager.hpp"
 #include "thorin/randomgenerator.hpp"
@@ -17,6 +18,9 @@ namespace thorin {
         uint64_t frame_ = 0;
         bool shouldExit_ = false;
 
+        // Before windowManager_, so the fonts outlive the windows whose atlases borrow them. Heap-allocated so
+        // the addresses add_font() hands out survive the vector growing.
+        std::vector<std::unique_ptr<Font>> fonts_;
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
@@ -50,6 +54,11 @@ namespace thorin {
         [[nodiscard]] const Theme& theme() const;
         // Applies to every window, open or created later. Open windows switch on the next frame.
         void set_theme(const Theme &theme);
+        // The app keeps the font until it exits; the reference stays valid, e.g. for Theme::font.
+        const Font& add_font(Font font);
+        // Frees a font from add_font() on the next frame. It must not be the current theme's font (set another
+        // theme first); references to it dangle afterwards.
+        void remove_font(const Font& font);
         // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
         // frame they are drawn.
         void request_redraw(int frames = 2);

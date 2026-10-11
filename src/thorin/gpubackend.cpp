@@ -16,7 +16,7 @@ namespace thorin {
         window_ = window;
     }
 
-    void GPUBackend::apply_theme(const Theme &theme) const {
+    void GPUBackend::apply_theme(const Theme &theme) {
         ImPlot::GetStyle() = theme.plot;
         ImPlot3D::GetStyle() = theme.plot3d;
         // Always from the unscaled theme: scaling an already scaled style would compound.
@@ -24,6 +24,30 @@ namespace thorin {
         style = theme.style;
         style.ScaleAllSizes(scale_);
         style.FontScaleDpi = scale_;
+
+        if (theme.font != font_) {
+            ImFontAtlas* atlas = ImGui::GetIO().Fonts;
+
+            if (imFont_ != nullptr) {
+                atlas->RemoveFont(imFont_);
+                imFont_ = nullptr;
+            }
+
+            if (theme.font != nullptr) {
+                ImFontConfig config;
+                // Borrowed: the Font outlives this window, the atlas must not free its bytes.
+                config.FontDataOwnedByAtlas = false;
+                // ImGui never writes to the data; the parameter just isn't const.
+                imFont_ = atlas->AddFontFromMemoryTTF(
+                    const_cast<std::byte*>(theme.font->data().data()),
+                    static_cast<int>(theme.font->data().size()),
+                    0.0f,
+                    &config
+                );
+            }
+            font_ = theme.font;
+            ImGui::GetIO().FontDefault = imFont_;
+        }
     }
 
     SDL_Window* GPUBackend::handle() const {

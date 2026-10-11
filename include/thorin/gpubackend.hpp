@@ -19,6 +19,9 @@ namespace thorin {
         WindowConfig config_;
         // Display content scale the theme's sizes are multiplied by.
         float scale_ = 1.0f;
+        // The theme font this window's atlas borrows, to tell when the theme's font changes.
+        const Font* font_ = nullptr;
+        ImFont* imFont_ = nullptr;
 
     public:
         GPUBackend(const WindowConfig &config);
@@ -31,7 +34,7 @@ namespace thorin {
         virtual void make_current() = 0;
         void set_window(Window *window);
         // Copies the theme into the current ImGui / ImPlot / ImPlot3D contexts, scaled; call make_current() first.
-        void apply_theme(const Theme &theme) const;
+        void apply_theme(const Theme &theme);
         Window* window();
         [[nodiscard]] SDL_Window* handle() const;
         void maximize();
