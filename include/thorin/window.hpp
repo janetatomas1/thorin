@@ -54,5 +54,9 @@ namespace thorin {
         // Primary font for the whole window (ImGuiIO::FontDefault); widget styles still override it.
         // Must come from this window's load_font(). nullptr = ImGui's default font.
         void set_font(ImFont* font);
+        // Drawn stretched over the whole window, behind every widget. Use an image from Thorin::add_image();
+        // nullptr removes it. Below opacity 1 the theme's WindowBg shows through.
+        void set_background(const Image* image, float opacity = 1.0f);
+        [[nodiscard]] const Image* background() const;
     };
 }

@@ -6,6 +6,7 @@
 
 #include "thorin/windowconfig.hpp"
 #include "thorin/theme.hpp"
+#include "thorin/image.hpp"
 
 
 namespace thorin {
@@ -22,6 +23,12 @@ namespace thorin {
         // The theme font this window's atlas borrows, to tell when the theme's font changes.
         const Font* font_ = nullptr;
         ImFont* imFont_ = nullptr;
+        // Drawn stretched behind the root widget; the backend uploads its own texture of it.
+        const Image* background_ = nullptr;
+        // 0 = invisible, 1 = opaque; WindowBg shows through the rest.
+        float backgroundOpacity_ = 1.0f;
+        // The texture no longer matches background_; re-uploaded on the next update().
+        bool backgroundDirty_ = false;
 
     public:
         GPUBackend(const WindowConfig &config);
@@ -35,6 +42,9 @@ namespace thorin {
         void set_window(Window *window);
         // Copies the theme into the current ImGui / ImPlot / ImPlot3D contexts, scaled; call make_current() first.
         void apply_theme(const Theme &theme);
+        [[nodiscard]] const Image* background() const;
+        // nullptr removes it. The image must stay alive while it is set.
+        void set_background(const Image* image, float opacity = 1.0f);
         Window* window();
         [[nodiscard]] SDL_Window* handle() const;
         void maximize();

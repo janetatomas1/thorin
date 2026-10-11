@@ -99,6 +99,8 @@ namespace thorin {
 
         // The backends and the context are per window; shut them down while this window's contexts are current.
         make_current();
+        // GL objects have to go while their context is current.
+        backgroundTexture_.reset();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImPlot3D::DestroyContext(implot3dContext_);
@@ -131,6 +133,7 @@ namespace thorin {
             nullptr,
             config_.windowFlags
         );
+        draw_background();
 
         rootWidget->layout().calculate_layout(config_.width, config_.height);
         rootWidget->render();
@@ -141,6 +144,41 @@ namespace thorin {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(handle_);
+    }
+
+    void GLBackend::draw_background() {
+        if (backgroundDirty_) {
+            backgroundTexture_.reset();
+
+            if (background_ != nullptr) {
+                backgroundTexture_ = globjects::Texture::createDefault(GL_TEXTURE_2D);
+                backgroundTexture_->image2D(
+                    0,
+                    GL_RGBA8,
+                    background_->width(),
+                    background_->height(),
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    background_->pixels().data()
+                );
+            }
+            backgroundDirty_ = false;
+        }
+
+        if (backgroundTexture_ != nullptr) {
+            // The root window's own draw list: above its WindowBg, below every widget.
+            const ImVec2 pos = ImGui::GetWindowPos();
+            const ImVec2 size = ImGui::GetWindowSize();
+            ImGui::GetWindowDrawList()->AddImage(
+                static_cast<ImTextureID>(backgroundTexture_->id()),
+                pos,
+                ImVec2(pos.x + size.x, pos.y + size.y),
+                ImVec2(0, 0),
+                ImVec2(1, 1),
+                ImGui::GetColorU32(ImVec4(1, 1, 1, backgroundOpacity_))
+            );
+        }
     }
 
     void GLBackend::process_event(const SDL_Event& event) {
