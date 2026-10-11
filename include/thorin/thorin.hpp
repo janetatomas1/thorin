@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -26,6 +27,7 @@ namespace thorin {
         std::vector<std::unique_ptr<Image>> images_;
         const Image* background_ = nullptr;
         float backgroundOpacity_ = 1.0f;
+        std::function<BackgroundPainter()> backgroundPainterFactory_;
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
@@ -74,6 +76,11 @@ namespace thorin {
         void set_background(const Image* image, float opacity = 1.0f);
         [[nodiscard]] const Image* background() const;
         [[nodiscard]] float background_opacity() const;
+        // Makes the background painter for each window created afterwards (painters keep per-window state, so
+        // each window gets its own). Window::init() calls it unless the window already has a painter.
+        // Empty = none.
+        void set_background_painter(std::function<BackgroundPainter()> factory);
+        [[nodiscard]] const std::function<BackgroundPainter()>& background_painter_factory() const;
         // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
         // frame they are drawn.
         void request_redraw(int frames = 2);

@@ -166,18 +166,24 @@ namespace thorin {
             backgroundDirty_ = false;
         }
 
+        // The root window's own draw list: above its WindowBg, below every widget.
+        const ImVec2 pos = ImGui::GetWindowPos();
+        const ImVec2 size = ImGui::GetWindowSize();
+        const ImVec2 max(pos.x + size.x, pos.y + size.y);
+
         if (backgroundTexture_ != nullptr) {
-            // The root window's own draw list: above its WindowBg, below every widget.
-            const ImVec2 pos = ImGui::GetWindowPos();
-            const ImVec2 size = ImGui::GetWindowSize();
             ImGui::GetWindowDrawList()->AddImage(
                 static_cast<ImTextureID>(backgroundTexture_->id()),
                 pos,
-                ImVec2(pos.x + size.x, pos.y + size.y),
+                max,
                 ImVec2(0, 0),
                 ImVec2(1, 1),
                 ImGui::GetColorU32(ImVec4(1, 1, 1, backgroundOpacity_))
             );
+        }
+
+        if (backgroundPainter_) {
+            backgroundPainter_(*ImGui::GetWindowDrawList(), pos, max);
         }
     }
 

@@ -58,5 +58,7 @@ namespace thorin {
         // nullptr removes it. Below opacity 1 the theme's WindowBg shows through.
         void set_background(const Image* image, float opacity = 1.0f);
         [[nodiscard]] const Image* background() const;
+        // Custom background drawn every frame on top of the image, Empty removes it.
+        void set_background_painter(BackgroundPainter painter);
     };
 }

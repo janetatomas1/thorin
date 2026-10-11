@@ -1,3 +1,4 @@
+#include <utility>
 #include <cstring>
 
 #include <libassert/assert.hpp>
@@ -22,6 +23,11 @@ namespace thorin {
         // The app's default background, unless one was set on this window before it was created.
         if (backend_->background() == nullptr && app().background() != nullptr) {
             set_background(app().background(), app().background_opacity());
+        }
+
+        // Likewise its background painter, made for this window.
+        if (!backend_->has_background_painter() && app().background_painter_factory()) {
+            set_background_painter(app().background_painter_factory()());
         }
     }
 
@@ -148,5 +154,10 @@ namespace thorin {
     const Image* Window::background() const {
         DEBUG_ASSERT(backend_ != nullptr, "Window::background called with no backend");
         return backend_->background();
+    }
+
+    void Window::set_background_painter(BackgroundPainter painter) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::set_background_painter called with no backend");
+        backend_->set_background_painter(std::move(painter));
     }
 }
