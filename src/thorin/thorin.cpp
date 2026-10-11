@@ -136,6 +136,14 @@ namespace thorin {
         return backgroundOpacity_;
     }
 
+    void Thorin::set_background_painter(std::function<BackgroundPainter()> factory) {
+        backgroundPainterFactory_ = std::move(factory);
+    }
+
+    const std::function<BackgroundPainter()>& Thorin::background_painter_factory() const {
+        return backgroundPainterFactory_;
+    }
+
     void Thorin::request_redraw(int frames) {
         windowManager_.request_redraw(frames);
     }

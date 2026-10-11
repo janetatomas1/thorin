@@ -61,6 +61,14 @@ namespace thorin {
         backgroundOpacity_ = opacity;
     }
 
+    void GPUBackend::set_background_painter(BackgroundPainter painter) {
+        backgroundPainter_ = std::move(painter);
+    }
+
+    bool GPUBackend::has_background_painter() const {
+        return static_cast<bool>(backgroundPainter_);
+    }
+
     SDL_Window* GPUBackend::handle() const {
         return handle_;
     }

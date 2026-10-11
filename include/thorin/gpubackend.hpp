@@ -3,6 +3,8 @@
 
 #include <string>
 #include <SDL3/SDL.h>
+#include <function2/function2.hpp>
+#include <imgui.h>
 
 #include "thorin/windowconfig.hpp"
 #include "thorin/theme.hpp"
@@ -12,6 +14,10 @@
 namespace thorin {
     class Window;
     class Widget;
+
+    // Draws a window's background each frame into its root draw list: above WindowBg and the background image,
+    // below every widget. Called with the window's rectangle.
+    using BackgroundPainter = fu2::unique_function<void(ImDrawList& list, ImVec2 min, ImVec2 max)>;
 
     class GPUBackend {
     protected:
@@ -29,6 +35,7 @@ namespace thorin {
         float backgroundOpacity_ = 1.0f;
         // The texture no longer matches background_; re-uploaded on the next update().
         bool backgroundDirty_ = false;
+        BackgroundPainter backgroundPainter_;
 
     public:
         GPUBackend(const WindowConfig &config);
@@ -45,6 +52,9 @@ namespace thorin {
         [[nodiscard]] const Image* background() const;
         // nullptr removes it. The image must stay alive while it is set.
         void set_background(const Image* image, float opacity = 1.0f);
+        // nullptr / empty removes it.
+        void set_background_painter(BackgroundPainter painter);
+        [[nodiscard]] bool has_background_painter() const;
         Window* window();
         [[nodiscard]] SDL_Window* handle() const;
         void maximize();
