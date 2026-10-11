@@ -11,6 +11,7 @@ set(
     THORIN_SOURCES
     ${THORIN_SOURCE_DIR}/thorin.cpp
     ${THORIN_SOURCE_DIR}/theme.cpp
+    ${THORIN_SOURCE_DIR}/font.cpp
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
     ${THORIN_SOURCE_DIR}/window.cpp
@@ -81,6 +82,31 @@ target_link_libraries(
     yoga::yoga
     libassert::assert
 )
+# Inter, JetBrains Mono and Noto Sans (OFL, see fonts/*/OFL.txt) compiled in as Font::inter() etc.
+option(THORIN_BUNDLE_FONTS "Embed the fonts in fonts/ (~1.3 MB)" ON)
+if(THORIN_BUNDLE_FONTS)
+    foreach(font IN ITEMS
+        "inter|inter/Inter-Regular.ttf"
+        "jetbrains_mono|jetbrains-mono/JetBrainsMono-Regular.ttf"
+        "noto_sans|noto-sans/NotoSans-Regular.ttf"
+    )
+        string(REPLACE "|" ";" font "${font}")
+        list(GET font 0 name)
+        list(GET font 1 file)
+        set(input ${CMAKE_SOURCE_DIR}/fonts/${file})
+        set(output ${CMAKE_CURRENT_BINARY_DIR}/fonts/${name}.cpp)
+        add_custom_command(
+            OUTPUT ${output}
+            COMMAND ${CMAKE_COMMAND} -DINPUT=${input} -DOUTPUT=${output} -DNAME=${name}
+                -P ${CMAKE_SOURCE_DIR}/cmake/embed.cmake
+            DEPENDS ${input} ${CMAKE_SOURCE_DIR}/cmake/embed.cmake
+            COMMENT "Embedding font ${file}"
+        )
+        target_sources(thorin PRIVATE ${output})
+    endforeach()
+    target_compile_definitions(thorin PUBLIC THORIN_BUNDLE_FONTS)
+endif()
+
 configure_file(
     ${THORIN_HEADER_DIR}/thorin/version.hpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/include/thorin/version.hpp

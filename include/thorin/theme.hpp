@@ -4,6 +4,8 @@
 #include <implot.h>
 #include <implot3d.h>
 
+#include "thorin/font.hpp"
+
 namespace thorin {
     // App-wide look, copied into every window's ImGui / ImPlot / ImPlot3D context when it is created.
     // Sizes are unscaled; each window scales them for its display. Defaults are ImGui's dark style.
@@ -12,6 +14,10 @@ namespace thorin {
         ImGuiStyle style;
         ImPlotStyle plot;
         ImPlot3DStyle plot3d;
+        // Each window's default font, replacing Window::set_font() when the theme is applied; its size is
+        // style.FontSizeBase. Borrowed: from Thorin::add_font() or a bundled Font::inter() etc.
+        // nullptr = ImGui's built-in font.
+        const Font* font = nullptr;
 
         // ImGui's built-in colour presets.
         [[nodiscard]] static Theme dark();

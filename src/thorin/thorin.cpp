@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <libassert/assert.hpp>
 
 #include "thorin/thorin.hpp"
@@ -79,6 +81,22 @@ namespace thorin {
         // Deferred: replacing the style mid-frame would be undone by the pops of styles pushed before it.
         add_action([this]() {
             windowManager_.apply_theme(theme_);
+        });
+    }
+
+    const Font& Thorin::add_font(Font font) {
+        return *fonts_.emplace_back(std::make_unique<Font>(std::move(font)));
+    }
+
+    void Thorin::remove_font(const Font& font) {
+        DEBUG_ASSERT(theme_.font != &font, "remove_font called with the current theme's font");
+        DEBUG_ASSERT(
+            std::ranges::any_of(fonts_, [&font](const auto& owned) { return owned.get() == &font; }),
+            "remove_font called with a font not from add_font"
+        );
+        // Queued after any pending set_theme(), whose re-theme drops the font from every window's atlas.
+        add_action([this, &font]() {
+            std::erase_if(fonts_, [&font](const auto& owned) { return owned.get() == &font; });
         });
     }
 
