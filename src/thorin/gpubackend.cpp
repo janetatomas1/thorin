@@ -1,4 +1,7 @@
 
+#include <implot.h>
+#include <implot3d.h>
+
 #include "thorin/gpubackend.hpp"
 
 #include "thorin/thorin.hpp"
@@ -11,6 +14,16 @@ namespace thorin {
 
     void GPUBackend::set_window(Window* window) {
         window_ = window;
+    }
+
+    void GPUBackend::apply_theme(const Theme &theme) const {
+        ImPlot::GetStyle() = theme.plot;
+        ImPlot3D::GetStyle() = theme.plot3d;
+        // Always from the unscaled theme: scaling an already scaled style would compound.
+        ImGuiStyle& style = ImGui::GetStyle();
+        style = theme.style;
+        style.ScaleAllSizes(scale_);
+        style.FontScaleDpi = scale_;
     }
 
     SDL_Window* GPUBackend::handle() const {

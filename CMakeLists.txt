@@ -10,6 +10,7 @@ set(THORIN_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(
     THORIN_SOURCES
     ${THORIN_SOURCE_DIR}/thorin.cpp
+    ${THORIN_SOURCE_DIR}/theme.cpp
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
     ${THORIN_SOURCE_DIR}/window.cpp

@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "thorin/window.hpp"
+#include "thorin/thorin.hpp"
 
 
 using namespace gl;
@@ -29,10 +30,10 @@ namespace thorin {
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-        float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-        if (main_scale <= 0.0f) {
+        scale_ = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+        if (scale_ <= 0.0f) {
             // SDL reports 0 when it cannot query the display; a zero scale would collapse the whole UI.
-            main_scale = 1.0f;
+            scale_ = 1.0f;
         }
 
         handle_ = SDL_CreateWindow(
@@ -82,10 +83,7 @@ namespace thorin {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        ImGui::StyleColorsDark();
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.ScaleAllSizes(main_scale);
-        style.FontScaleDpi = main_scale;
+        apply_theme(window_->app().theme());
 
         [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
         DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");

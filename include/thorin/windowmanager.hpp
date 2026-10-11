@@ -38,6 +38,8 @@ namespace thorin {
         void wake();
         [[nodiscard]] const FrameConfig& frame_config() const;
         void set_frame_config(const FrameConfig &config);
+        // Re-themes every open window; call between frames.
+        void apply_theme(const Theme &theme);
         // Keeps an OnDemand loop drawing for at least this many more frames.
         void request_redraw(int frames = 2);
         // Whether the next frame should be drawn without waiting: a redraw was requested or actions are pending.
