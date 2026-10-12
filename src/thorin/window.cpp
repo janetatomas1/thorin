@@ -25,6 +25,11 @@ namespace thorin {
             set_background(app().background(), app().background_opacity());
         }
 
+        // Its own icon if set before it was created, else the app's.
+        if (const Image* icon = backend_->icon() != nullptr ? backend_->icon() : app().icon()) {
+            set_icon(icon);
+        }
+
         // Likewise its background painter, made for this window.
         if (!backend_->has_background_painter() && app().background_painter_factory()) {
             set_background_painter(app().background_painter_factory()());
@@ -154,6 +159,16 @@ namespace thorin {
     const Image* Window::background() const {
         DEBUG_ASSERT(backend_ != nullptr, "Window::background called with no backend");
         return backend_->background();
+    }
+
+    void Window::set_icon(const Image* image) {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::set_icon called with no backend");
+        backend_->set_icon(image);
+    }
+
+    const Image* Window::icon() const {
+        DEBUG_ASSERT(backend_ != nullptr, "Window::icon called with no backend");
+        return backend_->icon();
     }
 
     void Window::set_background_painter(BackgroundPainter painter) {

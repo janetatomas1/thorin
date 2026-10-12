@@ -36,6 +36,7 @@ namespace thorin {
         // The texture no longer matches background_; re-uploaded on the next update().
         bool backgroundDirty_ = false;
         BackgroundPainter backgroundPainter_;
+        const Image* icon_ = nullptr;
 
     public:
         GPUBackend(const WindowConfig &config);
@@ -55,6 +56,9 @@ namespace thorin {
         // nullptr / empty removes it.
         void set_background_painter(BackgroundPainter painter);
         [[nodiscard]] bool has_background_painter() const;
+        [[nodiscard]] const Image* icon() const;
+        // Applied now if the window exists, else remembered for Window::init(). SDL copies the pixels.
+        void set_icon(const Image* image);
         Window* window();
         [[nodiscard]] SDL_Window* handle() const;
         void maximize();

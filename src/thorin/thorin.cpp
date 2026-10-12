@@ -164,6 +164,7 @@ namespace thorin {
         );
         add_action([this, &image]() {
             DEBUG_ASSERT(background_ != &image, "remove_image called with the app's background");
+            DEBUG_ASSERT(icon_ != &image, "remove_image called with the app's icon");
             // Checked when it runs, after any set_background() queued before it.
             for (size_t i = 0; i < windowManager_.count(); i++) {
                 DEBUG_ASSERT(
@@ -195,6 +196,14 @@ namespace thorin {
 
     const std::function<BackgroundPainter()>& Thorin::background_painter_factory() const {
         return backgroundPainterFactory_;
+    }
+
+    void Thorin::set_icon(const Image* image) {
+        icon_ = image;
+    }
+
+    const Image* Thorin::icon() const {
+        return icon_;
     }
 
     void Thorin::request_redraw(int frames) {

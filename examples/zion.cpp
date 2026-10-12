@@ -14,6 +14,7 @@
 #include <thorin/theme.hpp>
 #include <thorin/window.hpp>
 #include <thorin/font.hpp>
+#include <thorin/image.hpp>
 #include <thorin/dockarea.hpp>
 #include <thorin/logwidget.hpp>
 
@@ -183,6 +184,11 @@ int main(const int argc, char** argv) {
 
     app.set_theme(theme);
     app.set_background_painter([] { return BackgroundPainter(MatrixRain{}); });
+
+    // Lucide's "cpu" icon (ISC, see assets/zion-icon.LICENSE.txt), in the matrix green.
+    if (auto icon = Image::from_file(THORIN_EXAMPLES_ASSETS "/zion-icon.png")) {
+        app.set_icon(&app.add_image(std::move(*icon)));
+    }
     app.add_window<Root>();
     spdlog::info("zion started");
 

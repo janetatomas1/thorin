@@ -73,6 +73,32 @@ namespace thorin {
         return static_cast<bool>(backgroundPainter_);
     }
 
+    const Image* GPUBackend::icon() const {
+        return icon_;
+    }
+
+    void GPUBackend::set_icon(const Image* image) {
+        icon_ = image;
+
+        // SDL can't take an icon away; nullptr only forgets it.
+        if (handle_ == nullptr || image == nullptr) {
+            return;
+        }
+        // Image pixels are RGBA8 in byte order; SDL only reads them while copying into the window's icon.
+        SDL_Surface* surface = SDL_CreateSurfaceFrom(
+            image->width(),
+            image->height(),
+            SDL_PIXELFORMAT_RGBA32,
+            const_cast<std::byte*>(image->pixels().data()),
+            image->width() * 4
+        );
+
+        if (surface == nullptr || !SDL_SetWindowIcon(handle_, surface)) {
+            logger().warn("window {} '{}': can't set icon: {}", window_->id(), config_.title, SDL_GetError());
+        }
+        SDL_DestroySurface(surface);
+    }
+
     SDL_Window* GPUBackend::handle() const {
         return handle_;
     }

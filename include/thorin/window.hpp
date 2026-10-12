@@ -60,5 +60,11 @@ namespace thorin {
         [[nodiscard]] const Image* background() const;
         // Custom background drawn every frame on top of the image, Empty removes it.
         void set_background_painter(BackgroundPainter painter);
+        // Title bar / taskbar icon, replacing the app's default (Thorin::set_icon()). Use an image from
+        // Thorin::add_image(); SDL copies it, so the image may be removed afterwards
+        // (icon() then dangles). nullptr can't remove an
+        // icon once shown, it only stops a later default from replacing it.
+        void set_icon(const Image* image);
+        [[nodiscard]] const Image* icon() const;
     };
 }

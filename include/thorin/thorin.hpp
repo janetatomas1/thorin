@@ -29,6 +29,7 @@ namespace thorin {
         const Image* background_ = nullptr;
         float backgroundOpacity_ = 1.0f;
         std::function<BackgroundPainter()> backgroundPainterFactory_;
+        const Image* icon_ = nullptr;
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
         ActionManager actionManager_;
@@ -74,7 +75,7 @@ namespace thorin {
         // The app keeps the image until it exits or remove_image(); windows draw it with set_background().
         const Image& add_image(Image image);
         // Frees an image from add_image() on the next frame. Neither the app nor an open window may use it as
-        // its background.
+        // its background, nor the app as its icon.
         void remove_image(const Image& image);
         // Default background for windows created afterwards: Window::init() takes it unless the window already
         // has one. Use an image from add_image(); nullptr = none.
@@ -86,6 +87,10 @@ namespace thorin {
         // Empty = none.
         void set_background_painter(std::function<BackgroundPainter()> factory);
         [[nodiscard]] const std::function<BackgroundPainter()>& background_painter_factory() const;
+        // Default icon for windows created afterwards: Window::init() takes it unless the window already has
+        // one (Window::set_icon()). Use an image from add_image(); nullptr = none.
+        void set_icon(const Image* image);
+        [[nodiscard]] const Image* icon() const;
         // Keeps an OnDemand loop drawing for at least this many more frames. Animating widgets call it every
         // frame they are drawn.
         void request_redraw(int frames = 2);
