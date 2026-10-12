@@ -10,6 +10,7 @@
 #include <stb_image.h>
 
 #include "thorin/image.hpp"
+#include "thorin/log.hpp"
 
 namespace thorin {
     Image::Image(int width, int height, std::vector<std::byte> rgba)
@@ -37,6 +38,7 @@ namespace thorin {
         std::ifstream file(path, std::ios::binary);
 
         if (!file) {
+            logger().warn("can't open image {}", path.string());
             return std::nullopt;
         }
         std::vector<char> bytes{std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()};
@@ -58,6 +60,7 @@ namespace thorin {
         );
 
         if (pixels == nullptr) {
+            logger().warn("can't decode image: {}", stbi_failure_reason());
             return std::nullopt;
         }
         const auto view = std::as_bytes(std::span(pixels, static_cast<size_t>(width) * static_cast<size_t>(height) * 4));

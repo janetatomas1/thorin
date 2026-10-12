@@ -207,6 +207,17 @@ namespace thorin {
                 DEBUG_ASSERT(target != nullptr, "close-requested event for untracked window");
                 target->close();
             }
+
+            // Debug: a drag-resize sends one per step.
+            if (event.type == SDL_EVENT_WINDOW_RESIZED && target != nullptr) {
+                logger().debug(
+                    "window {} '{}' resized to {}x{}",
+                    target->id(),
+                    target->title(),
+                    event.window.data1,
+                    event.window.data2
+                );
+            }
         }
         for (auto &window: windows_) {
             window->update();

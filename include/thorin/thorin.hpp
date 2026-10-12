@@ -10,6 +10,7 @@
 #include "thorin/actionmanager.hpp"
 #include "thorin/theme.hpp"
 #include "thorin/image.hpp"
+#include "thorin/log.hpp"
 
 namespace thorin {
     class Thorin {
@@ -61,6 +62,8 @@ namespace thorin {
         [[nodiscard]] const Theme& theme() const;
         // Applies to every window, open or created later. Open windows switch on the next frame.
         void set_theme(const Theme &theme);
+        // See configure_logging(); the app starts with LogConfig's defaults.
+        void set_log_config(const LogConfig &config);
         // The app keeps the font until it exits; the reference stays valid, e.g. for Theme::font.
         const Font& add_font(Font font);
         // Frees a font from add_font() on the next frame. It must not be the current theme's font (set another

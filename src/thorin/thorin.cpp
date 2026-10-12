@@ -3,6 +3,7 @@
 #include <libassert/assert.hpp>
 
 #include "thorin/thorin.hpp"
+#include "thorin/version.hpp"
 
 namespace thorin {
     RandomGenerator Thorin::randomGenerator_{};
@@ -22,11 +23,42 @@ namespace thorin {
         DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
         DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
         current_ = this;
+        configure_logging({});
+
+        // SDL's own messages (errors, warnings) go to the thorin logger.
+        SDL_SetLogOutputFunction(
+            [](void*, int category, SDL_LogPriority priority, const char* message) {
+                spdlog::level::level_enum level = spdlog::level::info;
+
+                switch (priority) {
+                    case SDL_LOG_PRIORITY_TRACE:
+                    case SDL_LOG_PRIORITY_VERBOSE: level = spdlog::level::trace; break;
+                    case SDL_LOG_PRIORITY_DEBUG: level = spdlog::level::debug; break;
+                    case SDL_LOG_PRIORITY_WARN: level = spdlog::level::warn; break;
+                    case SDL_LOG_PRIORITY_ERROR: level = spdlog::level::err; break;
+                    case SDL_LOG_PRIORITY_CRITICAL: level = spdlog::level::critical; break;
+                    default: break;
+                }
+                logger().log(level, "SDL ({}): {}", category, message);
+            },
+            nullptr
+        );
 
         windowManager_.init();
+
+        const int sdl = SDL_GetVersion();
+        logger().info(
+            "thorin {} starting, SDL {}.{}.{}",
+            THORIN_VERSION,
+            SDL_VERSIONNUM_MAJOR(sdl),
+            SDL_VERSIONNUM_MINOR(sdl),
+            SDL_VERSIONNUM_MICRO(sdl)
+        );
     }
 
     Thorin::~Thorin() {
+        SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr);
+        spdlog::apply_all([](const std::shared_ptr<spdlog::logger>& l) { l->flush(); });
         current_ = nullptr;
     }
 
@@ -51,6 +83,7 @@ namespace thorin {
         }
 
         destroy();
+        logger().info("thorin exiting with code {} after {} frames", exitCode_, frame_);
         return exitCode_;
     }
 
@@ -82,6 +115,10 @@ namespace thorin {
         add_action([this]() {
             windowManager_.apply_theme(theme_);
         });
+    }
+
+    void Thorin::set_log_config(const LogConfig &config) {
+        configure_logging(config);
     }
 
     const Font& Thorin::add_font(Font font) {
