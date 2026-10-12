@@ -149,7 +149,8 @@ struct TabsPane : public Pane {
 
     TabsPane(): Pane("Monitor") {
         // No dock tab above the pane: the CPU/GPU/Disk bar is its top edge, spanning the full width.
-        set_dock_flags(ImGuiDockNodeFlags_NoTabBar);
+        set_dock_flags(ImGuiDockNodeFlags_NoTabBar)
+        .set_window_flags(ImGuiWindowFlags_NoBackground);
         tabs.flex_grow(1);
     }
 };
@@ -161,6 +162,8 @@ struct LogPane : public Pane {
     LogPane(): Pane("Log") {
         log.flex_grow(1);
         set_closable(false);
+        set_dock_flags(ImGuiDockNodeFlags_NoTabBar)
+        .set_window_flags(ImGuiWindowFlags_NoBackground);
     }
 };
 

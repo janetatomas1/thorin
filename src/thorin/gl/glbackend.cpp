@@ -142,11 +142,15 @@ namespace thorin {
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(config_.width, config_.height));
+        // Yoga padding is the only inset: the root box covers the whole window from (0, 0), so ImGui's padding
+        // would only push the content past the edge and bring up a scrollbar.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
         ImGui::Begin(
             config_.title.c_str(),
             nullptr,
             config_.windowFlags
         );
+        ImGui::PopStyleVar();
         draw_background();
 
         rootWidget->layout().calculate_layout(config_.width, config_.height);
