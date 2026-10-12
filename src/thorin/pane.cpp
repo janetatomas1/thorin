@@ -138,6 +138,14 @@ namespace thorin {
             const ImGuiWindow* window = ImGui::GetCurrentWindow();
             border(window->DecoOuterSizeY1, YGEdgeTop);
 
+            // Sized to its window, so the children are laid out inside it. Yoga sees the new size on
+            // the next frame.
+            if (window->Size.x != width() || window->Size.y != height()) {
+                width(window->Size.x);
+                height(window->Size.y);
+                Thorin::current().request_redraw();
+            }
+
             changed = Widget::show();
         }
 

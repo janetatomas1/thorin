@@ -7,6 +7,9 @@
 #include "thorin/font.hpp"
 
 namespace thorin {
+    // Font size used when a theme leaves style.FontSizeBase at 0 (ImGuiStyle's default): 1.5x ImGui's 13px.
+    inline constexpr float defaultFontSize = 19.5f;
+
     // App-wide look, copied into every window's ImGui / ImPlot / ImPlot3D context when it is created.
     // Sizes are unscaled; each window scales them for its display. Defaults are ImGui's dark style.
     // Plot colours default to auto, which follows the ImGui colours.

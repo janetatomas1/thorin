@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <thorin/thorin.hpp>
 #include <thorin/tabwidget.hpp>
@@ -13,6 +14,8 @@
 #include <thorin/theme.hpp>
 #include <thorin/window.hpp>
 #include <thorin/font.hpp>
+#include <thorin/dockarea.hpp>
+#include <thorin/logwidget.hpp>
 
 using namespace thorin;
 
@@ -134,10 +137,36 @@ struct CPUTab : public Widget {
 };
 
 struct Zion: TabWidget {
-    Zion(): TabWidget() {
+    Zion(Widget* parent = nullptr): TabWidget(parent) {
         auto & cpu = add_tab<CPUTab>();
         add_tab("GPU");
         add_tab("Disk");
+    }
+};
+
+struct TabsPane : public Pane {
+    Zion tabs = Zion(this);
+
+    TabsPane(): Pane("Monitor") {
+        // No dock tab above the pane: the CPU/GPU/Disk bar is its top edge, spanning the full width.
+        set_dock_flags(ImGuiDockNodeFlags_NoTabBar);
+        tabs.flex_grow(1);
+    }
+};
+
+// Everything logged since the app started: thorin's own messages and the app's.
+struct LogPane : public Pane {
+    LogWidget log = LogWidget(this);
+
+    LogPane(): Pane("Log") {
+        log.flex_grow(1);
+    }
+};
+
+struct Root : public DockArea {
+    Root() {
+        add_pane<TabsPane>();
+        add_pane<LogPane>().set_dock(ImGuiDir_Down).set_ratio(0.3f);
     }
 };
 
@@ -150,7 +179,8 @@ int main(const int argc, char** argv) {
 
     app.set_theme(theme);
     app.set_background_painter([] { return BackgroundPainter(MatrixRain{}); });
-    app.add_window<Zion>();
+    app.add_window<Root>();
+    spdlog::info("zion started");
 
     return app.exec();
 }

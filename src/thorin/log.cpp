@@ -15,6 +15,7 @@ namespace thorin {
         std::mutex mutex;
         std::vector<spdlog::sink_ptr> sinks;
         LogConfig current;
+        std::shared_ptr<MemorySink> memory;
         bool configured = false;
 
         std::vector<spdlog::sink_ptr> make_sinks(const LogConfig& config) {
@@ -28,6 +29,19 @@ namespace thorin {
                 result.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
                     config.file.string(), config.maxFileSize, config.maxFiles
                 ));
+            }
+
+            // Kept across configs, so the messages logged so far stay.
+            if (config.memoryCapacity == 0) {
+                memory.reset();
+            } else if (memory == nullptr) {
+                memory = std::make_shared<MemorySink>(config.memoryCapacity);
+            } else {
+                memory->set_capacity(config.memoryCapacity);
+            }
+
+            if (memory != nullptr) {
+                result.push_back(memory);
             }
             return result;
         }
@@ -60,6 +74,71 @@ namespace thorin {
         }
     }
 
+    MemorySink::MemorySink(std::size_t capacity): capacity_(capacity) {}
+
+    void MemorySink::sink_it_(const spdlog::details::log_msg& msg) {
+        spdlog::memory_buf_t buffer;
+        formatter_->format(msg, buffer);
+        std::string line(buffer.data(), buffer.size());
+
+        while (!line.empty() && (line.back() == '\n' || line.back() == '\r')) {
+            line.pop_back();
+        }
+        entries_.push_back({msg.level, std::string(msg.logger_name.data(), msg.logger_name.size()), std::move(line)});
+
+        while (entries_.size() > capacity_) {
+            entries_.pop_front();
+        }
+        ++version_;
+
+        if (onMessage_) {
+            onMessage_();
+        }
+    }
+
+    std::uint64_t MemorySink::version() const {
+        return version_;
+    }
+
+    void MemorySink::copy(std::vector<LogEntry>& out) {
+        std::lock_guard lock(mutex_);
+        out.assign(entries_.begin(), entries_.end());
+    }
+
+    void MemorySink::clear() {
+        std::lock_guard lock(mutex_);
+        entries_.clear();
+        ++version_;
+    }
+
+    std::size_t MemorySink::capacity() {
+        std::lock_guard lock(mutex_);
+        return capacity_;
+    }
+
+    void MemorySink::set_capacity(std::size_t capacity) {
+        std::lock_guard lock(mutex_);
+        capacity_ = capacity;
+
+        while (entries_.size() > capacity_) {
+            entries_.pop_front();
+        }
+    }
+
+    void MemorySink::set_on_message(std::function<void()> callback) {
+        std::lock_guard lock(mutex_);
+        onMessage_ = std::move(callback);
+    }
+
+    std::shared_ptr<MemorySink> log_memory() {
+        std::lock_guard lock(mutex);
+
+        if (!configured) {
+            configure_locked({});
+        }
+        return memory;
+    }
+
     spdlog::logger& logger() {
         std::lock_guard lock(mutex);
 
@@ -84,9 +163,11 @@ namespace thorin {
         if (auto existing = spdlog::get(name)) {
             return existing;
         }
+
         auto result = std::make_shared<spdlog::logger>(name);
         apply(*result);
         spdlog::register_logger(result);
+
         return result;
     }
 }
