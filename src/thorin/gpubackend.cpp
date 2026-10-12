@@ -22,6 +22,10 @@ namespace thorin {
         // Always from the unscaled theme: scaling an already scaled style would compound.
         ImGuiStyle& style = ImGui::GetStyle();
         style = theme.style;
+
+        if (style.FontSizeBase <= 0.0f) {
+            style.FontSizeBase = defaultFontSize;
+        }
         style.ScaleAllSizes(scale_);
         style.FontScaleDpi = scale_;
 

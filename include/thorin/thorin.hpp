@@ -37,6 +37,8 @@ namespace thorin {
         void init();
         void destroy();
         void update();
+        // Makes messages logged from any thread wake the loop, so a LogWidget shows them; false undoes it.
+        void wake_on_log(bool enabled);
     public:
         Thorin(int argc, char** argv);
         ~Thorin();

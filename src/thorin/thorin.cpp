@@ -45,6 +45,7 @@ namespace thorin {
         );
 
         windowManager_.init();
+        wake_on_log(true);
 
         const int sdl = SDL_GetVersion();
         logger().info(
@@ -57,6 +58,7 @@ namespace thorin {
     }
 
     Thorin::~Thorin() {
+        wake_on_log(false);
         SDL_SetLogOutputFunction(SDL_GetDefaultLogOutputFunction(), nullptr);
         spdlog::apply_all([](const std::shared_ptr<spdlog::logger>& l) { l->flush(); });
         current_ = nullptr;
@@ -72,6 +74,8 @@ namespace thorin {
     }
 
     void Thorin::destroy() {
+        // SDL shuts down with the windows; no more wake events after that.
+        wake_on_log(false);
         windowManager_.destroy();
     }
 
@@ -119,6 +123,18 @@ namespace thorin {
 
     void Thorin::set_log_config(const LogConfig &config) {
         configure_logging(config);
+        // The buffer may be new.
+        wake_on_log(true);
+    }
+
+    void Thorin::wake_on_log(bool enabled) {
+        if (auto memory = log_memory()) {
+            if (enabled) {
+                memory->set_on_message([this] { windowManager_.wake(); });
+            } else {
+                memory->set_on_message({});
+            }
+        }
     }
 
     const Font& Thorin::add_font(Font font) {
