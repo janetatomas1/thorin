@@ -52,7 +52,7 @@ namespace thorin {
     bool LogWidget::Rows::show() {
         const auto memory = log_memory();
         // id(), not the title: renaming must not reset the scroll position.
-        ImGui::BeginChild(static_cast<ImGuiID>(id()), size(), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild(static_cast<ImGuiID>(id()), size(), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar);
 
         if (memory == nullptr) {
             ImGui::TextDisabled("Log buffer is off (LogConfig::memoryCapacity = 0)");
