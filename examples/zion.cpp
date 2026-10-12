@@ -160,6 +160,7 @@ struct LogPane : public Pane {
 
     LogPane(): Pane("Log") {
         log.flex_grow(1);
+        set_closable(false);
     }
 };
 
