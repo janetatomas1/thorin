@@ -43,6 +43,7 @@ set(
     ${THORIN_SOURCE_DIR}/modal.cpp
     ${THORIN_SOURCE_DIR}/progressbar.cpp
     ${THORIN_SOURCE_DIR}/logwidget.cpp
+    ${THORIN_SOURCE_DIR}/clipboard.cpp
     ${THORIN_SOURCE_DIR}/separator.cpp
     ${THORIN_SOURCE_DIR}/pane.cpp
     ${THORIN_SOURCE_DIR}/dockarea.cpp

@@ -1,5 +1,6 @@
 #include <string>
 
+#include "thorin/clipboard.hpp"
 #include "thorin/logwidget.hpp"
 
 namespace thorin {
@@ -140,6 +141,6 @@ namespace thorin {
             text += entries_[i].line;
             text += '\n';
         }
-        ImGui::SetClipboardText(text.c_str());
+        clipboard::set_text(text);
     }
 }
