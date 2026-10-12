@@ -14,6 +14,7 @@
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
+#include "thorin/log.hpp"
 
 
 using namespace gl;
@@ -90,12 +91,25 @@ namespace thorin {
 
         [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
         DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glsl_version);
+
+        logger().info(
+            "window {} '{}' created {}x{}, OpenGL {} on {}, scale {}",
+            window_->id(),
+            config_.title,
+            config_.width,
+            config_.height,
+            reinterpret_cast<const char*>(glGetString(GL_VERSION)),
+            reinterpret_cast<const char*>(glGetString(GL_RENDERER)),
+            scale_
+        );
     }
 
     void GLBackend::destroy() {
         DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
         DEBUG_ASSERT(gl_context != nullptr, "GLBackend::destroy called with no gl context");
         DEBUG_ASSERT(imguiContext_ != nullptr, "GLBackend::destroy called with no imgui context");
+
+        logger().info("window {} '{}' closed", window_->id(), config_.title);
 
         // The backends and the context are per window; shut them down while this window's contexts are current.
         make_current();

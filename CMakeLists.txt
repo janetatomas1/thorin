@@ -13,6 +13,7 @@ set(
     ${THORIN_SOURCE_DIR}/theme.cpp
     ${THORIN_SOURCE_DIR}/font.cpp
     ${THORIN_SOURCE_DIR}/image.cpp
+    ${THORIN_SOURCE_DIR}/log.cpp
     ${THORIN_SOURCE_DIR}/windowmanager.cpp
     ${THORIN_SOURCE_DIR}/actionmanager.cpp
     ${THORIN_SOURCE_DIR}/window.cpp
@@ -63,6 +64,7 @@ find_package(function2 REQUIRED)
 find_package(yoga REQUIRED)
 find_package(libassert REQUIRED)
 find_package(stb REQUIRED)
+find_package(spdlog REQUIRED)
 
 add_library(
     thorin
@@ -83,6 +85,7 @@ target_link_libraries(
     function2::function2
     yoga::yoga
     libassert::assert
+    spdlog::spdlog
     PRIVATE
     # Only image.cpp decodes images.
     stb::stb
