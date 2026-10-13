@@ -3,6 +3,8 @@
 #include <cmath>
 #include <format>
 #include <fstream>
+#include <limits>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -20,6 +22,7 @@
 #include <thorin/image.hpp>
 #include <thorin/dockarea.hpp>
 #include <thorin/table.hpp>
+#include <thorin/chartwidget.hpp>
 #include <thorin/text.hpp>
 #include <thorin/logwidget.hpp>
 
@@ -139,6 +142,35 @@ void MatrixRain::operator()(ImDrawList& list, ImVec2 min, ImVec2 max) {
     }
 }
 
+// One logical CPU: name, a usage sparkline over the last minute, current usage and frequency.
+struct CoreRow : public Widget {
+    static constexpr std::size_t capacity = 60;
+
+    Text name;
+    ChartWidget chart;
+    LineSeries& usage = chart.add_series<LineSeries>("##usage", SeriesRing(capacity), SeriesRing(capacity));
+    Text value = Text("", this);
+
+    CoreRow(int index, Widget* parent): Widget("", parent),
+        name(std::format("CPU {:<2}", index), this),
+        chart(std::format("##core{}", index), this) {
+        flex_direction(YGFlexDirectionRow);
+        align_items(YGAlignCenter);
+        // gap(2);
+        chart.height(55).max_width(40_pcts);
+        chart.set_flags(ImPlotFlags_CanvasOnly).set_legend({});
+        chart.set_x_axis({.flags = ImPlotAxisFlags_NoDecorations});
+        chart.set_y_axis({.flags = ImPlotAxisFlags_NoDecorations, .limits = ImPlotRange(0, 100)});
+    }
+
+    void sample(double time, float percent, float frequencyMHz) {
+        usage.xs<SeriesRing>().add(time);
+        usage.ys<SeriesRing>().add(percent);
+        chart.x_axis().limits = ImPlotRange(time - static_cast<double>(capacity), time);
+        value.set_title(std::format("{:3.0f}%  {:4.0f} MHz", percent, frequencyMHz));
+    }
+};
+
 struct CPUTab : public Widget {
     struct CPUInfo {
         std::string model;
@@ -233,9 +265,76 @@ struct CPUTab : public Widget {
         return info;
     }
 
+    // Jiffies from one "cpuN" line of /proc/stat.
+    struct CoreTimes {
+        unsigned long long idle = 0;
+        unsigned long long total = 0;
+    };
+
+    // Per logical CPU, in /proc/stat order; the aggregate "cpu" line is skipped.
+    static std::vector<CoreTimes> read_core_times() {
+        std::vector<CoreTimes> times;
+        std::ifstream stream("/proc/stat");
+        std::string label;
+
+        while (stream >> label && label.starts_with("cpu")) {
+            // user nice system idle iowait irq softirq steal
+            unsigned long long fields[8] = {};
+            for (auto& field : fields) {
+                stream >> field;
+            }
+            stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            if (label == "cpu") {
+                continue;
+            }
+            CoreTimes core{.idle = fields[3] + fields[4]};
+            for (auto field : fields) {
+                core.total += field;
+            }
+            times.push_back(core);
+        }
+        return times;
+    }
+
     Table cpu {2, this};
+    Widget coreList {"", this};
+    std::vector<std::unique_ptr<CoreRow>> cores;
+    std::vector<CoreTimes> lastTimes = read_core_times();
+    double lastSample = 0;
+
+    // Once a second: usage from the /proc/stat delta since the last sample.
+    bool show() override {
+        const double time = ImGui::GetTime();
+        if (time - lastSample >= 1.0) {
+            lastSample = time;
+            auto times = read_core_times();
+
+            for (std::size_t i = 0; i < cores.size() && i < times.size(); ++i) {
+                const auto total = times[i].total - lastTimes[i].total;
+                const auto idle = times[i].idle - lastTimes[i].idle;
+                const float percent = total > 0 ? 100.0f * static_cast<float>(total - idle) / static_cast<float>(total) : 0.0f;
+
+                const auto freq = read_line(std::format("/sys/devices/system/cpu/cpu{}/cpufreq/scaling_cur_freq", i));
+                cores[i]->sample(time, percent, freq.empty() ? 0.0f : std::stof(freq) / 1000.0f);
+            }
+            lastTimes = std::move(times);
+        }
+        return Widget::show();
+    }
+
     CPUTab(): Widget("CPU") {
-        cpu.margin(5_pcts).max_width(20_pcts);
+        flex_direction(YGFlexDirectionRow);
+        cpu.margin(2_pcts).max_width(20_pcts);
+        // Two columns of cores: rows wrap at half the width.
+        coreList.margin(1_pcts).flex_grow(1).flex_direction(YGFlexDirectionRow);
+        coreList.layout().flex_wrap(YGWrapWrap);
+        coreList.layout().align_content(YGAlignFlexStart);
+
+        for (std::size_t i = 0; i < lastTimes.size(); ++i) {
+            auto& core = *cores.emplace_back(std::make_unique<CoreRow>(static_cast<int>(i), &coreList));
+            core.width(47_pcts).margin(1_pcts);
+        }
 
         const auto info = read_cpu_info();
 
@@ -289,7 +388,7 @@ struct LogPane : public Pane {
 struct Root : public DockArea {
     Root() {
         add_pane<TabsPane>();
-        add_pane<LogPane>().set_dock(ImGuiDir_Down).set_ratio(0.3f);
+        add_pane<LogPane>().set_dock(ImGuiDir_Down).set_ratio(0.2f);
     }
 };
 
