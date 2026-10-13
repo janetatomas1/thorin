@@ -95,6 +95,12 @@ namespace thorin {
             return theme;
         }
 
+        // Shared by every theme: larger text and taller table rows than ImGui's defaults.
+        void roomy(ImGuiStyle& s) {
+            s.FontSizeBase = 22.0f;
+            s.CellPadding = {8.0f, 6.0f};
+        }
+
         // Terminal / drafting look: no rounding anywhere, 1px borders on frames, popups and windows.
         void square(ImGuiStyle& s) {
             s.WindowRounding = 0.0f;
@@ -125,18 +131,21 @@ namespace thorin {
     Theme Theme::dark() {
         Theme theme;
         ImGui::StyleColorsDark(&theme.style);
+        roomy(theme.style);
         return theme;
     }
 
     Theme Theme::light() {
         Theme theme;
         ImGui::StyleColorsLight(&theme.style);
+        roomy(theme.style);
         return theme;
     }
 
     Theme Theme::classic() {
         Theme theme;
         ImGui::StyleColorsClassic(&theme.style);
+        roomy(theme.style);
         return theme;
     }
 
@@ -155,6 +164,7 @@ namespace thorin {
             .dim = from_hex(0x1F7A3AFF),
         });
         square(theme.style);
+        roomy(theme.style);
         return theme;
     }
 
@@ -174,6 +184,7 @@ namespace thorin {
             .dim = from_hex(0x7B88A1FF),
         });
         soft(theme.style);
+        roomy(theme.style);
         return theme;
     }
 
@@ -192,6 +203,7 @@ namespace thorin {
             .dim = from_hex(0x8FB3E0FF),
         });
         square(theme.style);
+        roomy(theme.style);
         return theme;
     }
 
@@ -210,6 +222,7 @@ namespace thorin {
             .dim = from_hex(0x5C6370FF),
         });
         soft(theme.style);
+        roomy(theme.style);
         return theme;
     }
 }

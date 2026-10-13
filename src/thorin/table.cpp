@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <string>
 
 #include "thorin/table.hpp"
 
@@ -6,8 +7,18 @@ using namespace thorin::literals;
 
 namespace thorin {
     Table::Table(std::vector<std::string> headers, Widget* parent)
-    : Widget("", parent), headers_(std::move(headers)) {
+    : Widget("", parent), headers_(std::move(headers)), sizing_(headers_.size()) {
         DEBUG_ASSERT(!headers_.empty(), "Table needs at least one column");
+        layout().enable_measure();
+        width(100_pcts);
+    }
+
+    Table::Table(size_t columns, Widget* parent): Widget("", parent), sizing_(columns), showHeaders_(false) {
+        DEBUG_ASSERT(columns > 0, "Table needs at least one column");
+        // ImGui still wants a name per column; "##" ones are ids only.
+        for (size_t i = 0; i < columns; ++i) {
+            headers_.push_back("##" + std::to_string(i));
+        }
         layout().enable_measure();
         width(100_pcts);
     }
@@ -36,6 +47,22 @@ namespace thorin {
         return (count() + columns() - 1) / columns();
     }
 
+    Table& Table::set_column_width(size_t index, float width) {
+        DEBUG_ASSERT(index < columns(), "Table::set_column_width index out of range", index, columns());
+        DEBUG_ASSERT(width > 0.0f, "Table::set_column_width needs a positive width", width);
+        sizing_[index] = {ImGuiTableColumnFlags_WidthFixed, width};
+        layout().mark_dirty();
+        return *this;
+    }
+
+    Table& Table::set_column_stretch(size_t index, float weight) {
+        DEBUG_ASSERT(index < columns(), "Table::set_column_stretch index out of range", index, columns());
+        DEBUG_ASSERT(weight > 0.0f, "Table::set_column_stretch needs a positive weight", weight);
+        sizing_[index] = {ImGuiTableColumnFlags_WidthStretch, weight};
+        layout().mark_dirty();
+        return *this;
+    }
+
     Table& Table::set_flags(ImGuiTableFlags flags) {
         flags_ = flags;
         layout().mark_dirty();
@@ -49,11 +76,20 @@ namespace thorin {
     bool Table::show() {
         bool changed = false;
 
+        // Nothing to draw: BeginTable would still draw the outer border as a line. An empty item stands in,
+        // because render() moved the cursor here and ImGui wants an item after that.
+        if (cells_.empty() && !showHeaders_) {
+            ImGui::Dummy(size());
+            return false;
+        }
+
         if (ImGui::BeginTable(title_id().c_str(), static_cast<int>(columns()), flags_, size())) {
-            for (auto& header : headers_) {
-                ImGui::TableSetupColumn(header.c_str());
+            for (size_t i = 0; i < columns(); ++i) {
+                ImGui::TableSetupColumn(headers_[i].c_str(), sizing_[i].flags, sizing_[i].value);
             }
-            ImGui::TableHeadersRow();
+            if (showHeaders_) {
+                ImGui::TableHeadersRow();
+            }
 
             size_t index = 0;
             for (auto& cell : cells_) {
@@ -84,7 +120,7 @@ namespace thorin {
         // Mirrors ImGui: each row is its tallest cell plus CellPadding.y above and below.
         // Borders are drawn over the row edges and take no space.
         const float padding = ImGui::GetStyle().CellPadding.y * 2.0f;
-        float intrinsic = ImGui::GetTextLineHeight() + padding;
+        float intrinsic = showHeaders_ ? ImGui::GetTextLineHeight() + padding : 0.0f;
         float rowHeight = 0.0f;
 
         size_t index = 0;
@@ -101,8 +137,17 @@ namespace thorin {
             }
         }
 
+        // Fixed columns set the least width the table needs; the rest have none of their own.
+        float intrinsicWidth = 0.0f;
+
+        for (const auto& column : sizing_) {
+            if (column.flags & ImGuiTableColumnFlags_WidthFixed) {
+                intrinsicWidth += column.value + ImGui::GetStyle().CellPadding.x * 2.0f;
+            }
+        }
+
         return ImVec2{
-            fit_measure(0.0f, width, widthMode),
+            fit_measure(intrinsicWidth, width, widthMode),
             fit_measure(intrinsic, height, heightMode)
         };
     }
