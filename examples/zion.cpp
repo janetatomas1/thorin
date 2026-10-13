@@ -1,9 +1,12 @@
 
 #include <cfloat>
 #include <cmath>
-#include <cstdint>
+#include <format>
+#include <fstream>
 #include <random>
 #include <vector>
+
+#include <sys/utsname.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -16,9 +19,12 @@
 #include <thorin/font.hpp>
 #include <thorin/image.hpp>
 #include <thorin/dockarea.hpp>
+#include <thorin/table.hpp>
+#include <thorin/text.hpp>
 #include <thorin/logwidget.hpp>
 
 using namespace thorin;
+using namespace literals;
 
 constexpr char glyphs[] = "0123456789ABCDEFXYZ:.=*+-<>|$#@";
 
@@ -127,14 +133,128 @@ void MatrixRain::operator()(ImDrawList& list, ImVec2 min, ImVec2 max) {
             );
         }
     }
-    // Animated: an OnDemand or Adaptive loop must keep drawing.
+
     if (Thorin::has_current()) {
         Thorin::current().request_redraw();
     }
 }
 
 struct CPUTab : public Widget {
-    CPUTab(): Widget("CPU") {}
+    struct CPUInfo {
+        std::string model;
+        std::string vendor;
+        std::string architecture;
+        int cores = 0;
+        int threads = 0;
+        float minFrequencyMHz = 0;
+        float maxFrequencyMHz = 0;
+        std::size_t cacheL1d = 0;
+        std::size_t cacheL2 = 0;
+        std::size_t cacheL3 = 0;
+    };
+
+    struct CPUSample {
+        float usage = 0;                  // %, total, from /proc/stat deltas
+        std::vector<float> coreUsage;     // %, per logical CPU
+        std::vector<float> frequencyMHz;  // per CPU, cpufreq/scaling_cur_freq
+        float temperatureC = NAN;         // hwmon "k10temp" Tctl; NAN if not found
+        float load1 = 0, load5 = 0, load15 = 0;  // /proc/loadavg
+        double uptimeSeconds = 0;         // /proc/uptime
+    };
+
+    // First line of a sysfs file; empty if it can't be read.
+    static std::string read_line(const std::string& path) {
+        std::ifstream stream(path);
+        std::string line;
+        std::getline(stream, line);
+        return line;
+    }
+
+    static CPUInfo read_cpu_info() {
+        CPUInfo info;
+
+        // Only the first processor block: the others repeat the same model fields.
+        std::ifstream stream("/proc/cpuinfo");
+        std::string line;
+        while (std::getline(stream, line) && !line.empty()) {
+            const auto colon = line.find(':');
+            if (colon == std::string::npos) {
+                continue;
+            }
+            const auto key = line.substr(0, line.find_last_not_of(" \t", colon - 1) + 1);
+            const auto value = colon + 2 <= line.size() ? line.substr(colon + 2) : std::string{};
+
+            if (key == "model name") {
+                info.model = value;
+            } else if (key == "vendor_id") {
+                info.vendor = value;
+            } else if (key == "cpu cores") {
+                info.cores = std::stoi(value);
+            } else if (key == "siblings") {
+                info.threads = std::stoi(value);
+            }
+        }
+
+        utsname name{};
+        if (uname(&name) == 0) {
+            info.architecture = name.machine;
+        }
+
+        const std::string cpu0 = "/sys/devices/system/cpu/cpu0/";
+
+        // cpufreq reports kHz.
+        if (auto value = read_line(cpu0 + "cpufreq/cpuinfo_min_freq"); !value.empty()) {
+            info.minFrequencyMHz = std::stof(value) / 1000.0f;
+        }
+        if (auto value = read_line(cpu0 + "cpufreq/cpuinfo_max_freq"); !value.empty()) {
+            info.maxFrequencyMHz = std::stof(value) / 1000.0f;
+        }
+
+        // Sizes as "32K"; Instruction caches are skipped.
+        for (int index = 0;; ++index) {
+            const auto dir = cpu0 + "cache/index" + std::to_string(index) + "/";
+            const auto level = read_line(dir + "level");
+            if (level.empty()) {
+                break;
+            }
+            const auto type = read_line(dir + "type");
+            const std::size_t size = std::stoul(read_line(dir + "size")) * 1024;
+
+            if (level == "1" && type == "Data") {
+                info.cacheL1d = size;
+            } else if (level == "2") {
+                info.cacheL2 = size;
+            } else if (level == "3") {
+                info.cacheL3 = size;
+            }
+        }
+
+        spdlog::info("cpu info fetched");
+        return info;
+    }
+
+    Table cpu {2, this};
+    CPUTab(): Widget("CPU") {
+        cpu.margin(5_pcts).max_width(20_pcts);
+
+        const auto info = read_cpu_info();
+
+        auto row = [this](const std::string& name, const std::string& value) {
+            cpu.add_cell<Text>(name);
+            cpu.add_cell<Text>(value);
+        };
+
+        row("Model", info.model);
+        row("Vendor", info.vendor);
+        row("Architecture", info.architecture);
+        row("Cores", std::to_string(info.cores));
+        row("Threads", std::to_string(info.threads));
+        row("Min frequency", std::format("{:.0f} MHz", info.minFrequencyMHz));
+        row("Max frequency", std::format("{:.0f} MHz", info.maxFrequencyMHz));
+        row("L1d cache", std::format("{} KB", info.cacheL1d / 1024));
+        row("L2 cache", std::format("{} KB", info.cacheL2 / 1024));
+        row("L3 cache", std::format("{} KB", info.cacheL3 / 1024));
+    }
 };
 
 struct Zion: TabWidget {
@@ -149,14 +269,12 @@ struct TabsPane : public Pane {
     Zion tabs = Zion(this);
 
     TabsPane(): Pane("Monitor") {
-        // No dock tab above the pane: the CPU/GPU/Disk bar is its top edge, spanning the full width.
         set_dock_flags(ImGuiDockNodeFlags_NoTabBar)
         .set_window_flags(ImGuiWindowFlags_NoBackground);
         tabs.flex_grow(1);
     }
 };
 
-// Everything logged since the app started: thorin's own messages and the app's.
 struct LogPane : public Pane {
     LogWidget log = LogWidget(this);
 
@@ -180,15 +298,14 @@ int main(const int argc, char** argv) {
 
     Theme theme = Theme::matrix();
     theme.font = &Font::jetbrains_mono();
-    theme.style.FontSizeBase = 15.0f;
 
     app.set_theme(theme);
     app.set_background_painter([] { return BackgroundPainter(MatrixRain{}); });
 
-    // Lucide's "cpu" icon (ISC, see assets/zion-icon.LICENSE.txt), in the matrix green.
     if (auto icon = Image::from_file(THORIN_EXAMPLES_ASSETS "/zion-icon.png")) {
         app.set_icon(&app.add_image(std::move(*icon)));
     }
+
     app.add_window<Root>();
     spdlog::info("zion started");
 

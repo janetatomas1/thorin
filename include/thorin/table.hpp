@@ -15,13 +15,24 @@ namespace thorin {
     class Table : public Widget, protected Container<Widget> {
         using Cell = std::variant<int, float, Widget*>;
 
+        // How ImGui sizes a column. Auto: ImGui's default for the table's sizing policy.
+        struct ColumnSizing {
+            ImGuiTableColumnFlags flags = ImGuiTableColumnFlags_None;
+            // Width in points (WidthFixed) or weight (WidthStretch); 0 = ImGui's default.
+            float value = 0.0f;
+        };
+
         std::vector<std::string> headers_;
+        std::vector<ColumnSizing> sizing_;
+        bool showHeaders_ = true;
         std::vector<Cell> cells_;
         ImGuiTableFlags flags_ = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 
     public:
         // One column per header.
         Table(std::vector<std::string> headers, Widget* parent = nullptr);
+        // columns columns and no header row.
+        Table(size_t columns, Widget* parent = nullptr);
 
         // Cells fill the table row by row.
         Table& add_cell(int value);
@@ -39,6 +50,12 @@ namespace thorin {
         [[nodiscard]] size_t count() const;
         [[nodiscard]] size_t columns() const;
         [[nodiscard]] size_t rows() const;
+
+        // Column index always width points wide, cell padding not included.
+        Table& set_column_width(size_t index, float width);
+        // Column index shares the width left after fixed columns, in proportion to weight.
+        Table& set_column_stretch(size_t index, float weight = 1.0f);
+        // With ImGuiTableFlags_Resizable both are only the starting widths; the user drags from there.
 
         Table& set_flags(ImGuiTableFlags flags);
         [[nodiscard]] ImGuiTableFlags flags() const;
