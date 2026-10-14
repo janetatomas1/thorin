@@ -6,6 +6,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <thread>
 #include <vector>
 
 #include <sys/utsname.h>
@@ -22,6 +23,7 @@
 #include <thorin/image.hpp>
 #include <thorin/dockarea.hpp>
 #include <thorin/table.hpp>
+#include <thorin/checkbox.hpp>
 #include <thorin/chartwidget.hpp>
 #include <thorin/text.hpp>
 #include <thorin/logwidget.hpp>
@@ -157,7 +159,7 @@ struct CoreRow : public Widget {
         flex_direction(YGFlexDirectionRow);
         align_items(YGAlignCenter);
         // gap(2);
-        chart.height(55).max_width(40_pcts);
+        chart.height(70).max_width(45_pcts).flex_shrink(1);
         chart.set_flags(ImPlotFlags_CanvasOnly).set_legend({});
         chart.set_x_axis({.flags = ImPlotAxisFlags_NoDecorations});
         chart.set_y_axis({.flags = ImPlotAxisFlags_NoDecorations, .limits = ImPlotRange(0, 100)});
@@ -185,16 +187,6 @@ struct CPUTab : public Widget {
         std::size_t cacheL3 = 0;
     };
 
-    struct CPUSample {
-        float usage = 0;                  // %, total, from /proc/stat deltas
-        std::vector<float> coreUsage;     // %, per logical CPU
-        std::vector<float> frequencyMHz;  // per CPU, cpufreq/scaling_cur_freq
-        float temperatureC = NAN;         // hwmon "k10temp" Tctl; NAN if not found
-        float load1 = 0, load5 = 0, load15 = 0;  // /proc/loadavg
-        double uptimeSeconds = 0;         // /proc/uptime
-    };
-
-    // First line of a sysfs file; empty if it can't be read.
     static std::string read_line(const std::string& path) {
         std::ifstream stream(path);
         std::string line;
@@ -205,7 +197,6 @@ struct CPUTab : public Widget {
     static CPUInfo read_cpu_info() {
         CPUInfo info;
 
-        // Only the first processor block: the others repeat the same model fields.
         std::ifstream stream("/proc/cpuinfo");
         std::string line;
         while (std::getline(stream, line) && !line.empty()) {
@@ -265,13 +256,26 @@ struct CPUTab : public Widget {
         return info;
     }
 
+    // temp1_input of the hwmon named "k10temp" (AMD Tctl); empty if there is none.
+    static std::string find_temperature_path() {
+        for (int index = 0;; ++index) {
+            const auto dir = "/sys/class/hwmon/hwmon" + std::to_string(index) + "/";
+            const auto name = read_line(dir + "name");
+            if (name.empty()) {
+                return {};
+            }
+            if (name == "k10temp") {
+                return dir + "temp1_input";
+            }
+        }
+    }
+
     // Jiffies from one "cpuN" line of /proc/stat.
     struct CoreTimes {
         unsigned long long idle = 0;
         unsigned long long total = 0;
     };
 
-    // Per logical CPU, in /proc/stat order; the aggregate "cpu" line is skipped.
     static std::vector<CoreTimes> read_core_times() {
         std::vector<CoreTimes> times;
         std::ifstream stream("/proc/stat");
@@ -297,13 +301,30 @@ struct CPUTab : public Widget {
         return times;
     }
 
-    Table cpu {2, this};
+    // Left column: the info table with the load toggle under it.
+    Widget side {"", this};
+    Table cpu {2, &side};
     Widget coreList {"", this};
+    std::jthread burner;
+
+    void set_burn(bool on) {
+        if (on) {
+            burner = std::jthread([](std::stop_token stop) {
+                while (!stop.stop_requested()) {}
+            });
+            spdlog::info("cpu load started");
+        } else {
+            // Assigning an empty jthread stops and joins the running one.
+            burner = std::jthread();
+            spdlog::info("cpu load stopped");
+        }
+    }
     std::vector<std::unique_ptr<CoreRow>> cores;
     std::vector<CoreTimes> lastTimes = read_core_times();
     double lastSample = 0;
+    const std::string temperaturePath = find_temperature_path();
+    Text* temperature = nullptr;
 
-    // Once a second: usage from the /proc/stat delta since the last sample.
     bool show() override {
         const double time = ImGui::GetTime();
         if (time - lastSample >= 1.0) {
@@ -319,21 +340,25 @@ struct CPUTab : public Widget {
                 cores[i]->sample(time, percent, freq.empty() ? 0.0f : std::stof(freq) / 1000.0f);
             }
             lastTimes = std::move(times);
+
+            // hwmon reports millidegrees.
+            if (auto value = read_line(temperaturePath); !value.empty()) {
+                temperature->set_title(std::format("{:.1f} °C", std::stof(value) / 1000.0f));
+            }
         }
         return Widget::show();
     }
 
     CPUTab(): Widget("CPU") {
         flex_direction(YGFlexDirectionRow);
-        cpu.margin(2_pcts).max_width(20_pcts);
-        // Two columns of cores: rows wrap at half the width.
-        coreList.margin(1_pcts).flex_grow(1).flex_direction(YGFlexDirectionRow);
+        side.margin(2_pcts).width(100_pcts).max_width(20_pcts).gap(10);
+        coreList.margin(1_pcts).flex_basis(0).flex_grow(1).flex_direction(YGFlexDirectionRow);
         coreList.layout().flex_wrap(YGWrapWrap);
         coreList.layout().align_content(YGAlignFlexStart);
 
         for (std::size_t i = 0; i < lastTimes.size(); ++i) {
             auto& core = *cores.emplace_back(std::make_unique<CoreRow>(static_cast<int>(i), &coreList));
-            core.width(47_pcts).margin(1_pcts);
+            core.width(47_pcts).margin(1_pcts, YGEdgeHorizontal).margin(4, YGEdgeVertical);
         }
 
         const auto info = read_cpu_info();
@@ -353,6 +378,12 @@ struct CPUTab : public Widget {
         row("L1d cache", std::format("{} KB", info.cacheL1d / 1024));
         row("L2 cache", std::format("{} KB", info.cacheL2 / 1024));
         row("L3 cache", std::format("{} KB", info.cacheL3 / 1024));
+
+        cpu.add_cell<Text>("Temperature");
+        temperature = &cpu.add_cell<Text>("n/a");
+
+        cpu.add_cell<Text>("Burn CPU");
+        cpu.add_cell<Checkbox>("", [this](const bool on) { set_burn(on); });
     }
 };
 
@@ -388,7 +419,7 @@ struct LogPane : public Pane {
 struct Root : public DockArea {
     Root() {
         add_pane<TabsPane>();
-        add_pane<LogPane>().set_dock(ImGuiDir_Down).set_ratio(0.2f);
+        add_pane<LogPane>().set_dock(ImGuiDir_Down).set_ratio(0.3f);
     }
 };
 
