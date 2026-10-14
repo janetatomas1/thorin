@@ -1,9 +1,13 @@
 set(
     THORIN_EXAMPLE_NAMES
-    zion
     chart
     chart3d
 )
+
+# zion reads /proc and /sys, so it only builds on Linux.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(PREPEND THORIN_EXAMPLE_NAMES zion)
+endif()
 
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
     add_executable(${example_name} ${THORIN_EXAMPLES_DIR}/${example_name}.cpp)
