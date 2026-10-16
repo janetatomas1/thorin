@@ -1,10 +1,15 @@
 find_package(GTest REQUIRED)
+include(GoogleTest)
 
-# One executable for all tests. Add new test files to this list.
+# One executable per test file, each registered with CTest. Add new test files to this list.
 # Headless: no window or GL context, only an ImGui context with a font atlas.
-add_executable(
-    thorin_tests
-    main.cpp
-    measure_test.cpp
+set(
+    THORIN_TESTS
+    measure_test
 )
-target_link_libraries(thorin_tests PRIVATE thorin gtest::gtest)
+
+foreach(test ${THORIN_TESTS})
+    add_executable(${test} main.cpp ${test}.cpp)
+    target_link_libraries(${test} PRIVATE thorin gtest::gtest)
+    gtest_discover_tests(${test})
+endforeach()

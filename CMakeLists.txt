@@ -132,5 +132,6 @@ add_subdirectory(${THORIN_EXAMPLES_DIR})
 
 option(THORIN_BUILD_TESTS "Build the headless tests" ON)
 if(THORIN_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
 endif()
