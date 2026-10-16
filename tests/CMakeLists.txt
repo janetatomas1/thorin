@@ -6,6 +6,7 @@ include(GoogleTest)
 set(
     THORIN_TESTS
     measure_test
+    color_test
 )
 
 foreach(test ${THORIN_TESTS})
