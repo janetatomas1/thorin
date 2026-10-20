@@ -15,12 +15,46 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   lines work (`DrawLinesFull` / `DrawLinesToNodes` on the nodes, or `style.TreeLinesFlags`).
 - `TreeView`: a scrolling, bordered child window for a tree of TreeNodes, with `expand_all()` and
   `collapse_all()`.
+- `ChartWidget`: an ImPlot plot at the widget's Yoga box, with axes (label, fixed limits, tick
+  format) and a legend. It owns its series: `LineSeries`, `ScatterSeries` and `BarSeries`, each
+  with a stable id, a colour and its axes. Their values are owned (`SeriesBuffer`), borrowed
+  (`SeriesView`) or a fixed-capacity ring (`SeriesRing`) for live data.
+- `Chart3DWidget`: the ImPlot3D counterpart, with `Line3DSeries` and `Scatter3DSeries`.
+- Themes: `Thorin::set_theme(Theme)` sets the ImGui, ImPlot and ImPlot3D styles and the font of
+  every window, including open ones. Built in: `dark`, `light`, `classic`, `matrix`, `nord`,
+  `blueprint`, `one_dark`.
+- Fonts: `Font` holds TTF bytes without an ImGui context; `Thorin::add_font()` / `remove_font()`.
+  Inter, JetBrains Mono and Noto Sans are bundled (`Font::inter()`, ...), and can be left out with
+  `THORIN_BUNDLE_FONTS=OFF`.
+- Window backgrounds: `Image` (decoded with stb_image, `Thorin::add_image()`), drawn stretched
+  behind every widget with `Window::set_background()` or `Thorin::set_background()` for all
+  windows. A `BackgroundPainter` draws a custom background on top of it
+  (`Window::set_background_painter()`, or a factory in `Thorin::set_background_painter()`).
+- Window icons: `Thorin::set_icon()` for every window, `Window::set_icon()` for one.
+- Logging (spdlog): `Thorin::set_log_config(LogConfig)` with console, rotating file and an
+  in-memory buffer (`log_memory()`). thorin logs to its own `"thorin"` logger with a separate
+  level; `make_logger(name)` makes app loggers that share the sinks.
+- `LogWidget`: the in-memory log with a level filter, a text filter, Clear and Copy; follows new
+  messages while scrolled to the bottom.
+- `thorin::clipboard`: `set_text()`, `text()`, `has_text()`, shared with ImGui's text inputs.
+- `Table`: `set_column_width()` and `set_column_stretch()`, and a constructor for a table without
+  a header row.
+- Inspector: a devtools-like window, toggled with F12 or `Window::set_inspector()`. It shows the
+  widget tree, draws the selected widget's box over the app, and edits its layout properties.
+  Built with `THORIN_INSPECTOR` (on by default).
+- Examples: `zion`, a system monitor (CPU, processes, system info, logs), and `chart` /
+  `chart3d`.
+- Tests: colour parsing, `Series` and `ActionManager`, next to the measure tests.
 
 ### Changed
 
 - `WindowConfig::iniFile` sets the ImGui settings file for that window's context. It is empty by
   default, which turns saving off. Before, every window wrote to the same `imgui.ini` in the
   working directory and they overwrote each other's settings.
+- Themes default to larger text (`style.FontSizeBase` 0 means 19.5 px, 1.5x ImGui's 13 px; the
+  built-in themes use 22 px) and roomier table cells.
+- `Pane` resizes its Yoga box to its ImGui window as soon as the window changes size, and
+  requests a redraw.
 
 ## [0.1.0] - 2026-10-07
 
