@@ -8,6 +8,8 @@
 namespace thorin {
     class Widget;
 
+    // A length with its unit: points(), percent() of the parent, or auto_(). Floats passed to the
+    // setters are points.
     using LayoutValue = YGValue;
 
     constexpr LayoutValue points(float v){
@@ -42,6 +44,10 @@ namespace thorin {
         }
     }
 
+    // A widget's Yoga node: flexbox style in, computed box out. Every Widget owns one (Widget::layout())
+    // and forwards the setters, so most code uses those. The window's root layout is calculated once per
+    // frame before drawing; position() is then relative to the nearest origin ancestor, size() is final.
+    // Movable, not copyable: the Yoga node moves with it.
     class Layout {
         YGNodeRef node_ = nullptr;
         ImVec2 position_ = {0.0f, 0.0f};
@@ -59,8 +65,10 @@ namespace thorin {
         Layout(const Layout& other) = delete;
         Layout& operator=(const Layout& other) = delete;
 
+        // The Yoga node, for Yoga calls thorin doesn't wrap.
         YGNodeRef node();
 
+        // The widget this layout belongs to; set by Widget.
         void set_owner(Widget* owner);
         [[nodiscard]] Widget* owner() const;
 
@@ -70,15 +78,20 @@ namespace thorin {
         void mark_dirty();
         // mark_dirty() on this node and every node below it.
         void mark_dirty_tree();
+        // Inserts child at index, at the end by default. Not allowed on measured nodes.
         void add_child(Layout &child, size_t index = std::string::npos);
         void remove_from_parent();
+        // Lays out the tree below this node in a width x height box, then calculate_position().
         void calculate_layout(float width, float height);
+        // Reads the computed box of this node and the nodes below it into position() and size().
         void calculate_position();
         // An origin node starts a new coordinate space: its own position stays in the parent's
         // space, its descendants' positions are relative to it (e.g. inside an ImGui child window).
         void set_origin(bool origin);
         [[nodiscard]] bool origin() const;
 
+        // Computed box, as of the last calculate_layout(). Position is relative to the nearest origin
+        // ancestor (the window when there is none).
         [[nodiscard]] float x() const;
         [[nodiscard]] float y() const;
         [[nodiscard]] const ImVec2 &position() const;
@@ -87,6 +100,7 @@ namespace thorin {
         [[nodiscard]] float height() const;
         [[nodiscard]] const ImVec2 &size() const;
 
+        // nullptr for the root.
         Layout *parent();
         [[nodiscard]] size_t child_count();
         // Layout of the index-th Yoga child, in insertion order.
@@ -141,6 +155,8 @@ namespace thorin {
         Layout& aspect_ratio(float ratio);
         Layout& direction(YGDirection direction);
 
+        // Shortcuts. fill_parent(): 100% width and height. row() / column(): flex direction and gap.
+        // center(): children centred on both axes (align_items and justify_content).
         Layout& fill_parent();
         Layout& row(float gap = 0.0f);
         Layout& column(float gap = 0.0f);

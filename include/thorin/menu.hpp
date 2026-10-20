@@ -11,6 +11,7 @@ namespace thorin {
     // Entries of a Menu are drawn in ImGui's popup flow, not placed by Yoga:
     // they are owned by the Menu and never added to the Yoga tree.
 
+    // A clickable entry of a Menu, with an optional shortcut text and check mark.
     class MenuItem : public Widget {
         std::string shortcut_;
         fu2::unique_function<void()> callback_;
@@ -28,6 +29,7 @@ namespace thorin {
         MenuItem& set_shortcut(const std::string& shortcut);
         [[nodiscard]] const std::string& shortcut() const;
 
+        // Called on the next dispatch after a click (see post()). Empty = none.
         MenuItem& set_callback(fu2::unique_function<void()> callback);
 
         // A checkable item toggles checked() when clicked, before the callback runs.
@@ -39,11 +41,13 @@ namespace thorin {
         bool show() final;
     };
 
+    // A horizontal line between entries of a Menu; added with Menu::add_separator().
     class MenuSeparator : public Widget {
     public:
         bool show() final;
     };
 
+    // A menu header in a MenuBar, or a submenu in another Menu, opening a list of entries.
     // Container is protected: entries are added through add_item(), add_menu() and add_separator().
     class Menu : public Widget, protected Container<Widget> {
     public:
