@@ -4,6 +4,8 @@ project(thorin VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 23)
 
+include(GNUInstallDirs)
+
 set(THORIN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/thorin)
 set(THORIN_HEADER_DIR ${CMAKE_SOURCE_DIR}/include/)
 set(THORIN_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
@@ -73,6 +75,10 @@ add_library(
     STATIC
     ${THORIN_SOURCES}
 )
+# The name apps link against, the same whether thorin comes from find_package() or add_subdirectory().
+add_library(thorin::thorin ALIAS thorin)
+# The headers use C++23 (deducing this), so apps need it too.
+target_compile_features(thorin PUBLIC cxx_std_23)
 
 target_link_libraries(
     thorin
@@ -132,8 +138,37 @@ configure_file(
 target_include_directories(
     thorin
     PUBLIC
-    ${THORIN_HEADER_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/include
+    $<BUILD_INTERFACE:${THORIN_HEADER_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+# CMake package: find_package(thorin) and link thorin::thorin. Usable from the build tree (thorin_DIR =
+# this build directory) or after cmake --install (CMAKE_PREFIX_PATH = the install prefix). The app has to
+# provide the same dependencies, e.g. through the same Conan toolchain.
+include(CMakePackageConfigHelpers)
+install(TARGETS thorin EXPORT thorinTargets)
+install(
+    DIRECTORY ${THORIN_HEADER_DIR}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hpp"
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/thorin/version.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/thorin)
+install(EXPORT thorinTargets NAMESPACE thorin:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/thorin)
+export(EXPORT thorinTargets NAMESPACE thorin:: FILE ${CMAKE_CURRENT_BINARY_DIR}/thorinTargets.cmake)
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/thorinConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/thorinConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/thorin
+)
+# 0.x: minor versions may break the API, so only the same minor version matches.
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/thorinConfigVersion.cmake
+    COMPATIBILITY SameMinorVersion
+)
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/thorinConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/thorinConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/thorin
 )
 add_subdirectory(${THORIN_EXAMPLES_DIR})
 
