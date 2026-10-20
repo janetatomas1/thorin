@@ -118,8 +118,7 @@ namespace thorin {
         // IndentSpacing as this node's style has it; the header takes the padding back with a
         // negative margin, so only the children are indented. Applies from the next layout.
         const float indent = ImGui::GetStyle().IndentSpacing;
-        const Widget& self = *this;
-        if (self.padding(YGEdgeLeft) != indent) {
+        if (layout_padding(YGEdgeLeft) != indent) {
             padding(indent, YGEdgeLeft);
             header.margin(-indent, YGEdgeLeft);
         }

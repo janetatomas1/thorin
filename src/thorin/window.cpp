@@ -6,12 +6,17 @@
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
 #include "thorin/gl/glbackend.hpp"
+#include "thorin/inspector.hpp"
 
 namespace thorin {
     Window::Window(const WindowConfig &config, std::unique_ptr<Widget> widget)
     : id_(Thorin::random()), rootWidget_(widget == nullptr ? std::make_unique<Widget>() : std::move(widget)) {
         backend_ = std::make_unique<GLBackend>(config);
     }
+
+    Window::~Window() = default;
+    Window::Window(Window&& window) noexcept = default;
+    Window& Window::operator=(Window&& window) noexcept = default;
 
     void Window::init() {
         DEBUG_ASSERT(backend_ != nullptr, "Window::init called with no backend");
@@ -174,5 +179,30 @@ namespace thorin {
     void Window::set_background_painter(BackgroundPainter painter) {
         DEBUG_ASSERT(backend_ != nullptr, "Window::set_background_painter called with no backend");
         backend_->set_background_painter(std::move(painter));
+    }
+
+    void Window::set_inspector(bool open) {
+#ifdef THORIN_INSPECTOR
+        if (!open) {
+            inspector_.reset();
+        } else if (inspector_ == nullptr) {
+            inspector_ = std::make_unique<Inspector>();
+        }
+#endif
+    }
+
+    bool Window::inspector_open() const {
+        return inspector_ != nullptr;
+    }
+
+    void Window::update_inspector() {
+#ifdef THORIN_INSPECTOR
+        if (ImGui::IsKeyPressed(ImGuiKey_F12, false)) {
+            set_inspector(inspector_ == nullptr);
+        }
+        if (inspector_ != nullptr && rootWidget_ != nullptr && !inspector_->update(*rootWidget_)) {
+            inspector_.reset();
+        }
+#endif
     }
 }

@@ -157,6 +157,7 @@ namespace thorin {
         rootWidget->render();
 
         ImGui::End();
+        window_->update_inspector();
         ImGui::Render();
         glViewport(0, 0, config_.width, config_.height);
         glClear(GL_COLOR_BUFFER_BIT);

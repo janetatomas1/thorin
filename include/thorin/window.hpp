@@ -15,6 +15,7 @@
 namespace thorin {
     class Thorin;
     class WindowManager;
+    class Inspector;
 
     class Window {
     protected:
@@ -22,12 +23,14 @@ namespace thorin {
         WindowManager *manager_ = nullptr;
         std::unique_ptr<Widget> rootWidget_;
         std::unique_ptr<GPUBackend> backend_;
+        // Non-null while the inspector is open.
+        std::unique_ptr<Inspector> inspector_;
     public:
-        virtual ~Window() = default;
+        virtual ~Window();
         Window(const Window&) = delete;
         Window& operator=(const Window&) = delete;
-        Window(Window &&window) noexcept = default;
-        Window& operator=(Window &&window) noexcept = default;
+        Window(Window &&window) noexcept;
+        Window& operator=(Window &&window) noexcept;
         Window(const WindowConfig &config ={}, std::unique_ptr<Widget> widget = nullptr);
         void init();
         void destroy();
@@ -66,5 +69,11 @@ namespace thorin {
         // icon once shown, it only stops a later default from replacing it.
         void set_icon(const Image* image);
         [[nodiscard]] const Image* icon() const;
+        // Widget inspector overlay, also toggled with F12. Does nothing when thorin is built with
+        // THORIN_INSPECTOR=OFF.
+        void set_inspector(bool open);
+        [[nodiscard]] bool inspector_open() const;
+        // Called by the backend each frame, after the root widget's ImGui window has ended.
+        void update_inspector();
     };
 }

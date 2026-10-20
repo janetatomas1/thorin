@@ -571,15 +571,27 @@ namespace thorin {
         return YGNodeStyleGetPositionType(node_);
     }
 
-    float Layout::margin(YGEdge edge) const {
+    float Layout::layout_margin(YGEdge edge) const {
         return YGNodeLayoutGetMargin(node_, edge);
     }
 
-    float Layout::padding(YGEdge edge) const {
+    LayoutValue Layout::style_margin(YGEdge edge) const {
+        return YGNodeStyleGetMargin(node_, edge);
+    }
+
+    LayoutValue Layout::style_padding(YGEdge edge) const {
+        return YGNodeStyleGetPadding(node_, edge);
+    }
+
+    float Layout::style_border(YGEdge edge) const {
+        return YGNodeStyleGetBorder(node_, edge);
+    }
+
+    float Layout::layout_padding(YGEdge edge) const {
         return YGNodeLayoutGetPadding(node_, edge);
     }
 
-    float Layout::border(YGEdge edge) const {
+    float Layout::layout_border(YGEdge edge) const {
         return YGNodeLayoutGetBorder(node_, edge);
     }
 }

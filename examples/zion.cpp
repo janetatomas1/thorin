@@ -1356,7 +1356,7 @@ int main(const int argc, char** argv) {
     }
 
     app.add_window<Root>();
-    spdlog::info("zion started");
+    spdlog::info("zion started, F12 opens the widget inspector");
 
     return app.exec();
 }

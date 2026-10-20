@@ -21,6 +21,8 @@ namespace thorin {
         bool enabled_ = true;
 
         Window* window_ = nullptr;
+        // Top-left of the Yoga box in screen space, recorded by render().
+        ImVec2 screenPos_{0.0f, 0.0f};
 
         Layout layout_;
         Style style_{this};
@@ -191,9 +193,12 @@ namespace thorin {
         [[nodiscard]] float height() const;
         [[nodiscard]] const ImVec2& position() const;
         [[nodiscard]] const ImVec2& size() const;
-        [[nodiscard]] float margin(YGEdge edge) const;
-        [[nodiscard]] float padding(YGEdge edge) const;
-        [[nodiscard]] float border(YGEdge edge) const;
+        // Top-left of the box in screen space as of the last render(). Not updated for widgets
+        // drawn through draw() only (menu entries, table cells).
+        [[nodiscard]] const ImVec2& screen_position() const;
+        [[nodiscard]] float layout_margin(YGEdge edge) const;
+        [[nodiscard]] float layout_padding(YGEdge edge) const;
+        [[nodiscard]] float layout_border(YGEdge edge) const;
 
         // Style shortcuts, see Style.
         Widget& color(ImGuiCol idx, std::optional<ImVec4> color);

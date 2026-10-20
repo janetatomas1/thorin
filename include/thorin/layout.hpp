@@ -167,10 +167,15 @@ namespace thorin {
         [[nodiscard]] float aspect_ratio() const;
         [[nodiscard]] YGDirection direction() const;
         [[nodiscard]] YGPositionType position_type() const;
+        // Only what was set on that edge itself: an edge set through YGEdgeAll (or Horizontal,
+        // Vertical, ...) comes back unset.
+        [[nodiscard]] LayoutValue style_margin(YGEdge edge) const;
+        [[nodiscard]] LayoutValue style_padding(YGEdge edge) const;
+        [[nodiscard]] float style_border(YGEdge edge) const;
 
         // Computed by the last calculate_layout().
-        [[nodiscard]] float margin(YGEdge edge) const;
-        [[nodiscard]] float padding(YGEdge edge) const;
-        [[nodiscard]] float border(YGEdge edge) const;
+        [[nodiscard]] float layout_margin(YGEdge edge) const;
+        [[nodiscard]] float layout_padding(YGEdge edge) const;
+        [[nodiscard]] float layout_border(YGEdge edge) const;
     };
 }

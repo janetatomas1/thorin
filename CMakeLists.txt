@@ -117,6 +117,13 @@ if(THORIN_BUNDLE_FONTS)
     target_compile_definitions(thorin PUBLIC THORIN_BUNDLE_FONTS)
 endif()
 
+# Widget inspector overlay, opened with F12 or Window::set_inspector(). Turn off for shipped apps.
+option(THORIN_INSPECTOR "Build the widget inspector overlay" ON)
+if(THORIN_INSPECTOR)
+    target_sources(thorin PRIVATE ${THORIN_SOURCE_DIR}/inspector.cpp)
+    target_compile_definitions(thorin PRIVATE THORIN_INSPECTOR)
+endif()
+
 configure_file(
     ${THORIN_HEADER_DIR}/thorin/version.hpp.in
     ${CMAKE_CURRENT_BINARY_DIR}/include/thorin/version.hpp

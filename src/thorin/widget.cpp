@@ -29,6 +29,7 @@ namespace thorin {
         tooltip_(std::move(other.tooltip_)),
         enabled_(other.enabled_),
         window_(other.window_),
+        screenPos_(other.screenPos_),
         layout_(std::move(other.layout_)),
         style_(std::move(other.style_)) {
         layout_.set_owner(this);
@@ -58,6 +59,7 @@ namespace thorin {
             tooltip_ = std::move(other.tooltip_);
             enabled_ = other.enabled_;
             window_ = other.window_;
+            screenPos_ = other.screenPos_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
             style_ = std::move(other.style_);
@@ -195,6 +197,7 @@ namespace thorin {
 
     bool Widget::render() {
         ImGui::SetCursorPos(layout().position());
+        screenPos_ = ImGui::GetCursorScreenPos();
         return draw();
     }
 
@@ -611,16 +614,20 @@ namespace thorin {
         return layout_.size();
     }
 
-    float Widget::margin(YGEdge edge) const {
-        return layout_.margin(edge);
+    const ImVec2& Widget::screen_position() const {
+        return screenPos_;
     }
 
-    float Widget::padding(YGEdge edge) const {
-        return layout_.padding(edge);
+    float Widget::layout_margin(YGEdge edge) const {
+        return layout_.layout_margin(edge);
     }
 
-    float Widget::border(YGEdge edge) const {
-        return layout_.border(edge);
+    float Widget::layout_padding(YGEdge edge) const {
+        return layout_.layout_padding(edge);
+    }
+
+    float Widget::layout_border(YGEdge edge) const {
+        return layout_.layout_border(edge);
     }
 
     Widget& Widget::color(ImGuiCol idx, std::optional<ImVec4> color) {

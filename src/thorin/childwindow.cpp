@@ -49,10 +49,9 @@ namespace thorin {
             // Scroll range from what was drawn here: ImGui sizes the content by the items' far
             // corner, so children drawn in their own window (popups) don't count. It doesn't know
             // about the trailing padding and border line, so they are added to that corner.
-            const Widget& self = *this;
             ImGuiWindow* child = ImGui::GetCurrentWindow();
-            child->DC.CursorMaxPos.x += self.padding(YGEdgeRight) + borderSize;
-            child->DC.CursorMaxPos.y += self.padding(YGEdgeBottom) + borderSize;
+            child->DC.CursorMaxPos.x += layout_padding(YGEdgeRight) + borderSize;
+            child->DC.CursorMaxPos.y += layout_padding(YGEdgeBottom) + borderSize;
         }
 
         // Unlike most Begin/End pairs, EndChild is required even when BeginChild returns false.
