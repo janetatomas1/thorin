@@ -9,8 +9,7 @@ earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 
 Before writing a real app with thorin, in this order:
 
-1. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
-2. **Inspector: style view and picking** (see [Inspector](#inspector-done)).
+1. **Inspector: style view and picking** (see [Inspector](#inspector-done)).
 
 The real app is `examples/zion.cpp`, a system monitor (CPU, processes, system info, logs). Gaps it
 turns up go here.
@@ -190,10 +189,11 @@ is a `TreeNode` with `ImGuiTreeNodeFlags_Framed`.
   `io.DisplayFramebufferScale` whenever that changes, skipping an empty box. Needs a texture.
 - **Depth attachment (done).** `set_depth(true)` attaches a `GL_DEPTH_COMPONENT24` renderbuffer,
   resized with the texture. Off by default.
-- **Mouse input.** For camera controls: hovered, mouse position relative to the view, drag delta
-  per button, wheel. ImGui has these after the `Image` call (`IsItemHovered`, `GetMousePos()` minus
-  `GetItemRectMin()`, `GetMouseDragDelta`, `io.MouseWheel`); an `InvisibleButton` over the image
-  keeps drags from moving the window.
+- **Mouse input (done).** `set_capture_mouse(true)` puts an `InvisibleButton` over the box before
+  the render callback runs, so drags and the wheel belong to the view instead of moving or scrolling
+  the window around it. `hovered()` / `active()` give this frame's button state; everything else
+  (`MousePos`, `MouseDelta`, `MouseDown`, `MouseWheel`) is read from `ImGui::GetIO()` in the callback,
+  with `MousePos - screen_position()` for view-relative coordinates.
 
 Later: sharing GL objects between windows. Each window has its own context and nothing is
 shared (`SDL_GL_SHARE_WITH_CURRENT_CONTEXT`); only needed when several windows show the same

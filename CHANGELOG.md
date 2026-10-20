@@ -39,12 +39,18 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `thorin::clipboard`: `set_text()`, `text()`, `has_text()`, shared with ImGui's text inputs.
 - `Table`: `set_column_width()` and `set_column_stretch()`, and a constructor for a table without
   a header row.
+- `RenderWidget::set_capture_mouse()`: an invisible button over the view, so camera controls can drag
+  and use the wheel without moving or scrolling the window. `hovered()` / `active()` tell the render
+  callback whether the input from `ImGui::GetIO()` is meant for the view.
 - Inspector: a devtools-like window, toggled with F12 or `Window::set_inspector()`. It shows the
   widget tree, draws the selected widget's box over the app, and edits its layout properties.
   Built with `THORIN_INSPECTOR` (on by default).
 - Examples: `zion`, a system monitor (CPU, processes, system info, logs), and `chart` /
   `chart3d`.
 - Tests: colour parsing, `Series` and `ActionManager`, next to the measure tests.
+
+- CMake package: `find_package(thorin)` and `thorin::thorin`, from the build tree (`thorin_DIR`) or
+  after `cmake --install`. The app provides the same dependencies, e.g. through the same Conan toolchain.
 
 ### Changed
 
