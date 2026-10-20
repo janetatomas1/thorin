@@ -7,6 +7,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-20
+
 ### Added
 
 - `TreeNode`: a collapsible node with an ImGui tree node header. Its children can be any widgets;
@@ -51,6 +53,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 - CMake package: `find_package(thorin)` and `thorin::thorin`, from the build tree (`thorin_DIR`) or
   after `cmake --install`. The app provides the same dependencies, e.g. through the same Conan toolchain.
+- thorin can be used with `add_subdirectory()`; examples and tests then stay off by default
+  (`THORIN_BUILD_EXAMPLES`, `THORIN_BUILD_TESTS`).
 
 ### Changed
 

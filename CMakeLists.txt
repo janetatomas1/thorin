@@ -1,14 +1,14 @@
 
 cmake_minimum_required(VERSION 3.28)
-project(thorin VERSION 0.1.0)
+project(thorin VERSION 0.2.0)
 
 set(CMAKE_CXX_STANDARD 23)
 
 include(GNUInstallDirs)
 
-set(THORIN_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src/thorin)
-set(THORIN_HEADER_DIR ${CMAKE_SOURCE_DIR}/include/)
-set(THORIN_EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
+set(THORIN_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src/thorin)
+set(THORIN_HEADER_DIR ${PROJECT_SOURCE_DIR}/include/)
+set(THORIN_EXAMPLES_DIR ${PROJECT_SOURCE_DIR}/examples)
 set(
     THORIN_SOURCES
     ${THORIN_SOURCE_DIR}/thorin.cpp
@@ -109,13 +109,13 @@ if(THORIN_BUNDLE_FONTS)
         string(REPLACE "|" ";" font "${font}")
         list(GET font 0 name)
         list(GET font 1 file)
-        set(input ${CMAKE_SOURCE_DIR}/fonts/${file})
+        set(input ${PROJECT_SOURCE_DIR}/fonts/${file})
         set(output ${CMAKE_CURRENT_BINARY_DIR}/fonts/${name}.cpp)
         add_custom_command(
             OUTPUT ${output}
             COMMAND ${CMAKE_COMMAND} -DINPUT=${input} -DOUTPUT=${output} -DNAME=${name}
-                -P ${CMAKE_SOURCE_DIR}/cmake/embed.cmake
-            DEPENDS ${input} ${CMAKE_SOURCE_DIR}/cmake/embed.cmake
+                -P ${PROJECT_SOURCE_DIR}/cmake/embed.cmake
+            DEPENDS ${input} ${PROJECT_SOURCE_DIR}/cmake/embed.cmake
             COMMENT "Embedding font ${file}"
         )
         target_sources(thorin PRIVATE ${output})
@@ -170,10 +170,15 @@ install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/thorinConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/thorinConfigVersion.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/thorin
 )
-add_subdirectory(${THORIN_EXAMPLES_DIR})
+# Examples and tests only build by default when thorin is the top-level project, not when an app pulls
+# it in with add_subdirectory().
+option(THORIN_BUILD_EXAMPLES "Build the examples" ${PROJECT_IS_TOP_LEVEL})
+if(THORIN_BUILD_EXAMPLES)
+    add_subdirectory(${THORIN_EXAMPLES_DIR})
+endif()
 
-option(THORIN_BUILD_TESTS "Build the headless tests" ON)
+option(THORIN_BUILD_TESTS "Build the headless tests" ${PROJECT_IS_TOP_LEVEL})
 if(THORIN_BUILD_TESTS)
     enable_testing()
-    add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
 endif()
