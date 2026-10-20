@@ -33,6 +33,7 @@ namespace thorin {
         std::size_t memoryCapacity = 5000;
     };
 
+    // One message kept by MemorySink.
     struct LogEntry {
         spdlog::level::level_enum level;
         std::string logger;

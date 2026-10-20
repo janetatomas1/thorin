@@ -4,6 +4,7 @@
 
 namespace thorin {
 
+    // 64-bit random numbers from a randomly seeded mt19937_64; behind Thorin::random(). Not thread-safe.
     class RandomGenerator {
         std::mt19937_64 engine_;
     public:

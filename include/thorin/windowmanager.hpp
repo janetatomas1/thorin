@@ -11,6 +11,9 @@
 namespace thorin {
     class Thorin;
 
+    // Owns the app's windows and runs the frame loop's per-window part: waits as FrameConfig says, polls
+    // SDL events, routes them to their windows and draws each window. Internal to Thorin, which forwards
+    // what apps need.
     class WindowManager {
         std::vector<std::unique_ptr<Window>> windows_;
         Thorin &app_;
@@ -32,6 +35,7 @@ namespace thorin {
     public:
         WindowManager(Thorin &app);
         void init();
+        // One frame: wait, events, then every window's update().
         void update();
         void destroy();
         // Wakes a loop sleeping in wait(). Thread-safe.

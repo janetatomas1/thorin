@@ -17,6 +17,9 @@ namespace thorin {
     class WindowManager;
     class Inspector;
 
+    // One OS window with its own GPU and ImGui contexts and a root widget laid out over the whole window.
+    // Created through Thorin::add_window(), which owns it; init(), update() and destroy() are driven by
+    // the app.
     class Window {
     protected:
         uint64_t id_ = 0;
@@ -35,12 +38,15 @@ namespace thorin {
         void init();
         void destroy();
         void update();
+        // Removes the window from the app; it is destroyed on the next frame.
         void close();
         Thorin &app();
         [[nodiscard]] uint64_t id() const;
         void set_window_manager(WindowManager *manager);
+        // Takes ownership and gives the widget this window.
         void set_root_widget(std::unique_ptr<Widget> widget);
         Widget* root_widget();
+        // The backend drawing this window (GLBackend for OpenGL).
         GPUBackend* backend();
         void maximize();
         void minimize();

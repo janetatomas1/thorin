@@ -135,6 +135,7 @@ namespace thorin {
         [[nodiscard]] const T& ys() const { return std::get<T>(ys_); }
     };
 
+    // Points joined by straight lines (ImPlot::PlotLine).
     class LineSeries : public XYSeries {
         float lineWeight_ = 1.0f;
 
@@ -146,6 +147,7 @@ namespace thorin {
         void plot() const override;
     };
 
+    // Points drawn as markers, unconnected (ImPlot::PlotScatter).
     class ScatterSeries : public XYSeries {
         float lineWeight_ = 1.0f;
 

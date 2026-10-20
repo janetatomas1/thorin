@@ -74,6 +74,7 @@ namespace thorin {
         [[nodiscard]] const T& zs() const { return std::get<T>(zs_); }
     };
 
+    // Points joined by straight lines in 3D (ImPlot3D::PlotLine).
     class Line3DSeries : public XYZSeries {
         float lineWeight_ = 1.0f;
 
@@ -85,6 +86,7 @@ namespace thorin {
         void plot() const override;
     };
 
+    // Points drawn as markers in 3D, unconnected (ImPlot3D::PlotScatter).
     class Scatter3DSeries : public XYZSeries {
         float lineWeight_ = 1.0f;
 

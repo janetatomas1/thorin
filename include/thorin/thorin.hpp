@@ -13,6 +13,9 @@
 #include "thorin/log.hpp"
 
 namespace thorin {
+    // The application: owns the windows, the action queue, the theme, fonts and images, and runs the main
+    // loop. Create exactly one, add windows, then return exec() from main(). Most calls are UI thread
+    // only; add_action() is the way in from other threads.
     class Thorin {
         // The live app, so widgets reach it without a window (e.g. from their constructors).
         static inline Thorin* current_ = nullptr;
@@ -53,12 +56,16 @@ namespace thorin {
         // The live app. Asserts when there is none (e.g. headless tests).
         static Thorin& current();
         [[nodiscard]] static bool has_current();
+        // Runs the main loop until exit() or the last window closes; returns the exit code.
         int exec();
+        // Ends the loop after the current frame's actions have run.
         void exit();
 
+        // A random 64-bit number, e.g. for ids. UI thread only.
         static uint64_t random() {
             return randomGenerator_.random();
         }
+        // Frames run so far.
         [[nodiscard]] uint64_t frame() const;
         [[nodiscard]] const FrameConfig& frame_config() const;
         void set_frame_config(const FrameConfig &config);
@@ -106,10 +113,12 @@ namespace thorin {
         // a window is still open.
         uint64_t add_window(std::unique_ptr<Window> window);
         uint64_t add_window(const WindowConfig &config = {});
+        // Constructs W (args forwarded) as the root widget of a new window; returns the window's id.
         template<WidgetConcept W, typename... Args>
         uint64_t add_window(WindowConfig config, Args &&... args);
         template<WidgetConcept W, typename... Args>
         uint64_t add_window(Args &&... args);
+        // nullptr when there is no such window.
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);
         void remove_window_at(size_t index);

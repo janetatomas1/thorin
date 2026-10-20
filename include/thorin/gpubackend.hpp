@@ -19,6 +19,8 @@ namespace thorin {
     // below every widget. Called with the window's rectangle.
     using BackgroundPainter = fu2::unique_function<void(ImDrawList& list, ImVec2 min, ImVec2 max)>;
 
+    // The per-window platform and GPU part of a Window: SDL window, GPU and ImGui contexts, theme, fonts,
+    // background and icon. Subclasses implement one graphics API (GLBackend).
     class GPUBackend {
     protected:
         SDL_Window* handle_ = nullptr;
@@ -42,6 +44,7 @@ namespace thorin {
         GPUBackend(const WindowConfig &config);
         virtual ~GPUBackend() = default;
         virtual void init() = 0;
+        // Draws one frame: the root widget in an ImGui window filling the SDL window.
         virtual void update(Widget *rootWidget) = 0;
         virtual void destroy() = 0;
         virtual void process_event(const SDL_Event& event) = 0;

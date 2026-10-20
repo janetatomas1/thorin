@@ -14,6 +14,7 @@ struct ImPlotContext;
 struct ImPlot3DContext;
 
 namespace thorin {
+    // OpenGL 3.3 core backend: an SDL GL context and ImGui / ImPlot / ImPlot3D contexts per window.
     class GLBackend: public GPUBackend {
         SDL_GLContext gl_context;
         ImGuiContext* imguiContext_ = nullptr;

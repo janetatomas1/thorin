@@ -21,6 +21,7 @@ namespace thorin {
         Adaptive = 6,
     };
 
+    // App-wide frame pacing, set with Thorin::set_frame_config(). Each field says which policies read it.
     struct FrameConfig {
         FramePolicy policy = FramePolicy::TargetFps;
         // TargetFps, OnDemand while redrawing, DisplayMatched's fallback, FocusBased and Adaptive's full rate.
