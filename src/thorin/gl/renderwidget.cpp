@@ -107,6 +107,25 @@ namespace thorin {
         return *this;
     }
 
+    bool RenderWidget::capture_mouse() const {
+        return captureMouse_;
+    }
+
+    RenderWidget& RenderWidget::set_capture_mouse(bool enabled) {
+        captureMouse_ = enabled;
+        hovered_ = false;
+        active_ = false;
+        return *this;
+    }
+
+    bool RenderWidget::hovered() const {
+        return hovered_;
+    }
+
+    bool RenderWidget::active() const {
+        return active_;
+    }
+
     ImVec2 RenderWidget::uv0() const {
         return flipUv_ ? ImVec2{0.0f, 1.0f} : ImVec2{0.0f, 0.0f};
     }
@@ -165,8 +184,29 @@ namespace thorin {
             return false;
         }
 
+        if (!captureMouse_) {
+            render();
+            ImGui::Image(static_cast<ImTextureID>(texture_->id()), size(), uv0(), uv1());
+            return false;
+        }
+
+        // The button comes first so the render callback sees this frame's hovered / active state.
+        ImGui::InvisibleButton(
+            "##view",
+            size(),
+            ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight | ImGuiButtonFlags_MouseButtonMiddle
+        );
+        hovered_ = ImGui::IsItemHovered();
+        active_ = ImGui::IsItemActive();
+        // Keeps the wheel from scrolling a parent window.
+        if (hovered_) {
+            ImGui::SetItemKeyOwner(ImGuiKey_MouseWheelY);
+        }
+        const ImVec2 min = ImGui::GetItemRectMin();
+        const ImVec2 max = ImGui::GetItemRectMax();
+
         render();
-        ImGui::Image(static_cast<ImTextureID>(texture_->id()), size(), uv0(), uv1());
+        ImGui::GetWindowDrawList()->AddImage(static_cast<ImTextureID>(texture_->id()), min, max, uv0(), uv1());
         return false;
     }
 }

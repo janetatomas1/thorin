@@ -30,6 +30,9 @@ namespace thorin {
         bool flipUv_ = false;
         bool autoSize_ = false;
         bool hasDepth_ = false;
+        bool captureMouse_ = false;
+        bool hovered_ = false;
+        bool active_ = false;
 
         // Recreates framebuffer() for texture_, with a depth attachment if hasDepth_.
         void rebuild_framebuffer();
@@ -74,6 +77,16 @@ namespace thorin {
         // Texture coordinates of the top-left and bottom-right corners, with flip_uv() applied.
         [[nodiscard]] ImVec2 uv0() const;
         [[nodiscard]] ImVec2 uv1() const;
+
+        // Puts an invisible button over the box, so mouse drags and the wheel belong to the view instead of
+        // moving or scrolling the window around it. Read the input from ImGui::GetIO() in the render callback,
+        // with hovered() / active() telling whether it is meant for this view. Off by default.
+        [[nodiscard]] bool capture_mouse() const;
+        RenderWidget& set_capture_mouse(bool enabled);
+        // With capture_mouse(), as of this frame: the mouse is over the view, and a button pressed over it is
+        // still held (true while dragging outside the box too). Always false without it.
+        [[nodiscard]] bool hovered() const;
+        [[nodiscard]] bool active() const;
 
         void destroy() override;
         bool show() override;
