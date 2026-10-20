@@ -10,8 +10,10 @@ earlier `Styled<W, S...>` design that was replaced by `Style` (see below).
 Before writing a real app with thorin, in this order:
 
 1. **RenderWidget: mouse input** (see [OpenGL](#opengl)).
+2. **Inspector: style view and picking** (see [Inspector](#inspector-done)).
 
-Then the app, to find out what is actually missing.
+The real app is `examples/zion.cpp`, a system monitor (CPU, processes, system info, logs). Gaps it
+turns up go here.
 
 ## Finish the measure work (done)
 
@@ -206,8 +208,8 @@ through a wait-function table indexed by the enum (`windowmanager.cpp`). `FrameC
 redraw counter live in `WindowManager`; `Thorin::set_frame_config` and `Thorin::request_redraw`
 forward to it. There is no vsync and no `swapInterval`: every window swaps with interval 0, and
 `DisplayMatched` sleeps to the fastest refresh rate among the windows' displays, so waits don't
-stack per window. `add_action` pushes a registered wake event. Still open: the
-minimized/occluded skip at the end, and `RenderWidget` requesting redraws (it has no `render()` yet).
+stack per window. `add_action` pushes a registered wake event. `RenderWidget::render()` requests a
+redraw. Still open: the minimized/occluded skip at the end.
 
 The main loop sleeps a hard-coded `SDL_Delay(20)` per iteration (`WindowManager::update`) and
 every window swaps with vsync on (`SDL_GL_SetSwapInterval(1)` in `GLBackend::init`). The two
@@ -259,15 +261,37 @@ Later: skip `update()` for minimized or occluded windows (`SDL_WINDOW_MINIMIZED`
 
 ## Tools
 
-### Inspector
+### Inspector (done)
 
-An overlay any thorin app can toggle, like browser devtools:
+A devtools-like window per `Window`, toggled with F12 or `Window::set_inspector()`. Built with
+`THORIN_INSPECTOR` (on by default); without it both do nothing.
 
-- The widget tree, walked through the Yoga tree (`Layout::child()`, `owner()`), with each
-  widget's type, title and id.
-- The selected widget's Yoga box drawn over the app (margin, border, padding, content), plus
-  its computed position and size, measure results and flex properties.
+- The widget tree, walked through the Yoga tree, with each widget's demangled type, title and id.
+  The selected and hovered widgets are kept by id, so a destroyed widget just drops out.
+- The selected widget's Yoga box drawn over the app (margin, border, padding, content), and the
+  hovered tree row's box as a plain outline.
+- Properties: title and enabled (editable), computed visibility, position, size and screen
+  position, then margin, border, padding, size, flex and alignment properties, all editable.
+
+Still open:
+
 - Its `Style`: the values set on it and the ones it inherits from ancestors.
 - Picking: hover a widget in the app to select it in the tree.
+- The last measure result of leaves.
 
-Mostly reads data that already exists, and makes debugging layout and styling much faster.
+## App services (done)
+
+- **Logging.** spdlog-based, configured with `Thorin::set_log_config(LogConfig)`: console, a
+  rotating file and an in-memory buffer (`memoryCapacity`, read through `log_memory()`). The
+  framework's `"thorin"` logger has its own level; `make_logger(name)` makes app loggers sharing
+  the same sinks. `LogWidget` shows the buffer with a level filter, a text filter, Clear and Copy,
+  and follows new messages while scrolled to the bottom.
+- **Clipboard.** `thorin::clipboard::set_text()`, `text()`, `has_text()`, shared with ImGui's text
+  inputs.
+- **Window icon.** `Thorin::set_icon(const Image*)` is the default for every window,
+  `Window::set_icon()` overrides it for one.
+
+## Tests
+
+`tests/` (GoogleTest, `ctest`, `THORIN_BUILD_TESTS`): measuring, colour parsing, `Series` and
+`ActionManager`. Still uncovered: `Style` push/pop and inheritance, frame policies, logging.
