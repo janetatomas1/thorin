@@ -13,6 +13,19 @@ namespace thorin {
     class Window;
     class Thorin;
 
+    // Base of every thorin widget: a node in the window's Yoga tree with a title, an id, a Style
+    // and per-widget state (enabled, tooltip).
+    //
+    // - Layout: the flexbox setters below forward to layout() and return *this, so they chain.
+    //   Children are added by passing the parent to the constructor or with set_parent(); they
+    //   render in insertion order.
+    // - Drawing: render() places the widget at its Yoga box and calls draw(), which applies the
+    //   style, enabled state and tooltip around show(). Containers use the default show(), which
+    //   renders the children; leaves override show() to draw themselves with ImGui and measure()
+    //   to give Yoga their natural size.
+    // - The title is the ImGui label; text after "##" is hidden, as in ImGui.
+    // - Widgets can be moved but not copied; the id stays the same across moves, so post() and
+    //   find() keep working. UI thread only.
     class Widget {
         uint64_t id_ = 0;
         std::string title_;
@@ -72,6 +85,7 @@ namespace thorin {
         // Overrides call the base version to keep reaching the children.
         virtual void init();
         virtual void destroy();
+        // Natural size for Yoga, called only for widgets that enabled measuring (leaves).
         virtual ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode);
         [[nodiscard]] uint64_t id() const;
         // The live widget with this id, or nullptr once it is destroyed.

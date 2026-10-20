@@ -12,7 +12,7 @@ set(
 )
 
 foreach(test ${THORIN_TESTS})
-    add_executable(${test} main.cpp ${test}.cpp)
-    target_link_libraries(${test} PRIVATE thorin gtest::gtest)
+    add_executable(${test} ${test}.cpp)
+    target_link_libraries(${test} PRIVATE thorin GTest::gtest_main)
     gtest_discover_tests(${test})
 endforeach()
