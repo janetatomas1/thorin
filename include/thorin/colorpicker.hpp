@@ -22,6 +22,7 @@ namespace thorin {
     // A full color picker: SV square, hue bar (or wheel), optional alpha bar, a side preview and
     // input rows below. RGB (N == 3) or RGBA (N == 4, the default), each component in 0..1.
     // With a reference color the side preview also shows it as "Original"; clicking it restores it.
+    // Opaque black by default. Its height follows its width: the SV square takes what the bars leave.
     template <std::size_t N = 4>
     class ColorPicker : public Widget {
         static_assert(N == 3 || N == 4, "ColorPicker supports 3 (RGB) or 4 (RGBA) components");
@@ -56,6 +57,7 @@ namespace thorin {
     public:
         ColorPicker(const std::string& title = "", Widget* parent = nullptr);
 
+        // True on the frames the colour changes.
         bool show() final;
         ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
@@ -69,6 +71,8 @@ namespace thorin {
         [[nodiscard]] ColorPickerFlags flags() const;
         ColorPicker& set_flags(ColorPickerFlags flags);
 
+        // Called on the next dispatch (see post()) with the new value after the user changes it;
+        // set_value() doesn't call it.
         ColorPicker& set_on_change(std::function<void(const Value&)> callback);
     };
 

@@ -14,7 +14,8 @@ namespace thorin {
     using SliderFlags = ImGuiSliderFlags;
 
     // N numeric components edited with sliders: Slider<1, float>, Slider<2, int>, Slider<4, float>, ...
-    // The value is a plain T when N == 1, otherwise std::array<T, N>.
+    // The value is a plain T when N == 1, otherwise std::array<T, N>. The title is the label, drawn right
+    // of the field; the field gets the box width minus the label.
     template <std::size_t N, typename T>
     class Slider : public Widget {
         static_assert(N >= 1 && N <= 4, "Slider supports 1 to 4 components");
@@ -34,6 +35,7 @@ namespace thorin {
     public:
         Slider(const std::string& title = "", Widget* parent = nullptr);
 
+        // True on the frames the value changes.
         bool show() final;
         ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
@@ -52,6 +54,8 @@ namespace thorin {
         [[nodiscard]] SliderFlags flags() const;
         Slider& set_flags(SliderFlags flags);
 
+        // Called on the next dispatch (see post()) with the new value after the user changes it;
+        // set_value() doesn't call it.
         Slider& set_on_change(std::function<void(const Value&)> callback);
     };
 

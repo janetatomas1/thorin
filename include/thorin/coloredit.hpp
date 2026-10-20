@@ -12,6 +12,7 @@ namespace thorin {
     using ColorEditFlags = ImGuiColorEditFlags;
 
     // An RGB (N == 3) or RGBA (N == 4, the default) color, each component in 0..1. Clicking the swatch opens a picker.
+    // Input fields and swatch share the field width, the title label follows. Opaque black by default.
     template <std::size_t N = 4>
     class ColorEdit : public Widget {
         static_assert(N == 3 || N == 4, "ColorEdit supports 3 (RGB) or 4 (RGBA) components");
@@ -37,6 +38,7 @@ namespace thorin {
     public:
         ColorEdit(const std::string& title = "", Widget* parent = nullptr);
 
+        // True on the frames the colour changes.
         bool show() final;
         ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
@@ -46,6 +48,8 @@ namespace thorin {
         [[nodiscard]] ColorEditFlags flags() const;
         ColorEdit& set_flags(ColorEditFlags flags);
 
+        // Called on the next dispatch (see post()) with the new value after the user changes it;
+        // set_value() doesn't call it.
         ColorEdit& set_on_change(std::function<void(const Value&)> callback);
     };
 

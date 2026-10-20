@@ -15,7 +15,8 @@ namespace thorin {
     using DragFlags = ImGuiSliderFlags;
 
     // N numeric components edited by dragging: Drag<1, float>, Drag<2, int>, Drag<4, float>, ...
-    // The value is a plain T when N == 1, otherwise std::array<T, N>.
+    // The value is a plain T when N == 1, otherwise std::array<T, N>. The title is the label, drawn right
+    // of the field; the field gets the box width minus the label.
     template <std::size_t N, typename T>
     class Drag : public Widget {
         static_assert(N >= 1 && N <= 4, "Drag supports 1 to 4 components");
@@ -36,6 +37,7 @@ namespace thorin {
     public:
         Drag(const std::string& title = "", Widget* parent = nullptr);
 
+        // True on the frames the value changes.
         bool show() final;
         ImVec2 measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) final;
 
@@ -59,6 +61,8 @@ namespace thorin {
         [[nodiscard]] DragFlags flags() const;
         Drag& set_flags(DragFlags flags);
 
+        // Called on the next dispatch (see post()) with the new value after the user changes it;
+        // set_value() doesn't call it.
         Drag& set_on_change(std::function<void(const Value&)> callback);
     };
 
