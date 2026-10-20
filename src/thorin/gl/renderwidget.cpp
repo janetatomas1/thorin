@@ -145,7 +145,7 @@ namespace thorin {
         Widget::destroy();
     }
 
-    void RenderWidget::render() {
+    void RenderWidget::render_texture() {
         if (texture_ == nullptr) {
             return;
         }
@@ -185,7 +185,7 @@ namespace thorin {
         }
 
         if (!captureMouse_) {
-            render();
+            render_texture();
             ImGui::Image(static_cast<ImTextureID>(texture_->id()), size(), uv0(), uv1());
             return false;
         }
@@ -205,7 +205,7 @@ namespace thorin {
         const ImVec2 min = ImGui::GetItemRectMin();
         const ImVec2 max = ImGui::GetItemRectMax();
 
-        render();
+        render_texture();
         ImGui::GetWindowDrawList()->AddImage(static_cast<ImTextureID>(texture_->id()), min, max, uv0(), uv1());
         return false;
     }

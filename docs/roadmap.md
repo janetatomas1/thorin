@@ -182,7 +182,7 @@ is a `TreeNode` with `ImGuiTreeNodeFlags_Framed`.
 `RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment.
 
 - **Render callback (done).** `set_on_render([](RenderWidget& self) {...})`.
-  `RenderWidget::render()` (called from `show()`, and from `ImageButton::show()`) binds the
+  `RenderWidget::render_texture()` (called from `show()`, and from `ImageButton::show()`) binds the
   framebuffer, sets `glViewport` to the texture size, calls it, restores the previous framebuffer
   and viewport, and calls `request_redraw()`.
 - **Auto-size (done).** `set_auto_size(true)` resizes the texture to the Yoga box times
@@ -208,7 +208,7 @@ through a wait-function table indexed by the enum (`windowmanager.cpp`). `FrameC
 redraw counter live in `WindowManager`; `Thorin::set_frame_config` and `Thorin::request_redraw`
 forward to it. There is no vsync and no `swapInterval`: every window swaps with interval 0, and
 `DisplayMatched` sleeps to the fastest refresh rate among the windows' displays, so waits don't
-stack per window. `add_action` pushes a registered wake event. `RenderWidget::render()` requests a
+stack per window. `add_action` pushes a registered wake event. `RenderWidget::render_texture()` requests a
 redraw. Still open: the minimized/occluded skip at the end.
 
 The main loop sleeps a hard-coded `SDL_Delay(20)` per iteration (`WindowManager::update`) and
@@ -246,7 +246,7 @@ int swapInterval = 0;           // 1 = vsync, 0 = off, -1 = adaptive (fall back 
 
 `Thorin::request_redraw(int frames = 2)` keeps an OnDemand loop drawing for that many frames.
 Every SDL event requests a redraw (ImGui needs a frame or two to settle hover and layout), and
-an animating widget (e.g. `RenderWidget`) requests one from its `render()` every frame it is
+an animating widget (e.g. `RenderWidget`) requests one from its `render_texture()` every frame it is
 drawn.
 
 Needed before OnDemand is usable:

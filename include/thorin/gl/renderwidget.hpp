@@ -39,7 +39,7 @@ namespace thorin {
 
     protected:
         // Auto-sizes the texture and runs the render callback; show() calls it before drawing the image.
-        void render();
+        void render_texture();
 
     public:
         RenderWidget(Widget* parent = nullptr);
