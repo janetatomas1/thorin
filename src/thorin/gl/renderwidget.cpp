@@ -1,5 +1,6 @@
 #include <cmath>
 
+#include <glbinding/gl/bitfield.h>
 #include <glbinding/gl/enum.h>
 #include <glbinding/gl/functions.h>
 
@@ -74,6 +75,15 @@ namespace thorin {
 
     RenderWidget& RenderWidget::set_on_render(RenderCallback callback) {
         onRender_ = std::move(callback);
+        return *this;
+    }
+
+    std::optional<ImVec4> RenderWidget::clear_color() const {
+        return clearColor_;
+    }
+
+    RenderWidget& RenderWidget::set_clear_color(std::optional<ImVec4> color) {
+        clearColor_ = color;
         return *this;
     }
 
@@ -170,6 +180,10 @@ namespace thorin {
 
             framebuffer_->bind(gl::GL_FRAMEBUFFER);
             gl::glViewport(0, 0, textureWidth_, textureHeight_);
+            if (clearColor_) {
+                gl::glClearColor(clearColor_->x, clearColor_->y, clearColor_->z, clearColor_->w);
+                gl::glClear(depth_ != nullptr ? gl::GL_COLOR_BUFFER_BIT | gl::GL_DEPTH_BUFFER_BIT : gl::GL_COLOR_BUFFER_BIT);
+            }
             onRender_(*this);
 
             gl::glBindFramebuffer(gl::GL_FRAMEBUFFER, static_cast<gl::GLuint>(previous));

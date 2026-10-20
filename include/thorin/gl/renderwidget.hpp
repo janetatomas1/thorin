@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 #include <function2/function2.hpp>
 
@@ -25,6 +26,7 @@ namespace thorin {
         std::unique_ptr<globjects::Framebuffer> framebuffer_;
         std::unique_ptr<globjects::Renderbuffer> depth_;
         RenderCallback onRender_;
+        std::optional<ImVec4> clearColor_;
         int textureWidth_ = 0;
         int textureHeight_ = 0;
         bool flipUv_ = false;
@@ -59,6 +61,11 @@ namespace thorin {
 
         // Called every frame the widget is drawn; it also keeps an OnDemand or Adaptive loop drawing.
         RenderWidget& set_on_render(RenderCallback callback);
+
+        // Cleared to before each render callback, with the depth buffer if depth(). Empty by default: the callback
+        // clears, or keeps the previous contents.
+        [[nodiscard]] std::optional<ImVec4> clear_color() const;
+        RenderWidget& set_clear_color(std::optional<ImVec4> color);
 
         // Resizes the texture to the Yoga box in pixels (points times the framebuffer scale) whenever the
         // box changes. Needs a texture; its initial size does not matter.

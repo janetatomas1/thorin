@@ -7,6 +7,11 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ## [Unreleased]
 
+### Added
+
+- `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
+  each render callback. Empty by default.
+
 ## [0.2.0] - 2026-10-20
 
 ### Added
