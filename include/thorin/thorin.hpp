@@ -32,6 +32,7 @@ namespace thorin {
         const Image* background_ = nullptr;
         float backgroundOpacity_ = 1.0f;
         std::function<BackgroundPainter()> backgroundPainterFactory_;
+        BackendFactory backendFactory_;
         const Image* icon_ = nullptr;
         WindowManager windowManager_ = WindowManager(*this);
         static RandomGenerator randomGenerator_;
@@ -94,6 +95,11 @@ namespace thorin {
         // Empty = none.
         void set_background_painter(std::function<BackgroundPainter()> factory);
         [[nodiscard]] const std::function<BackgroundPainter()>& background_painter_factory() const;
+        // Makes the backend of each window created afterwards. Defaults to GLBackend when thorin is built
+        // with THORIN_GL; without it the app has to set one before adding windows.
+        void set_backend_factory(BackendFactory factory);
+        // A backend for a new window, from the factory. Asserts when there is no factory.
+        [[nodiscard]] std::unique_ptr<GPUBackend> make_backend(const WindowConfig &config);
         // Default icon for windows created afterwards: Window::init() takes it unless the window already has
         // one (Window::set_icon()). Use an image from add_image(); nullptr = none.
         void set_icon(const Image* image);
@@ -131,7 +137,7 @@ namespace thorin {
         // The window is registered first so it can reach the app; set_root_widget() then gives the
         // widget its window right away and queues the swap after the window's init, which calls
         // the widget's init(). The widget's constructor still runs without a window.
-        auto window = std::make_unique<Window>(config);
+        auto window = std::make_unique<Window>(make_backend(config));
         Window* raw = window.get();
         const uint64_t id = add_window(std::move(window));
         raw->set_root_widget(std::make_unique<W>(std::forward<Args>(args)...));

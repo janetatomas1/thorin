@@ -4,6 +4,9 @@
 
 #include "thorin/thorin.hpp"
 #include "thorin/version.hpp"
+#ifdef THORIN_GL
+#include "thorin/gl/glbackend.hpp"
+#endif
 
 namespace thorin {
     RandomGenerator Thorin::randomGenerator_{};
@@ -24,6 +27,9 @@ namespace thorin {
         DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
         current_ = this;
         configure_logging({});
+#ifdef THORIN_GL
+        backendFactory_ = [](const WindowConfig& config) { return std::make_unique<GLBackend>(config); };
+#endif
 
         // SDL's own messages (errors, warnings) go to the thorin logger.
         SDL_SetLogOutputFunction(
@@ -198,6 +204,16 @@ namespace thorin {
         return backgroundPainterFactory_;
     }
 
+    void Thorin::set_backend_factory(BackendFactory factory) {
+        backendFactory_ = std::move(factory);
+    }
+
+    std::unique_ptr<GPUBackend> Thorin::make_backend(const WindowConfig &config) {
+        // Checked in release too: without a backend the window would crash in init().
+        ASSERT(static_cast<bool>(backendFactory_), "no backend factory; build with THORIN_GL or call set_backend_factory()");
+        return backendFactory_(config);
+    }
+
     void Thorin::set_icon(const Image* image) {
         icon_ = image;
     }
@@ -225,7 +241,7 @@ namespace thorin {
     }
 
     uint64_t Thorin::add_window(const WindowConfig &config) {
-        return windowManager_.add_window(std::make_unique<Window>(config));
+        return windowManager_.add_window(std::make_unique<Window>(make_backend(config)));
     }
 
     Window* Thorin::get_window_at(size_t index) {

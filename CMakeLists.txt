@@ -22,9 +22,6 @@ set(
     ${THORIN_SOURCE_DIR}/widget.cpp
     ${THORIN_SOURCE_DIR}/layout.cpp
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
-    ${THORIN_SOURCE_DIR}/gl/glbackend.cpp
-    ${THORIN_SOURCE_DIR}/gl/renderwidget.cpp
-    ${THORIN_SOURCE_DIR}/gl/imagebutton.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
     ${THORIN_SOURCE_DIR}/checkbox.cpp
     ${THORIN_SOURCE_DIR}/radiobutton.cpp
@@ -58,8 +55,6 @@ set(
 )
 
 find_package(sdl REQUIRED)
-find_package(glbinding REQUIRED)
-find_package(globjects REQUIRED)
 find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
 find_package(implot REQUIRED)
@@ -84,8 +79,6 @@ target_link_libraries(
     thorin
     PUBLIC
     sdl::sdl
-    glbinding::glbinding
-    globjects::globjects
     concurrentqueue::concurrentqueue
     imgui::imgui
     implot::implot
@@ -98,6 +91,22 @@ target_link_libraries(
     # Only image.cpp decodes images.
     stb::stb
 )
+# OpenGL backend and the GL widgets (RenderWidget, ImageWidget, ImageButton). Off leaves no backend.
+option(THORIN_GL "Build the OpenGL backend" ON)
+if(THORIN_GL)
+    find_package(glbinding REQUIRED)
+    find_package(globjects REQUIRED)
+    target_sources(
+        thorin
+        PRIVATE
+        ${THORIN_SOURCE_DIR}/gl/glbackend.cpp
+        ${THORIN_SOURCE_DIR}/gl/renderwidget.cpp
+        ${THORIN_SOURCE_DIR}/gl/imagebutton.cpp
+    )
+    target_link_libraries(thorin PUBLIC glbinding::glbinding globjects::globjects)
+    target_compile_definitions(thorin PUBLIC THORIN_GL)
+endif()
+
 # Inter, JetBrains Mono and Noto Sans (OFL, see fonts/*/OFL.txt) compiled in as Font::inter() etc.
 option(THORIN_BUNDLE_FONTS "Embed the fonts in fonts/ (~1.3 MB)" ON)
 if(THORIN_BUNDLE_FONTS)
@@ -148,10 +157,14 @@ target_include_directories(
 # provide the same dependencies, e.g. through the same Conan toolchain.
 include(CMakePackageConfigHelpers)
 install(TARGETS thorin EXPORT thorinTargets)
+if(NOT THORIN_GL)
+    set(THORIN_INSTALL_EXCLUDE PATTERN "gl" EXCLUDE)
+endif()
 install(
     DIRECTORY ${THORIN_HEADER_DIR}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.hpp"
+    ${THORIN_INSTALL_EXCLUDE}
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/thorin/version.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/thorin)
 install(EXPORT thorinTargets NAMESPACE thorin:: DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/thorin)

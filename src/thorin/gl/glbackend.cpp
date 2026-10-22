@@ -41,7 +41,7 @@ namespace thorin {
             config_.title.c_str(),
             config_.width,
             config_.height,
-            config_.sdlFlags
+            config_.sdlFlags | SDL_WINDOW_OPENGL
         );
         DEBUG_ASSERT(handle_ != nullptr, "SDL_CreateWindow failed", SDL_GetError());
 

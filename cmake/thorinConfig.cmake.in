@@ -3,8 +3,10 @@
 # thorin's public dependencies; stb is private, but the static library still names it.
 include(CMakeFindDependencyMacro)
 find_dependency(sdl)
-find_dependency(glbinding)
-find_dependency(globjects)
+if(@THORIN_GL@)
+    find_dependency(glbinding)
+    find_dependency(globjects)
+endif()
 find_dependency(concurrentqueue)
 find_dependency(imgui)
 find_dependency(implot)

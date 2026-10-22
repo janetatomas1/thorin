@@ -5,14 +5,13 @@
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
-#include "thorin/gl/glbackend.hpp"
 #include "thorin/inspector.hpp"
 
 namespace thorin {
-    Window::Window(const WindowConfig &config, std::unique_ptr<Widget> widget)
-    : id_(Thorin::random()), rootWidget_(widget == nullptr ? std::make_unique<Widget>() : std::move(widget)) {
-        backend_ = std::make_unique<GLBackend>(config);
-    }
+    Window::Window(std::unique_ptr<GPUBackend> backend, std::unique_ptr<Widget> widget)
+    : id_(Thorin::random()),
+      rootWidget_(widget == nullptr ? std::make_unique<Widget>() : std::move(widget)),
+      backend_(std::move(backend)) {}
 
     Window::~Window() = default;
     Window::Window(Window&& window) noexcept = default;

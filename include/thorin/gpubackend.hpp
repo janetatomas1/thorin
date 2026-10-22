@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <SDL3/SDL.h>
 #include <function2/function2.hpp>
@@ -18,6 +19,10 @@ namespace thorin {
     // Draws a window's background each frame into its root draw list: above WindowBg and the background image,
     // below every widget. Called with the window's rectangle.
     using BackgroundPainter = fu2::unique_function<void(ImDrawList& list, ImVec2 min, ImVec2 max)>;
+
+    class GPUBackend;
+    // Makes the backend of a new window; see Thorin::set_backend_factory().
+    using BackendFactory = fu2::unique_function<std::unique_ptr<GPUBackend>(const WindowConfig& config)>;
 
     // The per-window platform and GPU part of a Window: SDL window, GPU and ImGui contexts, theme, fonts,
     // background and icon. Subclasses implement one graphics API (GLBackend).

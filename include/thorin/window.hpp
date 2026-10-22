@@ -34,7 +34,8 @@ namespace thorin {
         Window& operator=(const Window&) = delete;
         Window(Window &&window) noexcept;
         Window& operator=(Window &&window) noexcept;
-        Window(const WindowConfig &config ={}, std::unique_ptr<Widget> widget = nullptr);
+        // The backend comes from Thorin::make_backend() unless the app builds its own.
+        Window(std::unique_ptr<GPUBackend> backend, std::unique_ptr<Widget> widget = nullptr);
         void init();
         void destroy();
         void update();
@@ -46,7 +47,7 @@ namespace thorin {
         // Takes ownership and gives the widget this window.
         void set_root_widget(std::unique_ptr<Widget> widget);
         Widget* root_widget();
-        // The backend drawing this window (GLBackend for OpenGL).
+        // The backend drawing this window.
         GPUBackend* backend();
         void maximize();
         void minimize();

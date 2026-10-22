@@ -11,6 +11,16 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 - `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
   each render callback. Empty by default.
+- `THORIN_GL` CMake option (ON by default): builds the OpenGL backend and the GL widgets, and links
+  glbinding / globjects only when on.
+- `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
+  to `GLBackend` with `THORIN_GL`.
+
+### Changed
+
+- `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)
+  instead of creating a `GLBackend` itself; use `app.make_backend(config)`.
+- `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `GLBackend` adds it.
 
 ## [0.2.0] - 2026-10-20
 

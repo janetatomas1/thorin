@@ -32,8 +32,8 @@ namespace thorin {
         | ImGuiWindowFlags_NoResize
         | ImGuiWindowFlags_NoBringToFrontOnFocus
         | ImGuiWindowFlags_NoDocking;
-        SDL_WindowFlags sdlFlags = SDL_WINDOW_OPENGL
-        | SDL_WINDOW_RESIZABLE
+        // The backend adds the flag of its graphics API (e.g. SDL_WINDOW_OPENGL).
+        SDL_WindowFlags sdlFlags = SDL_WINDOW_RESIZABLE
         | SDL_WINDOW_HIGH_PIXEL_DENSITY;
         WindowState windowState = WindowState::MAXIMIZED;
         // ImGui settings file (docking layout, table state) for this window's context; empty disables it.
