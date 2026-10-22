@@ -1,6 +1,8 @@
 
+#include <imgui_impl_sdl3.h>
 #include <implot.h>
 #include <implot3d.h>
+#include <libassert/assert.hpp>
 
 #include "thorin/gpubackend.hpp"
 
@@ -14,6 +16,138 @@ namespace thorin {
 
     void GPUBackend::set_window(Window* window) {
         window_ = window;
+    }
+
+    void GPUBackend::create_window(SDL_WindowFlags apiFlags) {
+        DEBUG_ASSERT(window_ != nullptr, "GPUBackend::create_window called before set_window");
+
+        scale_ = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+        if (scale_ <= 0.0f) {
+            // SDL reports 0 when it cannot query the display; a zero scale would collapse the whole UI.
+            scale_ = 1.0f;
+        }
+
+        handle_ = SDL_CreateWindow(
+            config_.title.c_str(),
+            config_.width,
+            config_.height,
+            config_.sdlFlags | apiFlags
+        );
+        DEBUG_ASSERT(handle_ != nullptr, "SDL_CreateWindow failed", SDL_GetError());
+
+        if (config_.windowState == WindowState::MAXIMIZED) {
+            maximize();
+        } else if (config_.windowState == WindowState::MINIMIZED) {
+            minimize();
+        }
+
+        // WindowManager finds the Window of an SDL event through it.
+        SDL_SetPointerProperty(SDL_GetWindowProperties(handle_), "WRAPPER", window_);
+        SDL_SetWindowPosition(handle_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        SDL_ShowWindow(handle_);
+    }
+
+    void GPUBackend::create_contexts() {
+        IMGUI_CHECKVERSION();
+        imguiContext_ = ImGui::CreateContext();
+        // Per window like the ImGui context; make_current() switches all three.
+        implotContext_ = ImPlot::CreateContext();
+        implot3dContext_ = ImPlot3D::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        // ImGui keeps the pointer, not a copy; config_ outlives the context.
+        io.IniFilename = config_.iniFile.empty() ? nullptr : config_.iniFile.c_str();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        apply_theme(window_->app().theme());
+    }
+
+    void GPUBackend::destroy_contexts() {
+        DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_contexts called with no imgui context");
+
+        ImGui_ImplSDL3_Shutdown();
+        ImPlot3D::DestroyContext(implot3dContext_);
+        implot3dContext_ = nullptr;
+        ImPlot::DestroyContext(implotContext_);
+        implotContext_ = nullptr;
+        ImGui::DestroyContext(imguiContext_);
+        imguiContext_ = nullptr;
+    }
+
+    void GPUBackend::make_contexts_current() {
+        DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
+
+        ImGui::SetCurrentContext(imguiContext_);
+        ImPlot::SetCurrentContext(implotContext_);
+        ImPlot3D::SetCurrentContext(implot3dContext_);
+    }
+
+    void GPUBackend::build_frame(Widget *rootWidget) {
+        DEBUG_ASSERT(handle_ != nullptr, "GPUBackend::build_frame called with no window handle");
+        DEBUG_ASSERT(rootWidget != nullptr, "GPUBackend::build_frame called with null root widget");
+
+        SDL_ShowWindow(handle_);
+        SDL_GetWindowSize(handle_, &config_.width, &config_.height);
+
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(config_.width, config_.height));
+        // Yoga padding is the only inset: the root box covers the whole window from (0, 0), so ImGui's padding
+        // would only push the content past the edge and bring up a scrollbar.
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+        ImGui::Begin(
+            config_.title.c_str(),
+            nullptr,
+            config_.windowFlags
+        );
+        ImGui::PopStyleVar();
+        draw_background();
+
+        rootWidget->layout().calculate_layout(config_.width, config_.height);
+        rootWidget->render();
+
+        ImGui::End();
+        window_->update_inspector();
+        ImGui::Render();
+    }
+
+    ImTextureID GPUBackend::background_texture() {
+        backgroundDirty_ = false;
+        return ImTextureID_Invalid;
+    }
+
+    void GPUBackend::draw_background() {
+        const ImTextureID texture = background_texture();
+
+        // The root window's own draw list: above its WindowBg, below every widget.
+        const ImVec2 pos = ImGui::GetWindowPos();
+        const ImVec2 size = ImGui::GetWindowSize();
+        const ImVec2 max(pos.x + size.x, pos.y + size.y);
+
+        if (texture != ImTextureID_Invalid) {
+            ImGui::GetWindowDrawList()->AddImage(
+                texture,
+                pos,
+                max,
+                ImVec2(0, 0),
+                ImVec2(1, 1),
+                ImGui::GetColorU32(ImVec4(1, 1, 1, backgroundOpacity_))
+            );
+        }
+
+        if (backgroundPainter_) {
+            backgroundPainter_(*ImGui::GetWindowDrawList(), pos, max);
+        }
+    }
+
+    void GPUBackend::process_event(const SDL_Event& event) {
+        DEBUG_ASSERT(imguiContext_ != nullptr, "process_event called with no imgui context");
+
+        ImGui::SetCurrentContext(imguiContext_);
+        ImGui_ImplSDL3_ProcessEvent(&event);
     }
 
     void GPUBackend::apply_theme(const Theme &theme) {

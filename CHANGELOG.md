@@ -15,6 +15,9 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   glbinding / globjects only when on.
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
   to `GLBackend` with `THORIN_GL`.
+- `GPUBackend` helpers for custom backends: `create_window()`, `create_contexts()`,
+  `destroy_contexts()`, `make_contexts_current()`, `build_frame()` and the `background_texture()`
+  hook; `process_event()` now has a default.
 
 ### Changed
 

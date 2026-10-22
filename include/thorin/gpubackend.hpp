@@ -12,6 +12,10 @@
 #include "thorin/image.hpp"
 
 
+struct ImGuiContext;
+struct ImPlotContext;
+struct ImPlot3DContext;
+
 namespace thorin {
     class Window;
     class Widget;
@@ -25,10 +29,14 @@ namespace thorin {
     using BackendFactory = fu2::unique_function<std::unique_ptr<GPUBackend>(const WindowConfig& config)>;
 
     // The per-window platform and GPU part of a Window: SDL window, GPU and ImGui contexts, theme, fonts,
-    // background and icon. Subclasses implement one graphics API (GLBackend).
+    // background and icon. Subclasses implement one graphics API (GLBackend): its context, the ImGui renderer
+    // backend, the background texture and presenting; the protected helpers do the rest.
     class GPUBackend {
     protected:
         SDL_Window* handle_ = nullptr;
+        ImGuiContext* imguiContext_ = nullptr;
+        ImPlotContext* implotContext_ = nullptr;
+        ImPlot3DContext* implot3dContext_ = nullptr;
         Window *window_;
         WindowConfig config_;
         // Display content scale the theme's sizes are multiplied by.
@@ -45,6 +53,28 @@ namespace thorin {
         BackgroundPainter backgroundPainter_;
         const Image* icon_ = nullptr;
 
+        // Sets scale_, creates handle_ with config_.sdlFlags | apiFlags (e.g. SDL_WINDOW_OPENGL), applies
+        // windowState, registers the window for event routing, then centres and shows it.
+        void create_window(SDL_WindowFlags apiFlags);
+        // Creates this window's ImGui / ImPlot / ImPlot3D contexts, sets up ImGuiIO and applies the app's theme.
+        // Call before initialising the ImGui SDL3 and renderer backends.
+        void create_contexts();
+        // Shuts down ImGui's SDL3 backend and destroys the contexts. Call after the renderer backend's shutdown.
+        void destroy_contexts();
+        // Makes the ImGui / ImPlot / ImPlot3D contexts current, for make_current().
+        void make_contexts_current();
+        // One frame of UI, after the renderer backend's NewFrame: starts the ImGui frame, lays out and renders
+        // the root widget in an ImGui window filling the SDL window, and ends with ImGui::Render(). The
+        // subclass then draws ImGui::GetDrawData() and presents.
+        void build_frame(Widget *rootWidget);
+        // background_ as a texture of this backend, re-uploaded and backgroundDirty_ cleared when it is set.
+        // ImTextureID_Invalid draws no image. The default has no image support.
+        virtual ImTextureID background_texture();
+
+    private:
+        // The background image and painter, into the root window's draw list.
+        void draw_background();
+
     public:
         GPUBackend(const WindowConfig &config);
         virtual ~GPUBackend() = default;
@@ -52,7 +82,8 @@ namespace thorin {
         // Draws one frame: the root widget in an ImGui window filling the SDL window.
         virtual void update(Widget *rootWidget) = 0;
         virtual void destroy() = 0;
-        virtual void process_event(const SDL_Event& event) = 0;
+        // Hands the event to this window's ImGui SDL3 backend.
+        virtual void process_event(const SDL_Event& event);
         // Makes this window's GPU and ImGui contexts the current ones.
         virtual void make_current() = 0;
         void set_window(Window *window);
