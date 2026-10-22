@@ -16,8 +16,15 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
   to `GLBackend` with `THORIN_GL`.
 - `GPUBackend` helpers for custom backends: `create_window()`, `create_contexts()`,
-  `destroy_contexts()`, `make_contexts_current()`, `build_frame()` and the `background_texture()`
+  `destroy_contexts()`, `make_contexts_current()`, `build_frame()` and the `upload_background()`
   hook; `process_event()` now has a default.
+- `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
+  closed meanwhile, like `Widget::post()`.
+
+### Fixed
+
+- `maximize()`, `minimize()`, `set_size()` and `set_title()` no longer touch a closed window: their
+  queued actions go through `Window::post()` instead of capturing the backend.
 
 ### Changed
 

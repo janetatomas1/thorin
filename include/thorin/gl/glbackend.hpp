@@ -15,10 +15,10 @@ namespace thorin {
         SDL_GLContext gl_context;
         const std::string glsl_version = "#version 330 core";
         // This window's copy of background_, in its GL context.
-        std::unique_ptr<globjects::Texture> backgroundTexture_;
+        std::unique_ptr<globjects::Texture> backgroundImage_;
 
     protected:
-        ImTextureID background_texture() override;
+        ImTextureID upload_background() override;
 
     public:
         GLBackend(const WindowConfig &config = {});

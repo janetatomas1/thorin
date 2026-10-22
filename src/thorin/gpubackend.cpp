@@ -114,22 +114,19 @@ namespace thorin {
         ImGui::Render();
     }
 
-    ImTextureID GPUBackend::background_texture() {
-        backgroundDirty_ = false;
+    ImTextureID GPUBackend::upload_background() {
         return ImTextureID_Invalid;
     }
 
     void GPUBackend::draw_background() {
-        const ImTextureID texture = background_texture();
-
         // The root window's own draw list: above its WindowBg, below every widget.
         const ImVec2 pos = ImGui::GetWindowPos();
         const ImVec2 size = ImGui::GetWindowSize();
         const ImVec2 max(pos.x + size.x, pos.y + size.y);
 
-        if (texture != ImTextureID_Invalid) {
+        if (backgroundTexture_ != ImTextureID_Invalid) {
             ImGui::GetWindowDrawList()->AddImage(
-                texture,
+                backgroundTexture_,
                 pos,
                 max,
                 ImVec2(0, 0),
@@ -194,9 +191,21 @@ namespace thorin {
 
     void GPUBackend::set_background(const Image* image, float opacity) {
         // Only a new image needs a new texture; opacity is applied when drawing.
-        backgroundDirty_ |= image != background_;
+        const bool changed = image != background_;
         background_ = image;
         backgroundOpacity_ = opacity;
+
+        // Before init() there is no context to upload into; Window::init() uploads it.
+        if (changed && handle_ != nullptr) {
+            window_->post([](Window& window) {
+                window.backend()->update_background();
+            });
+        }
+    }
+
+    void GPUBackend::update_background() {
+        make_current();
+        backgroundTexture_ = upload_background();
     }
 
     void GPUBackend::set_background_painter(BackgroundPainter painter) {
@@ -242,26 +251,26 @@ namespace thorin {
     }
 
     void GPUBackend::maximize() {
-        window_->app().add_action([this]() {
-            SDL_MaximizeWindow(handle_);
+        window_->post([](Window& window) {
+            SDL_MaximizeWindow(window.backend()->handle_);
         });
     }
 
     void GPUBackend::minimize() {
-        window_->app().add_action([this]() {
-            SDL_MinimizeWindow(handle_);
+        window_->post([](Window& window) {
+            SDL_MinimizeWindow(window.backend()->handle_);
         });
     }
 
     void GPUBackend::set_size(int width, int height) {
-        window_->app().add_action([this, width, height]() {
-            SDL_SetWindowSize(handle_, width, height);
+        window_->post([width, height](Window& window) {
+            SDL_SetWindowSize(window.backend()->handle_, width, height);
         });
     }
 
     void GPUBackend::set_title(const std::string& title) {
-        window_->app().add_action([this, title]() {
-            config_.title = title;
+        window_->post([title](Window& window) {
+            window.backend()->config_.title = title;
         });
     }
 

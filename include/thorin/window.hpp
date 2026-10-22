@@ -41,6 +41,10 @@ namespace thorin {
         void update();
         // Removes the window from the app; it is destroyed on the next frame.
         void close();
+        // Runs fn on the next dispatch with this window if it is still open then; dropped if it was closed
+        // meanwhile, or if it has not been created yet. Use the window passed to fn, never a captured this.
+        // Needs the window added to the app.
+        void post(fu2::unique_function<void(Window&)> fn);
         Thorin &app();
         [[nodiscard]] uint64_t id() const;
         void set_window_manager(WindowManager *manager);

@@ -48,8 +48,8 @@ namespace thorin {
         const Image* background_ = nullptr;
         // 0 = invisible, 1 = opaque; WindowBg shows through the rest.
         float backgroundOpacity_ = 1.0f;
-        // The texture no longer matches background_; re-uploaded on the next update().
-        bool backgroundDirty_ = false;
+        // background_ as uploaded by upload_background(); ImTextureID_Invalid draws no image.
+        ImTextureID backgroundTexture_ = ImTextureID_Invalid;
         BackgroundPainter backgroundPainter_;
         const Image* icon_ = nullptr;
 
@@ -67,9 +67,10 @@ namespace thorin {
         // the root widget in an ImGui window filling the SDL window, and ends with ImGui::Render(). The
         // subclass then draws ImGui::GetDrawData() and presents.
         void build_frame(Widget *rootWidget);
-        // background_ as a texture of this backend, re-uploaded and backgroundDirty_ cleared when it is set.
-        // ImTextureID_Invalid draws no image. The default has no image support.
-        virtual ImTextureID background_texture();
+        // Replaces this backend's texture of background_ (none when it is nullptr) and returns its id, or
+        // ImTextureID_Invalid for no image. Called with this window's contexts current. The default has no
+        // image support.
+        virtual ImTextureID upload_background();
 
     private:
         // The background image and painter, into the root window's draw list.
@@ -90,8 +91,11 @@ namespace thorin {
         // Copies the theme into the current ImGui / ImPlot / ImPlot3D contexts, scaled; call make_current() first.
         void apply_theme(const Theme &theme);
         [[nodiscard]] const Image* background() const;
-        // nullptr removes it. The image must stay alive while it is set.
+        // nullptr removes it. The image must stay alive while it is set. A new image is uploaded on the next
+        // dispatch, or by Window::init() if the window has not been created yet.
         void set_background(const Image* image, float opacity = 1.0f);
+        // Makes the contexts current and uploads background_.
+        void update_background();
         // nullptr / empty removes it.
         void set_background_painter(BackgroundPainter painter);
         [[nodiscard]] bool has_background_painter() const;

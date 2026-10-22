@@ -77,7 +77,7 @@ namespace thorin {
         // The backends and the context are per window; shut them down while this window's contexts are current.
         make_current();
         // GL objects have to go while their context is current.
-        backgroundTexture_.reset();
+        backgroundImage_.reset();
         ImGui_ImplOpenGL3_Shutdown();
         destroy_contexts();
 
@@ -97,26 +97,24 @@ namespace thorin {
         SDL_GL_SwapWindow(handle_);
     }
 
-    ImTextureID GLBackend::background_texture() {
-        if (backgroundDirty_) {
-            backgroundTexture_.reset();
+    ImTextureID GLBackend::upload_background() {
+        backgroundImage_.reset();
 
-            if (background_ != nullptr) {
-                backgroundTexture_ = globjects::Texture::createDefault(GL_TEXTURE_2D);
-                backgroundTexture_->image2D(
-                    0,
-                    GL_RGBA8,
-                    background_->width(),
-                    background_->height(),
-                    0,
-                    GL_RGBA,
-                    GL_UNSIGNED_BYTE,
-                    background_->pixels().data()
-                );
-            }
-            backgroundDirty_ = false;
+        if (background_ == nullptr) {
+            return ImTextureID_Invalid;
         }
-        return backgroundTexture_ != nullptr ? static_cast<ImTextureID>(backgroundTexture_->id()) : ImTextureID_Invalid;
+        backgroundImage_ = globjects::Texture::createDefault(GL_TEXTURE_2D);
+        backgroundImage_->image2D(
+            0,
+            GL_RGBA8,
+            background_->width(),
+            background_->height(),
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            background_->pixels().data()
+        );
+        return static_cast<ImTextureID>(backgroundImage_->id());
     }
 
     void GLBackend::make_current() {

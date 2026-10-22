@@ -22,12 +22,15 @@ namespace thorin {
         DEBUG_ASSERT(rootWidget_ != nullptr, "Window::init called with no root widget");
         backend_->set_window(this);
         rootWidget_->set_window(this);
-        backend_->init();
 
         // The app's default background, unless one was set on this window before it was created.
         if (backend_->background() == nullptr && app().background() != nullptr) {
             set_background(app().background(), app().background_opacity());
         }
+
+        backend_->init();
+        // Uploads the background chosen before the backend existed.
+        backend_->update_background();
 
         // Its own icon if set before it was created, else the app's.
         if (const Image* icon = backend_->icon() != nullptr ? backend_->icon() : app().icon()) {
@@ -57,6 +60,14 @@ namespace thorin {
     void Window::close() {
         DEBUG_ASSERT(manager_ != nullptr, "Window::close called before set_window_manager");
         manager_->remove_window(id_);
+    }
+
+    void Window::post(fu2::unique_function<void(Window&)> fn) {
+        app().add_action([id = id_, fn = std::move(fn)]() mutable {
+            if (Window* window = Thorin::current().get_window(id)) {
+                fn(*window);
+            }
+        });
     }
 
     Thorin& Window::app() {
