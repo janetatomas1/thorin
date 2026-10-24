@@ -23,8 +23,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   glbinding / globjects only when on.
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
   to `GLBackend` with `THORIN_GL`.
-- `GPUBackend` helpers for custom backends: `create_window()`, `create_contexts()`,
-  `destroy_contexts()`, `build_frame()` and the `upload_background()` hook; `process_event()` and
+- `GPUBackend` helpers for custom backends: `create_window()`, `create_context()`,
+  `destroy_context()`, `build_frame()` and the `upload_background()` hook; `process_event()` and
   `make_current()` (sets the ImGui context) now have defaults.
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.

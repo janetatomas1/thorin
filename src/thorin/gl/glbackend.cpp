@@ -9,7 +9,6 @@
 #include "thorin/gl/glbackend.hpp"
 
 #include <format>
-#include <iostream>
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
@@ -33,7 +32,7 @@ namespace thorin {
     GLBackend::GLBackend(
         const WindowConfig &config,
         const GLBackendConfig &glConfig
-    ) : GPUBackend(config), gl_context(nullptr), glConfig_(glConfig) {}
+    ) : GPUBackend(config), glContext_(nullptr), glConfig_(glConfig) {}
 
     void GLBackend::init() {
         DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
@@ -47,10 +46,10 @@ namespace thorin {
 
         create_window(SDL_WINDOW_OPENGL);
 
-        gl_context = SDL_GL_CreateContext(handle_);
-        DEBUG_ASSERT(gl_context != nullptr, "SDL_GL_CreateContext failed", SDL_GetError());
+        glContext_ = SDL_GL_CreateContext(handle_);
+        DEBUG_ASSERT(glContext_ != nullptr, "SDL_GL_CreateContext failed", SDL_GetError());
 
-        [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, gl_context);
+        [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, glContext_);
         DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
 
         // No vsync: the frame policy paces the loop (DisplayMatched for the display's rate). Vsync would
@@ -64,9 +63,9 @@ namespace thorin {
             }
         );
 
-        create_contexts();
+        create_context();
 
-        [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
+        [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, glContext_);
         DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
 
         // ImGui copies the string.
@@ -91,7 +90,7 @@ namespace thorin {
 
     void GLBackend::destroy() {
         DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
-        DEBUG_ASSERT(gl_context != nullptr, "GLBackend::destroy called with no gl context");
+        DEBUG_ASSERT(glContext_ != nullptr, "GLBackend::destroy called with no gl context");
 
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 
@@ -100,9 +99,9 @@ namespace thorin {
         // GL objects have to go while their context is current.
         backgroundImage_.reset();
         ImGui_ImplOpenGL3_Shutdown();
-        destroy_contexts();
+        destroy_context();
 
-        SDL_GL_DestroyContext(gl_context);
+        SDL_GL_DestroyContext(glContext_);
         SDL_DestroyWindow(handle_);
     }
 
@@ -112,7 +111,11 @@ namespace thorin {
         ImGui_ImplOpenGL3_NewFrame();
         build_frame(rootWidget);
 
-        glViewport(0, 0, config_.width, config_.height);
+        // config_ holds the logical size; on a high-density display the framebuffer has more pixels.
+        int pixelWidth = 0;
+        int pixelHeight = 0;
+        SDL_GetWindowSizeInPixels(handle_, &pixelWidth, &pixelHeight);
+        glViewport(0, 0, pixelWidth, pixelHeight);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(handle_);
@@ -140,9 +143,9 @@ namespace thorin {
 
     void GLBackend::make_current() {
         DEBUG_ASSERT(handle_ != nullptr, "make_current called with no window handle");
-        DEBUG_ASSERT(gl_context != nullptr, "make_current called with no gl context");
+        DEBUG_ASSERT(glContext_ != nullptr, "make_current called with no gl context");
 
-        SDL_GL_MakeCurrent(handle_, gl_context);
+        SDL_GL_MakeCurrent(handle_, glContext_);
         // Each window registers its own context in globjects::init.
         globjects::setCurrentContext();
         GPUBackend::make_current();

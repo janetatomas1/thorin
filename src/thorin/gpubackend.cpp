@@ -45,7 +45,7 @@ namespace thorin {
         SDL_ShowWindow(handle_);
     }
 
-    void GPUBackend::create_contexts() {
+    void GPUBackend::create_context() {
         IMGUI_CHECKVERSION();
         imguiContext_ = ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -58,8 +58,8 @@ namespace thorin {
         apply_theme(window_->app().theme());
     }
 
-    void GPUBackend::destroy_contexts() {
-        DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_contexts called with no imgui context");
+    void GPUBackend::destroy_context() {
+        DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_context called with no imgui context");
 
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext(imguiContext_);
@@ -76,7 +76,6 @@ namespace thorin {
         DEBUG_ASSERT(handle_ != nullptr, "GPUBackend::build_frame called with no window handle");
         DEBUG_ASSERT(rootWidget != nullptr, "GPUBackend::build_frame called with null root widget");
 
-        SDL_ShowWindow(handle_);
         SDL_GetWindowSize(handle_, &config_.width, &config_.height);
 
         ImGui_ImplSDL3_NewFrame();

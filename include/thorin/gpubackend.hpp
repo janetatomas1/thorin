@@ -12,8 +12,6 @@
 #include "thorin/image.hpp"
 
 
-struct ImGuiContext;
-
 namespace thorin {
     class Window;
     class Widget;
@@ -54,9 +52,9 @@ namespace thorin {
         void create_window(SDL_WindowFlags apiFlags);
         // Creates this window's ImGui context, sets up ImGuiIO and applies the app's theme.
         // Call before initialising the ImGui SDL3 and renderer backends.
-        void create_contexts();
+        void create_context();
         // Shuts down ImGui's SDL3 backend and destroys the context. Call after the renderer backend's shutdown.
-        void destroy_contexts();
+        void destroy_context();
         // One frame of UI, after the renderer backend's NewFrame: starts the ImGui frame, lays out and renders
         // the root widget in an ImGui window filling the SDL window, and ends with ImGui::Render(). The
         // subclass then draws ImGui::GetDrawData() and presents.

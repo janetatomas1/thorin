@@ -16,7 +16,7 @@ namespace thorin {
         DEBUG_ASSERT(window_ != nullptr, "NullBackend::init called before set_window");
 
         create_window(0);
-        create_contexts();
+        create_context();
 
         [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOther(handle_);
         DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOther failed");
@@ -41,7 +41,7 @@ namespace thorin {
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 
         make_current();
-        destroy_contexts();
+        destroy_context();
         SDL_DestroyWindow(handle_);
     }
 

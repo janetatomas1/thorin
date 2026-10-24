@@ -13,7 +13,7 @@ namespace thorin {
     // OpenGL core-profile backend (3.3 by default, see GLBackendConfig): an SDL GL context and
     // ImGui context per window.
     class GLBackend: public GPUBackend {
-        SDL_GLContext gl_context;
+        SDL_GLContext glContext_;
         GLBackendConfig glConfig_;
         // This window's copy of background_, in its GL context.
         std::unique_ptr<globjects::Texture> backgroundImage_;
