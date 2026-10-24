@@ -9,6 +9,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Added
 
+- `NullBackend`: an SDL window and ImGui context without a graphics API. Frames are built (layout,
+  widgets, events) but nothing is drawn; texture requests are acknowledged without uploading.
 - `thorin::extras` library (`THORIN_EXTRAS`, ON by default): `ChartWidget`, `Chart3DWidget` and their
   series moved there, under `thorin/extras/`. It is the only part that links implot / implot3d.
 - `ChartTheme` and `set_chart_theme()`: the ImPlot / ImPlot3D styles and an optional series palette,
@@ -22,8 +24,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
   to `GLBackend` with `THORIN_GL`.
 - `GPUBackend` helpers for custom backends: `create_window()`, `create_contexts()`,
-  `destroy_contexts()`, `make_contexts_current()`, `build_frame()` and the `upload_background()`
-  hook; `process_event()` now has a default.
+  `destroy_contexts()`, `build_frame()` and the `upload_background()` hook; `process_event()` and
+  `make_current()` (sets the ImGui context) now have defaults.
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.
 

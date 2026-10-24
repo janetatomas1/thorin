@@ -11,6 +11,5 @@ namespace thorin {
         void init() override;
         void destroy() override;
         void update(Widget *rootWidget) override;
-        void make_current() override;
     };
 }

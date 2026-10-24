@@ -45,6 +45,8 @@
 #include <thorin/textinput.hpp>
 #include <thorin/logwidget.hpp>
 
+#include "thorin/nullbackend.hpp"
+
 using namespace thorin;
 using namespace literals;
 
@@ -1349,7 +1351,9 @@ int main(const int argc, char** argv) {
     theme.font = &Font::jetbrains_mono();
 
     app.set_theme(theme);
-    app.set_background_painter([] { return BackgroundPainter(MatrixRain{}); });
+    app.set_background_painter([] {
+        return BackgroundPainter(MatrixRain{});
+    });
 
     if (auto icon = Image::from_file(THORIN_EXAMPLES_ASSETS "/zion-icon.png")) {
         app.set_icon(&app.add_image(std::move(*icon)));

@@ -57,8 +57,6 @@ namespace thorin {
         void create_contexts();
         // Shuts down ImGui's SDL3 backend and destroys the context. Call after the renderer backend's shutdown.
         void destroy_contexts();
-        // Makes the ImGui context current, for make_current().
-        void make_contexts_current();
         // One frame of UI, after the renderer backend's NewFrame: starts the ImGui frame, lays out and renders
         // the root widget in an ImGui window filling the SDL window, and ends with ImGui::Render(). The
         // subclass then draws ImGui::GetDrawData() and presents.
@@ -81,8 +79,9 @@ namespace thorin {
         virtual void destroy() = 0;
         // Hands the event to this window's ImGui SDL3 backend.
         virtual void process_event(const SDL_Event& event);
-        // Makes this window's GPU and ImGui contexts the current ones.
-        virtual void make_current() = 0;
+        // Makes this window's GPU and ImGui contexts the current ones. The default sets only the ImGui context;
+        // backends with a GPU context switch theirs, then call it.
+        virtual void make_current();
         void set_window(Window *window);
         // Copies the theme into the current ImGui context, scaled; call make_current() first.
         void apply_theme(const Theme &theme);

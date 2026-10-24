@@ -145,6 +145,6 @@ namespace thorin {
         SDL_GL_MakeCurrent(handle_, gl_context);
         // Each window registers its own context in globjects::init.
         globjects::setCurrentContext();
-        make_contexts_current();
+        GPUBackend::make_current();
     }
 }

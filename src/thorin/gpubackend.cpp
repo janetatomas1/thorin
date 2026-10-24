@@ -66,7 +66,7 @@ namespace thorin {
         imguiContext_ = nullptr;
     }
 
-    void GPUBackend::make_contexts_current() {
+    void GPUBackend::make_current() {
         DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
 
         ImGui::SetCurrentContext(imguiContext_);
