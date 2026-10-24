@@ -9,6 +9,12 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Added
 
+- `thorin::extras` library (`THORIN_EXTRAS`, ON by default): `ChartWidget`, `Chart3DWidget` and their
+  series moved there, under `thorin/extras/`. It is the only part that links implot / implot3d.
+- `ChartTheme` and `set_chart_theme()`: the ImPlot / ImPlot3D styles and an optional series palette,
+  applied to each window's plot contexts the next time it draws a chart. The plot contexts are created
+  on a window's first chart and destroyed with its ImGui context.
+
 - `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
   each render callback. Empty by default.
 - `THORIN_GL` CMake option (ON by default): builds the OpenGL backend and the GL widgets, and links
@@ -28,6 +34,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Changed
 
+- `Theme` no longer has `plot` / `plot3d`, and windows no longer create ImPlot / ImPlot3D contexts;
+  use `ChartTheme` from `thorin/extras/charttheme.hpp`.
 - `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)
   instead of creating a `GLBackend` itself; use `app.make_backend(config)`.
 - `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `GLBackend` adds it.

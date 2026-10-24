@@ -3,7 +3,7 @@
 #include "thorin/gpubackend.hpp"
 
 namespace thorin {
-    // Backend without a graphics API: a plain SDL window and ImGui / ImPlot / ImPlot3D contexts per window.
+    // Backend without a graphics API: a plain SDL window and ImGui context per window.
     // Frames are built (layout, widgets, events) but nothing is drawn or presented.
     class NullBackend: public GPUBackend {
     public:

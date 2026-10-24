@@ -1,8 +1,6 @@
 #pragma once
 
 #include <imgui.h>
-#include <implot.h>
-#include <implot3d.h>
 
 #include "thorin/font.hpp"
 
@@ -10,13 +8,11 @@ namespace thorin {
     // Font size used when a theme leaves style.FontSizeBase at 0 (ImGuiStyle's default): 1.5x ImGui's 13px.
     inline constexpr float defaultFontSize = 19.5f;
 
-    // App-wide look, copied into every window's ImGui / ImPlot / ImPlot3D context when it is created.
+    // App-wide look, copied into every window's ImGui context when it is created.
     // Sizes are unscaled; each window scales them for its display. Defaults are ImGui's dark style.
-    // Plot colours default to auto, which follows the ImGui colours.
+    // Charts have their own ChartTheme (thorin/extras/charttheme.hpp).
     struct Theme {
         ImGuiStyle style;
-        ImPlotStyle plot;
-        ImPlot3DStyle plot3d;
         // Each window's default font, replacing Window::set_font() when the theme is applied; its size is
         // style.FontSizeBase. Borrowed: from Thorin::add_font() or a bundled Font::inter() etc.
         // nullptr = ImGui's built-in font.

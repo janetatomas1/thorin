@@ -13,8 +13,6 @@
 
 
 struct ImGuiContext;
-struct ImPlotContext;
-struct ImPlot3DContext;
 
 namespace thorin {
     class Window;
@@ -35,8 +33,6 @@ namespace thorin {
     protected:
         SDL_Window* handle_ = nullptr;
         ImGuiContext* imguiContext_ = nullptr;
-        ImPlotContext* implotContext_ = nullptr;
-        ImPlot3DContext* implot3dContext_ = nullptr;
         Window *window_;
         WindowConfig config_;
         // Display content scale the theme's sizes are multiplied by.
@@ -56,12 +52,12 @@ namespace thorin {
         // Sets scale_, creates handle_ with config_.sdlFlags | apiFlags (e.g. SDL_WINDOW_OPENGL), applies
         // windowState, registers the window for event routing, then centres and shows it.
         void create_window(SDL_WindowFlags apiFlags);
-        // Creates this window's ImGui / ImPlot / ImPlot3D contexts, sets up ImGuiIO and applies the app's theme.
+        // Creates this window's ImGui context, sets up ImGuiIO and applies the app's theme.
         // Call before initialising the ImGui SDL3 and renderer backends.
         void create_contexts();
-        // Shuts down ImGui's SDL3 backend and destroys the contexts. Call after the renderer backend's shutdown.
+        // Shuts down ImGui's SDL3 backend and destroys the context. Call after the renderer backend's shutdown.
         void destroy_contexts();
-        // Makes the ImGui / ImPlot / ImPlot3D contexts current, for make_current().
+        // Makes the ImGui context current, for make_current().
         void make_contexts_current();
         // One frame of UI, after the renderer backend's NewFrame: starts the ImGui frame, lays out and renders
         // the root widget in an ImGui window filling the SDL window, and ends with ImGui::Render(). The
@@ -88,7 +84,7 @@ namespace thorin {
         // Makes this window's GPU and ImGui contexts the current ones.
         virtual void make_current() = 0;
         void set_window(Window *window);
-        // Copies the theme into the current ImGui / ImPlot / ImPlot3D contexts, scaled; call make_current() first.
+        // Copies the theme into the current ImGui context, scaled; call make_current() first.
         void apply_theme(const Theme &theme);
         [[nodiscard]] const Image* background() const;
         // nullptr removes it. The image must stay alive while it is set. A new image is uploaded on the next

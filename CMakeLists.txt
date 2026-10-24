@@ -54,8 +54,6 @@ set(
 find_package(sdl REQUIRED)
 find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
-find_package(implot REQUIRED)
-find_package(implot3d REQUIRED)
 find_package(function2 REQUIRED)
 find_package(yoga REQUIRED)
 find_package(libassert REQUIRED)
@@ -78,8 +76,6 @@ target_link_libraries(
     sdl::sdl
     concurrentqueue::concurrentqueue
     imgui::imgui
-    implot::implot
-    implot3d::implot3d
     function2::function2
     yoga::yoga
     libassert::assert
@@ -110,6 +106,7 @@ if(THORIN_EXTRAS)
     add_library(
         thorin_extras
         STATIC
+        ${THORIN_SOURCE_DIR}/extras/charttheme.cpp
         ${THORIN_SOURCE_DIR}/extras/series.cpp
         ${THORIN_SOURCE_DIR}/extras/chartwidget.cpp
         ${THORIN_SOURCE_DIR}/extras/series3d.cpp
@@ -117,7 +114,9 @@ if(THORIN_EXTRAS)
     )
     add_library(thorin::extras ALIAS thorin_extras)
     set_target_properties(thorin_extras PROPERTIES EXPORT_NAME extras)
-    target_link_libraries(thorin_extras PUBLIC thorin)
+    find_package(implot REQUIRED)
+    find_package(implot3d REQUIRED)
+    target_link_libraries(thorin_extras PUBLIC thorin implot::implot implot3d::implot3d)
 endif()
 
 # Inter, JetBrains Mono and Noto Sans (OFL, see fonts/*/OFL.txt) compiled in as Font::inter() etc.

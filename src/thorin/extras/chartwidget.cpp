@@ -118,6 +118,7 @@ namespace thorin {
     }
 
     bool ChartWidget::show() {
+        detail::make_chart_contexts_current();
         // title_id() carries the "##id", so charts with the same title don't share state.
         if (!ImPlot::BeginPlot(title_id().c_str(), size(), legend_ ? flags_ : flags_ | ImPlotFlags_NoLegend)) {
             return false;
@@ -143,8 +144,8 @@ namespace thorin {
     }
 
     ImVec2 ChartWidget::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
-        // Needs the window's ImPlot context, like ImGui-based measures need its ImGui context.
-        const ImVec2 intrinsic = ImPlot::GetStyle().PlotDefaultSize;
+        // From the theme: the window's ImPlot context may not exist before its first chart is drawn.
+        const ImVec2 intrinsic = chart_theme().plot.PlotDefaultSize;
         return ImVec2{
             fit_measure(intrinsic.x, width, widthMode),
             fit_measure(intrinsic.y, height, heightMode)

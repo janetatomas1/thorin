@@ -11,7 +11,7 @@
 
 namespace thorin {
     // OpenGL core-profile backend (3.3 by default, see GLBackendConfig): an SDL GL context and
-    // ImGui / ImPlot / ImPlot3D contexts per window.
+    // ImGui context per window.
     class GLBackend: public GPUBackend {
         SDL_GLContext gl_context;
         GLBackendConfig glConfig_;

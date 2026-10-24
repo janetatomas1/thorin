@@ -1,7 +1,5 @@
 
 #include <imgui_impl_sdl3.h>
-#include <implot.h>
-#include <implot3d.h>
 #include <libassert/assert.hpp>
 
 #include "thorin/gpubackend.hpp"
@@ -50,9 +48,6 @@ namespace thorin {
     void GPUBackend::create_contexts() {
         IMGUI_CHECKVERSION();
         imguiContext_ = ImGui::CreateContext();
-        // Per window like the ImGui context; make_current() switches all three.
-        implotContext_ = ImPlot::CreateContext();
-        implot3dContext_ = ImPlot3D::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         // ImGui keeps the pointer, not a copy; config_ outlives the context.
         io.IniFilename = config_.iniFile.empty() ? nullptr : config_.iniFile.c_str();
@@ -67,10 +62,6 @@ namespace thorin {
         DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_contexts called with no imgui context");
 
         ImGui_ImplSDL3_Shutdown();
-        ImPlot3D::DestroyContext(implot3dContext_);
-        implot3dContext_ = nullptr;
-        ImPlot::DestroyContext(implotContext_);
-        implotContext_ = nullptr;
         ImGui::DestroyContext(imguiContext_);
         imguiContext_ = nullptr;
     }
@@ -79,8 +70,6 @@ namespace thorin {
         DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
 
         ImGui::SetCurrentContext(imguiContext_);
-        ImPlot::SetCurrentContext(implotContext_);
-        ImPlot3D::SetCurrentContext(implot3dContext_);
     }
 
     void GPUBackend::build_frame(Widget *rootWidget) {
@@ -148,8 +137,6 @@ namespace thorin {
     }
 
     void GPUBackend::apply_theme(const Theme &theme) {
-        ImPlot::GetStyle() = theme.plot;
-        ImPlot3D::GetStyle() = theme.plot3d;
         // Always from the unscaled theme: scaling an already scaled style would compound.
         ImGuiStyle& style = ImGui::GetStyle();
         style = theme.style;

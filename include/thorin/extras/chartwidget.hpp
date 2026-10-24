@@ -9,6 +9,7 @@
 
 #include <implot.h>
 
+#include "thorin/extras/charttheme.hpp"
 #include "thorin/extras/series.hpp"
 #include "thorin/widget.hpp"
 
