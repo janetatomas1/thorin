@@ -103,6 +103,10 @@ if(THORIN_GL)
     )
     target_link_libraries(thorin PUBLIC glbinding::glbinding globjects::globjects)
     target_compile_definitions(thorin PUBLIC THORIN_GL)
+    # Emscripten links WebGL 1 only by default; GLBackend needs WebGL2 (GLES 3.0).
+    if(EMSCRIPTEN)
+        target_link_options(thorin PUBLIC -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
+    endif()
 endif()
 
 # Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).

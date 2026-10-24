@@ -178,7 +178,10 @@ namespace thorin {
     }
 
     void WindowManager::update() {
+#ifndef __EMSCRIPTEN__
+        // In the browser, requestAnimationFrame paces the frames and blocking would freeze the page.
         wait();
+#endif
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {

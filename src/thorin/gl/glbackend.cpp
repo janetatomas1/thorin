@@ -19,13 +19,18 @@ using namespace gl;
 
 namespace thorin {
     namespace {
-        // GLSL version of a core-profile GL version: 3.2 -> 150, from 3.3 on it matches (4.1 -> 410).
-        int glsl_version(int major, int minor) {
-            THORIN_DEBUG_ASSERT(major > 3 || (major == 3 && minor >= 2), "core profile needs GL 3.2 or later", major, minor);
-            if (major == 3 && minor == 2) {
-                return 150;
+        // The #version line for a context: core 3.2 -> "150 core", from 3.3 on it matches (4.1 -> "410 core");
+        // ES matches too (3.0 -> "300 es").
+        std::string glsl_version(const GLBackendConfig &config) {
+            const int major = config.majorVersion;
+            const int minor = config.minorVersion;
+
+            if (config.es) {
+                THORIN_DEBUG_ASSERT(major >= 3, "GLES needs 3.0 or later", major, minor);
+                return std::format("#version {} es", major * 100 + minor * 10);
             }
-            return major * 100 + minor * 10;
+            THORIN_DEBUG_ASSERT(major > 3 || (major == 3 && minor >= 2), "core profile needs GL 3.2 or later", major, minor);
+            return std::format("#version {} core", major == 3 && minor == 2 ? 150 : major * 100 + minor * 10);
         }
     }
 
@@ -37,9 +42,19 @@ namespace thorin {
     void GLBackend::init() {
         THORIN_DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
 
+#ifdef __EMSCRIPTEN__
+        // SDL would still create a WebGL context, and the core-profile shaders would fail to compile.
+        if (!glConfig_.es) {
+            fail("GLBackendConfig::es must be true on Emscripten: browsers only provide GLES (WebGL2)");
+        }
+#endif
+
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glConfig_.majorVersion);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glConfig_.minorVersion);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+        SDL_GL_SetAttribute(
+            SDL_GL_CONTEXT_PROFILE_MASK,
+            glConfig_.es ? SDL_GL_CONTEXT_PROFILE_ES : SDL_GL_CONTEXT_PROFILE_CORE
+        );
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, glConfig_.depthBits);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, glConfig_.stencilBits);
@@ -47,10 +62,19 @@ namespace thorin {
         create_window(SDL_WINDOW_OPENGL);
 
         glContext_ = SDL_GL_CreateContext(handle_);
-        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "SDL_GL_CreateContext failed", SDL_GetError());
+        if (glContext_ == nullptr) {
+            fail(std::format(
+                "could not create an OpenGL {} {}.{} context: {}",
+                glConfig_.es ? "ES" : "core",
+                glConfig_.majorVersion,
+                glConfig_.minorVersion,
+                SDL_GetError()
+            ));
+        }
 
-        [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, glContext_);
-        THORIN_DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
+        if (!SDL_GL_MakeCurrent(handle_, glContext_)) {
+            fail(std::format("SDL_GL_MakeCurrent failed: {}", SDL_GetError()));
+        }
 
         // No vsync: the frame policy paces the loop (DisplayMatched for the display's rate). Vsync would
         // stack one refresh wait per window.
@@ -65,16 +89,15 @@ namespace thorin {
 
         create_context();
 
-        [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, glContext_);
-        THORIN_DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
+        if (!ImGui_ImplSDL3_InitForOpenGL(handle_, glContext_)) {
+            fail("ImGui_ImplSDL3_InitForOpenGL failed");
+        }
 
         // ImGui copies the string.
-        const std::string glslVersion = std::format(
-            "#version {} core",
-            glsl_version(glConfig_.majorVersion, glConfig_.minorVersion)
-        );
-        [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glslVersion.c_str());
-        THORIN_DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glslVersion);
+        const std::string glslVersion = glsl_version(glConfig_);
+        if (!ImGui_ImplOpenGL3_Init(glslVersion.c_str())) {
+            fail(std::format("ImGui_ImplOpenGL3_Init failed with '{}'", glslVersion));
+        }
 
         logger().info(
             "window {} '{}' created {}x{}, OpenGL {} on {}, scale {}",

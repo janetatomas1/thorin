@@ -9,6 +9,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     list(PREPEND THORIN_EXAMPLE_NAMES zion)
 endif()
 
+# Emscripten defaults to .js; .html also generates a page that loads the .js and .wasm.
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+endif()
+
 foreach(example_name ${THORIN_EXAMPLE_NAMES})
     add_executable(${example_name} ${THORIN_EXAMPLES_DIR}/${example_name}.cpp)
     target_link_libraries(${example_name} PRIVATE thorin::extras)

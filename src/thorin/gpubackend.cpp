@@ -1,4 +1,7 @@
 
+#include <cstdlib>
+#include <format>
+
 #include <imgui_impl_sdl3.h>
 #include "thorin/assert.hpp"
 
@@ -16,6 +19,12 @@ namespace thorin {
         window_ = window;
     }
 
+    void GPUBackend::fail(const std::string &message) {
+        logger().critical(message);
+        spdlog::apply_all([](const std::shared_ptr<spdlog::logger>& l) { l->flush(); });
+        std::abort();
+    }
+
     void GPUBackend::create_window(SDL_WindowFlags apiFlags) {
         THORIN_DEBUG_ASSERT(window_ != nullptr, "GPUBackend::create_window called before set_window");
 
@@ -31,7 +40,9 @@ namespace thorin {
             config_.height,
             config_.sdlFlags | apiFlags
         );
-        THORIN_DEBUG_ASSERT(handle_ != nullptr, "SDL_CreateWindow failed", SDL_GetError());
+        if (handle_ == nullptr) {
+            fail(std::format("could not create window '{}': {}", config_.title, SDL_GetError()));
+        }
 
         if (config_.windowState == WindowState::MAXIMIZED) {
             maximize();

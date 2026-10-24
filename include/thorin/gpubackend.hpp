@@ -47,6 +47,9 @@ namespace thorin {
         BackgroundPainter backgroundPainter_;
         const Image* icon_ = nullptr;
 
+        // Logs message as critical and aborts. For setup failures (window, context, renderer), which have to
+        // stop the app even where THORIN_DEBUG_ASSERT is compiled out (release builds, Emscripten).
+        [[noreturn]] static void fail(const std::string &message);
         // Sets scale_, creates handle_ with config_.sdlFlags | apiFlags (e.g. SDL_WINDOW_OPENGL), applies
         // windowState, registers the window for event routing, then centres and shows it.
         void create_window(SDL_WindowFlags apiFlags);

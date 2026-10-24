@@ -12,6 +12,14 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Thorin::window_count()`.
 - `thorin/assert.hpp` with `THORIN_ASSERT` / `THORIN_DEBUG_ASSERT`, used instead of libassert's macros.
   On Emscripten they are no-ops and libassert isn't linked.
+- `GPUBackend::fail()`: logs a critical message and aborts. `GLBackend` and `NullBackend` use it when
+  the window, GL context or ImGui backends can't be created, so these failures are reported in release
+  and Emscripten builds too, with SDL's reason and the requested context.
+- `GLBackendConfig::es`: a GLES context instead of a core-profile one; the default on Emscripten, with
+  version 3.0.
+- Emscripten: `GLBackend` uses WebGL2 (GLES 3.0), `exec()` runs one `update()` per browser frame via
+  `emscripten_set_main_loop`, and the frame policies are ignored (the browser paces frames). Examples
+  build as `.html`.
 - `NullBackend`: an SDL window and ImGui context without a graphics API. Frames are built (layout,
   widgets, events) but nothing is drawn; texture requests are acknowledged without uploading.
 - `thorin::extras` library (`THORIN_EXTRAS`, ON by default): `ChartWidget`, `Chart3DWidget` and their

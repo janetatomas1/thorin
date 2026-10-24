@@ -7,6 +7,9 @@
 #ifdef THORIN_GL
 #include "thorin/gl/glbackend.hpp"
 #endif
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 
 namespace thorin {
     RandomGenerator Thorin::randomGenerator_{};
@@ -87,6 +90,23 @@ namespace thorin {
 
     int Thorin::exec() {
         init();
+
+#ifdef __EMSCRIPTEN__
+        // The browser drives the loop: one update() per animation frame. With simulate_infinite_loop,
+        // exec() never returns, so main()'s stack (and this Thorin on it) stays alive.
+        emscripten_set_main_loop_arg(
+            [](void* arg) {
+                auto& app = *static_cast<Thorin*>(arg);
+                app.update();
+
+                if (app.shouldExit_) {
+                    emscripten_cancel_main_loop();
+                    app.destroy();
+                    logger().info("thorin exiting with code {} after {} frames", app.exitCode_, app.frame_);
+                }
+            }, this, 0, true
+        );
+#endif
 
         while(!shouldExit_) {
             update();

@@ -18,8 +18,9 @@ namespace thorin {
         create_window(0);
         create_context();
 
-        [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOther(handle_);
-        THORIN_DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOther failed");
+        if (!ImGui_ImplSDL3_InitForOther(handle_)) {
+            fail("ImGui_ImplSDL3_InitForOther failed");
+        }
 
         // Like ImGui's null renderer: the atlas builds on demand, and update() acknowledges texture
         // requests without uploading anything.

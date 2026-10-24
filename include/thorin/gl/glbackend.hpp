@@ -10,8 +10,8 @@
 #include "thorin/gpubackend.hpp"
 
 namespace thorin {
-    // OpenGL core-profile backend (3.3 by default, see GLBackendConfig): an SDL GL context and
-    // ImGui context per window.
+    // OpenGL backend, core profile or GLES (3.3 core by default, GLES 3.0 on Emscripten; see
+    // GLBackendConfig): an SDL GL context and ImGui context per window.
     class GLBackend: public GPUBackend {
         SDL_GLContext glContext_;
         GLBackendConfig glConfig_;
