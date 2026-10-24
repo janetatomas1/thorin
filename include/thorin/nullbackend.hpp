@@ -1,0 +1,16 @@
+#pragma once
+
+#include "thorin/gpubackend.hpp"
+
+namespace thorin {
+    // Backend without a graphics API: a plain SDL window and ImGui / ImPlot / ImPlot3D contexts per window.
+    // Frames are built (layout, widgets, events) but nothing is drawn or presented.
+    class NullBackend: public GPUBackend {
+    public:
+        NullBackend(const WindowConfig &config = {});
+        void init() override;
+        void destroy() override;
+        void update(Widget *rootWidget) override;
+        void make_current() override;
+    };
+}

@@ -22,6 +22,7 @@ set(
     ${THORIN_SOURCE_DIR}/widget.cpp
     ${THORIN_SOURCE_DIR}/layout.cpp
     ${THORIN_SOURCE_DIR}/gpubackend.cpp
+    ${THORIN_SOURCE_DIR}/nullbackend.cpp
     ${THORIN_SOURCE_DIR}/button.cpp
     ${THORIN_SOURCE_DIR}/checkbox.cpp
     ${THORIN_SOURCE_DIR}/radiobutton.cpp
