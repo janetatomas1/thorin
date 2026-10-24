@@ -9,12 +9,14 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Added
 
+- `Thorin::window_count()`.
 - `NullBackend`: an SDL window and ImGui context without a graphics API. Frames are built (layout,
   widgets, events) but nothing is drawn; texture requests are acknowledged without uploading.
 - `thorin::extras` library (`THORIN_EXTRAS`, ON by default): `ChartWidget`, `Chart3DWidget` and their
   series moved there, under `thorin/extras/`. It is the only part that links implot / implot3d.
-- `ChartTheme` and `set_chart_theme()`: the ImPlot / ImPlot3D styles and an optional series palette,
-  applied to each window's plot contexts the next time it draws a chart. The plot contexts are created
+- `ChartTheme` and `set_chart_theme(app, theme)`: the ImPlot / ImPlot3D styles and an optional series
+  palette. Like `set_theme()`, it is applied between frames, re-measures every window and redraws; each
+  window's plot contexts pick it up the next time it draws a chart. The plot contexts are created
   on a window's first chart and destroyed with its ImGui context.
 
 - `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
@@ -31,6 +33,7 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Fixed
 
+- `Thorin::get_window_at()` returns `nullptr` for an index out of range, as documented, instead of asserting.
 - `maximize()`, `minimize()`, `set_size()` and `set_title()` no longer touch a closed window: their
   queued actions go through `Window::post()` instead of capturing the backend.
 

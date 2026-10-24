@@ -244,6 +244,10 @@ namespace thorin {
         return windowManager_.add_window(std::make_unique<Window>(make_backend(config)));
     }
 
+    size_t Thorin::window_count() const {
+        return windowManager_.count();
+    }
+
     Window* Thorin::get_window_at(size_t index) {
         return windowManager_.get_window_at(index);
     }

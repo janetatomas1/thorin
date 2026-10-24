@@ -124,6 +124,8 @@ namespace thorin {
         uint64_t add_window(WindowConfig config, Args &&... args);
         template<WidgetConcept W, typename... Args>
         uint64_t add_window(Args &&... args);
+        // Open windows, for get_window_at().
+        [[nodiscard]] size_t window_count() const;
         // nullptr when there is no such window.
         Window* get_window_at(size_t index);
         Window* get_window(uint64_t id);

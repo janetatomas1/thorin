@@ -8,6 +8,9 @@
 
 #include "thorin/extras/charttheme.hpp"
 
+#include "thorin/thorin.hpp"
+#include "thorin/window.hpp"
+
 namespace thorin {
     namespace {
         struct ChartContexts {
@@ -55,9 +58,20 @@ namespace thorin {
         }
     }
 
-    void set_chart_theme(const ChartTheme& theme) {
-        state().theme = theme;
-        ++state().version;
+    void set_chart_theme(Thorin& app, const ChartTheme& theme) {
+        DEBUG_ASSERT(theme.palette.size() != 1, "a chart palette needs at least two colours");
+
+        // Deferred: charts drawn earlier in the frame would keep the old style.
+        app.add_action([&app, theme]() {
+            state().theme = theme;
+            ++state().version;
+
+            // PlotDefaultSize changes the charts' measured size.
+            for (size_t i = 0; i < app.window_count(); ++i) {
+                app.get_window_at(i)->root_widget()->layout().mark_dirty_tree();
+            }
+            app.request_redraw();
+        });
     }
 
     const ChartTheme& chart_theme() {

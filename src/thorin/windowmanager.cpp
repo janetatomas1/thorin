@@ -259,7 +259,9 @@ namespace thorin {
     }
 
     Window* WindowManager::get_window_at(const size_t index) {
-        DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
+        if (index >= windows_.size()) {
+            return nullptr;
+        }
         return windows_[index].get();
     }
 
