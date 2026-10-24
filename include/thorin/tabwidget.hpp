@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/container.hpp"
 
@@ -58,7 +58,7 @@ namespace thorin {
         // Same as above for a page built by the caller; takes ownership of it.
         template <WidgetConcept W>
         W& add_tab(std::unique_ptr<W> page) {
-            DEBUG_ASSERT(page != nullptr, "TabWidget::add_tab called with null");
+            THORIN_DEBUG_ASSERT(page != nullptr, "TabWidget::add_tab called with null");
             auto& ref = *page;
             attach_page(std::move(page));
             return ref;

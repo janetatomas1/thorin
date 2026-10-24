@@ -1,7 +1,7 @@
 #include <utility>
 #include <cstring>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/window.hpp"
 #include "thorin/thorin.hpp"
@@ -18,8 +18,8 @@ namespace thorin {
     Window& Window::operator=(Window&& window) noexcept = default;
 
     void Window::init() {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::init called with no backend");
-        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::init called with no root widget");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::init called with no backend");
+        THORIN_DEBUG_ASSERT(rootWidget_ != nullptr, "Window::init called with no root widget");
         backend_->set_window(this);
         rootWidget_->set_window(this);
 
@@ -44,21 +44,21 @@ namespace thorin {
     }
 
     void Window::destroy() {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::destroy called with no backend");
-        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::destroy called with no root widget");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::destroy called with no backend");
+        THORIN_DEBUG_ASSERT(rootWidget_ != nullptr, "Window::destroy called with no root widget");
         // Before the backend, so widgets can still release what they hold in it.
         rootWidget_->destroy();
         backend_->destroy();
     }
 
     void Window::update() {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::update called with no backend");
-        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::update called with no root widget");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::update called with no backend");
+        THORIN_DEBUG_ASSERT(rootWidget_ != nullptr, "Window::update called with no root widget");
         backend_->update(rootWidget_.get());
     }
 
     void Window::close() {
-        DEBUG_ASSERT(manager_ != nullptr, "Window::close called before set_window_manager");
+        THORIN_DEBUG_ASSERT(manager_ != nullptr, "Window::close called before set_window_manager");
         manager_->remove_window(id_);
     }
 
@@ -71,7 +71,7 @@ namespace thorin {
     }
 
     Thorin& Window::app() {
-        DEBUG_ASSERT(manager_ != nullptr, "Window::app called before set_window_manager");
+        THORIN_DEBUG_ASSERT(manager_ != nullptr, "Window::app called before set_window_manager");
         return manager_->app();
     }
 
@@ -80,12 +80,12 @@ namespace thorin {
     }
 
     void Window::set_window_manager(WindowManager* manager) {
-        DEBUG_ASSERT(manager != nullptr, "set_window_manager called with null manager");
+        THORIN_DEBUG_ASSERT(manager != nullptr, "set_window_manager called with null manager");
         manager_ = manager;
     }
 
     void Window::set_root_widget(std::unique_ptr<Widget> widget) {
-        DEBUG_ASSERT(widget != nullptr, "set_root_widget called with null widget");
+        THORIN_DEBUG_ASSERT(widget != nullptr, "set_root_widget called with null widget");
 
         widget->set_window(this);
         app().add_action([this, widget = std::move(widget)]() mutable  {
@@ -107,48 +107,48 @@ namespace thorin {
     }
 
     void Window::maximize() {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::maximize called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::maximize called with no backend");
         backend_->maximize();
     }
 
     void Window::minimize() {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::minimize called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::minimize called with no backend");
         backend_->minimize();
     }
 
     void Window::set_size(int width, int height) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_size called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_size called with no backend");
         backend_->set_size(width, height);
     }
 
     void Window::set_title(const std::string &title) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_title called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_title called with no backend");
         backend_->set_title(title);
     }
 
     const std::string& Window::title() const {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::title called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::title called with no backend");
         return backend_->title();
     }
 
     int Window::height() const {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::height called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::height called with no backend");
         return backend_->height();
     }
 
     int Window::width() const {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::width called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::width called with no backend");
         return backend_->width();
     }
 
     ImFont* Window::load_font(const std::filesystem::path& path) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
         backend_->make_current();
         return ImGui::GetIO().Fonts->AddFontFromFileTTF(path.string().c_str());
     }
 
     ImFont* Window::load_font(std::span<const std::byte> data) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::load_font called with no backend");
         backend_->make_current();
         // The atlas owns (and frees) its copy of the data.
         void* copy = IM_ALLOC(data.size());
@@ -157,8 +157,8 @@ namespace thorin {
     }
 
     void Window::set_font(ImFont* font) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_font called with no backend");
-        DEBUG_ASSERT(rootWidget_ != nullptr, "Window::set_font called with no root widget");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_font called with no backend");
+        THORIN_DEBUG_ASSERT(rootWidget_ != nullptr, "Window::set_font called with no root widget");
         backend_->make_current();
         ImGui::GetIO().FontDefault = font;
         // Every widget is measured with the font, so the whole tree needs a new layout.
@@ -166,28 +166,28 @@ namespace thorin {
     }
 
     void Window::set_background(const Image* image, float opacity) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_background called with no backend");
-        DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_background called with no backend");
+        THORIN_DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
         backend_->set_background(image, opacity);
     }
 
     const Image* Window::background() const {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::background called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::background called with no backend");
         return backend_->background();
     }
 
     void Window::set_icon(const Image* image) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_icon called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_icon called with no backend");
         backend_->set_icon(image);
     }
 
     const Image* Window::icon() const {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::icon called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::icon called with no backend");
         return backend_->icon();
     }
 
     void Window::set_background_painter(BackgroundPainter painter) {
-        DEBUG_ASSERT(backend_ != nullptr, "Window::set_background_painter called with no backend");
+        THORIN_DEBUG_ASSERT(backend_ != nullptr, "Window::set_background_painter called with no backend");
         backend_->set_background_painter(std::move(painter));
     }
 

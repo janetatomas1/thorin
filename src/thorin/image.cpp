@@ -2,7 +2,7 @@
 #include <iterator>
 #include <utility>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 // Static, so it can't clash with another copy of stb_image linked into the app.
 #define STB_IMAGE_STATIC
@@ -15,8 +15,8 @@
 namespace thorin {
     Image::Image(int width, int height, std::vector<std::byte> rgba)
     : pixels_(std::move(rgba)), width_(width), height_(height) {
-        DEBUG_ASSERT(width > 0 && height > 0, "Image with an empty size", width, height);
-        DEBUG_ASSERT(
+        THORIN_DEBUG_ASSERT(width > 0 && height > 0, "Image with an empty size", width, height);
+        THORIN_DEBUG_ASSERT(
             pixels_.size() == static_cast<size_t>(width) * static_cast<size_t>(height) * 4,
             "Image pixels don't match its size", pixels_.size(), width, height
         );

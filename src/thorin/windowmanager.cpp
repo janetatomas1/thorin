@@ -3,7 +3,7 @@
 
 #include <imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/windowmanager.hpp"
 #include "thorin/thorin.hpp"
@@ -102,10 +102,10 @@ namespace thorin {
 
     void WindowManager::init() {
         [[maybe_unused]] bool ok = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS);
-        DEBUG_ASSERT(ok, "SDL_Init failed", SDL_GetError());
+        THORIN_DEBUG_ASSERT(ok, "SDL_Init failed", SDL_GetError());
 
         wakeEvent_ = SDL_RegisterEvents(1);
-        DEBUG_ASSERT(wakeEvent_ != 0, "SDL_RegisterEvents failed");
+        THORIN_DEBUG_ASSERT(wakeEvent_ != 0, "SDL_RegisterEvents failed");
     }
 
     void WindowManager::wake() {
@@ -119,17 +119,17 @@ namespace thorin {
     }
 
     void WindowManager::set_frame_config(const FrameConfig &config) {
-        DEBUG_ASSERT(config.targetFps > 0, "targetFps must be positive", config.targetFps);
-        DEBUG_ASSERT(config.minSleepMs >= 0, "minSleepMs is negative", config.minSleepMs);
-        DEBUG_ASSERT(config.delayMs >= 0, "delayMs is negative", config.delayMs);
-        DEBUG_ASSERT(config.idleTimeoutMs >= -1, "idleTimeoutMs is below -1", config.idleTimeoutMs);
-        DEBUG_ASSERT(config.idleFps > 0, "idleFps must be positive", config.idleFps);
-        DEBUG_ASSERT(config.activeTimeoutMs >= 0, "activeTimeoutMs is negative", config.activeTimeoutMs);
+        THORIN_DEBUG_ASSERT(config.targetFps > 0, "targetFps must be positive", config.targetFps);
+        THORIN_DEBUG_ASSERT(config.minSleepMs >= 0, "minSleepMs is negative", config.minSleepMs);
+        THORIN_DEBUG_ASSERT(config.delayMs >= 0, "delayMs is negative", config.delayMs);
+        THORIN_DEBUG_ASSERT(config.idleTimeoutMs >= -1, "idleTimeoutMs is below -1", config.idleTimeoutMs);
+        THORIN_DEBUG_ASSERT(config.idleFps > 0, "idleFps must be positive", config.idleFps);
+        THORIN_DEBUG_ASSERT(config.activeTimeoutMs >= 0, "activeTimeoutMs is negative", config.activeTimeoutMs);
         frameConfig_ = config;
     }
 
     void WindowManager::request_redraw(int frames) {
-        DEBUG_ASSERT(frames >= 0, "request_redraw called with a negative frame count", frames);
+        THORIN_DEBUG_ASSERT(frames >= 0, "request_redraw called with a negative frame count", frames);
         redrawFrames_ = std::max(redrawFrames_, frames);
     }
 
@@ -139,7 +139,7 @@ namespace thorin {
 
     void WindowManager::wait() {
         const auto index = static_cast<size_t>(frameConfig_.policy);
-        DEBUG_ASSERT(index < waits.size(), "unknown frame policy", index);
+        THORIN_DEBUG_ASSERT(index < waits.size(), "unknown frame policy", index);
 
         const float refreshRate = frameConfig_.policy == FramePolicy::DisplayMatched ? refresh_rate() : 0.0f;
         const bool isFocused = frameConfig_.policy == FramePolicy::FocusBased && focused();
@@ -204,7 +204,7 @@ namespace thorin {
             }
 
             if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-                DEBUG_ASSERT(target != nullptr, "close-requested event for untracked window");
+                THORIN_DEBUG_ASSERT(target != nullptr, "close-requested event for untracked window");
                 target->close();
             }
 
@@ -244,7 +244,7 @@ namespace thorin {
     }
 
     uint64_t WindowManager::add_window(std::unique_ptr<Window> window) {
-        DEBUG_ASSERT(window != nullptr, "add_window called with a null window");
+        THORIN_DEBUG_ASSERT(window != nullptr, "add_window called with a null window");
 
         const uint64_t id = window->id();
         window->set_window_manager(this);
@@ -279,7 +279,7 @@ namespace thorin {
     }
 
     void WindowManager::remove_window_at(size_t index) {
-        DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
+        THORIN_DEBUG_ASSERT(index < windows_.size(), "window index out of range", index, windows_.size());
         remove_window(windows_[index]->id());
     }
 

@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/dockarea.hpp"
 #include "thorin/thorin.hpp"
@@ -17,7 +17,7 @@ namespace thorin {
 
     void DockArea::remove_pane(size_t index) {
         post([index](auto& self) {
-            DEBUG_ASSERT(index < self.count(), "DockArea::remove_pane index out of range", index, self.count());
+            THORIN_DEBUG_ASSERT(index < self.count(), "DockArea::remove_pane index out of range", index, self.count());
             // The pane's window is no longer submitted, so ImGui drops it from its node.
             self.remove(index);
         });

@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_opengl3.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/gl/glbackend.hpp"
 
@@ -21,7 +21,7 @@ namespace thorin {
     namespace {
         // GLSL version of a core-profile GL version: 3.2 -> 150, from 3.3 on it matches (4.1 -> 410).
         int glsl_version(int major, int minor) {
-            DEBUG_ASSERT(major > 3 || (major == 3 && minor >= 2), "core profile needs GL 3.2 or later", major, minor);
+            THORIN_DEBUG_ASSERT(major > 3 || (major == 3 && minor >= 2), "core profile needs GL 3.2 or later", major, minor);
             if (major == 3 && minor == 2) {
                 return 150;
             }
@@ -35,7 +35,7 @@ namespace thorin {
     ) : GPUBackend(config), glContext_(nullptr), glConfig_(glConfig) {}
 
     void GLBackend::init() {
-        DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
+        THORIN_DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glConfig_.majorVersion);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glConfig_.minorVersion);
@@ -47,10 +47,10 @@ namespace thorin {
         create_window(SDL_WINDOW_OPENGL);
 
         glContext_ = SDL_GL_CreateContext(handle_);
-        DEBUG_ASSERT(glContext_ != nullptr, "SDL_GL_CreateContext failed", SDL_GetError());
+        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "SDL_GL_CreateContext failed", SDL_GetError());
 
         [[maybe_unused]] bool currentOk = SDL_GL_MakeCurrent(handle_, glContext_);
-        DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
+        THORIN_DEBUG_ASSERT(currentOk, "SDL_GL_MakeCurrent failed", SDL_GetError());
 
         // No vsync: the frame policy paces the loop (DisplayMatched for the display's rate). Vsync would
         // stack one refresh wait per window.
@@ -66,7 +66,7 @@ namespace thorin {
         create_context();
 
         [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, glContext_);
-        DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
+        THORIN_DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
 
         // ImGui copies the string.
         const std::string glslVersion = std::format(
@@ -74,7 +74,7 @@ namespace thorin {
             glsl_version(glConfig_.majorVersion, glConfig_.minorVersion)
         );
         [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glslVersion.c_str());
-        DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glslVersion);
+        THORIN_DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glslVersion);
 
         logger().info(
             "window {} '{}' created {}x{}, OpenGL {} on {}, scale {}",
@@ -89,8 +89,8 @@ namespace thorin {
     }
 
     void GLBackend::destroy() {
-        DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
-        DEBUG_ASSERT(glContext_ != nullptr, "GLBackend::destroy called with no gl context");
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "GLBackend::destroy called with no gl context");
 
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 
@@ -142,8 +142,8 @@ namespace thorin {
     }
 
     void GLBackend::make_current() {
-        DEBUG_ASSERT(handle_ != nullptr, "make_current called with no window handle");
-        DEBUG_ASSERT(glContext_ != nullptr, "make_current called with no gl context");
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "make_current called with no window handle");
+        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "make_current called with no gl context");
 
         SDL_GL_MakeCurrent(handle_, glContext_);
         // Each window registers its own context in globjects::init.

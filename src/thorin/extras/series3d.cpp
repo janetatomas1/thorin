@@ -2,7 +2,7 @@
 #include <format>
 
 #include <implot3d.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/extras/series3d.hpp"
 #include "thorin/thorin.hpp"
@@ -77,7 +77,7 @@ namespace thorin {
     }
 
     int XYZSeries::offset() const {
-        DEBUG_ASSERT(
+        THORIN_DEBUG_ASSERT(
             thorin::offset(xs_) == thorin::offset(ys_) && thorin::offset(xs_) == thorin::offset(zs_),
             "XYZSeries: xs, ys and zs rings out of step",
             thorin::offset(xs_), thorin::offset(ys_), thorin::offset(zs_)

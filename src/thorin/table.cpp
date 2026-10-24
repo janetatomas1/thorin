@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <string>
 
+#include "thorin/assert.hpp"
 #include "thorin/table.hpp"
 
 using namespace thorin::literals;
@@ -8,13 +9,13 @@ using namespace thorin::literals;
 namespace thorin {
     Table::Table(std::vector<std::string> headers, Widget* parent)
     : Widget("", parent), headers_(std::move(headers)), sizing_(headers_.size()) {
-        DEBUG_ASSERT(!headers_.empty(), "Table needs at least one column");
+        THORIN_DEBUG_ASSERT(!headers_.empty(), "Table needs at least one column");
         layout().enable_measure();
         width(100_pcts);
     }
 
     Table::Table(size_t columns, Widget* parent): Widget("", parent), sizing_(columns), showHeaders_(false) {
-        DEBUG_ASSERT(columns > 0, "Table needs at least one column");
+        THORIN_DEBUG_ASSERT(columns > 0, "Table needs at least one column");
         // ImGui still wants a name per column; "##" ones are ids only.
         for (size_t i = 0; i < columns; ++i) {
             headers_.push_back("##" + std::to_string(i));
@@ -48,16 +49,16 @@ namespace thorin {
     }
 
     Table& Table::set_column_width(size_t index, float width) {
-        DEBUG_ASSERT(index < columns(), "Table::set_column_width index out of range", index, columns());
-        DEBUG_ASSERT(width > 0.0f, "Table::set_column_width needs a positive width", width);
+        THORIN_DEBUG_ASSERT(index < columns(), "Table::set_column_width index out of range", index, columns());
+        THORIN_DEBUG_ASSERT(width > 0.0f, "Table::set_column_width needs a positive width", width);
         sizing_[index] = {ImGuiTableColumnFlags_WidthFixed, width};
         layout().mark_dirty();
         return *this;
     }
 
     Table& Table::set_column_stretch(size_t index, float weight) {
-        DEBUG_ASSERT(index < columns(), "Table::set_column_stretch index out of range", index, columns());
-        DEBUG_ASSERT(weight > 0.0f, "Table::set_column_stretch needs a positive weight", weight);
+        THORIN_DEBUG_ASSERT(index < columns(), "Table::set_column_stretch index out of range", index, columns());
+        THORIN_DEBUG_ASSERT(weight > 0.0f, "Table::set_column_stretch needs a positive weight", weight);
         sizing_[index] = {ImGuiTableColumnFlags_WidthStretch, weight};
         layout().mark_dirty();
         return *this;

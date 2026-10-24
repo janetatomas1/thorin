@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/selectable.hpp"
 #include "thorin/thorin.hpp"
@@ -26,7 +26,7 @@ namespace thorin {
 
     Selectable& Selectable::remove_item(size_t index) {
         post([index](auto& self) {
-            DEBUG_ASSERT(index < self.labels_.size(), "Selectable::remove_item index out of range", index, self.labels_.size());
+            THORIN_DEBUG_ASSERT(index < self.labels_.size(), "Selectable::remove_item index out of range", index, self.labels_.size());
             self.labels_.erase(self.labels_.begin() + static_cast<std::ptrdiff_t>(index));
             self.selected_.erase(self.selected_.begin() + static_cast<std::ptrdiff_t>(index));
             self.layout().mark_dirty();
@@ -39,17 +39,17 @@ namespace thorin {
     }
 
     const std::string& Selectable::label(size_t index) const {
-        DEBUG_ASSERT(index < labels_.size(), "Selectable::label index out of range", index, labels_.size());
+        THORIN_DEBUG_ASSERT(index < labels_.size(), "Selectable::label index out of range", index, labels_.size());
         return labels_[index];
     }
 
     bool Selectable::is_selected(size_t index) const {
-        DEBUG_ASSERT(index < selected_.size(), "Selectable::is_selected index out of range", index, selected_.size());
+        THORIN_DEBUG_ASSERT(index < selected_.size(), "Selectable::is_selected index out of range", index, selected_.size());
         return selected_[index];
     }
 
     Selectable& Selectable::set_selected(size_t index, bool selected) {
-        DEBUG_ASSERT(index < selected_.size(), "Selectable::set_selected index out of range", index, selected_.size());
+        THORIN_DEBUG_ASSERT(index < selected_.size(), "Selectable::set_selected index out of range", index, selected_.size());
         selected_[index] = selected;
         return *this;
     }

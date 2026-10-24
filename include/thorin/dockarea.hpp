@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/container.hpp"
 #include "thorin/pane.hpp"
@@ -44,7 +44,7 @@ namespace thorin {
         // Same as above for a pane built by the caller; takes ownership of it.
         template <std::derived_from<Pane> P>
         P& add_pane(std::unique_ptr<P> pane) {
-            DEBUG_ASSERT(pane != nullptr, "DockArea::add_pane called with null");
+            THORIN_DEBUG_ASSERT(pane != nullptr, "DockArea::add_pane called with null");
             auto& ref = *pane;
             attach_pane(std::move(pane));
             return ref;

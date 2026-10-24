@@ -1,5 +1,5 @@
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/radiobutton.hpp"
 #include "thorin/thorin.hpp"
@@ -7,19 +7,19 @@
 namespace thorin {
     RadioButton::RadioButton(const std::string& title, int* groupValue, int value, Widget* parent)
     : Widget(title, parent), groupValue_(groupValue), value_(value) {
-        DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
+        THORIN_DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
         layout().enable_measure();
     }
 
     RadioButton::RadioButton(const std::string& title, int* groupValue, int value,
                               std::function<void()> onSelect, Widget* parent)
     : Widget(title, parent), groupValue_(groupValue), value_(value), onSelect_(std::move(onSelect)) {
-        DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
+        THORIN_DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton requires a non-null groupValue pointer", title);
         layout().enable_measure();
     }
 
     bool RadioButton::show() {
-        DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::show called with no groupValue bound");
+        THORIN_DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::show called with no groupValue bound");
 
         bool wasSelected = selected();
         bool clicked = ImGui::RadioButton(title_id().c_str(), groupValue_, value_);
@@ -47,12 +47,12 @@ namespace thorin {
     }
 
     bool RadioButton::selected() const {
-        DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::selected called with no groupValue bound");
+        THORIN_DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::selected called with no groupValue bound");
         return *groupValue_ == value_;
     }
 
     void RadioButton::select() {
-        DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::select called with no groupValue bound");
+        THORIN_DEBUG_ASSERT(groupValue_ != nullptr, "RadioButton::select called with no groupValue bound");
         *groupValue_ = value_;
     }
 

@@ -1,5 +1,5 @@
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -20,11 +20,11 @@ namespace thorin {
             float height,
             YGMeasureMode heightMode
         ) {
-            DEBUG_ASSERT(ImGui::GetCurrentContext() != nullptr, "measure called with no ImGui context");
+            THORIN_DEBUG_ASSERT(ImGui::GetCurrentContext() != nullptr, "measure called with no ImGui context");
 
             auto layout = static_cast<Layout*>(YGNodeGetContext(node));
-            DEBUG_ASSERT(layout != nullptr, "measured Yoga node has no Layout context");
-            DEBUG_ASSERT(layout->owner() != nullptr, "measured Layout has no owner");
+            THORIN_DEBUG_ASSERT(layout != nullptr, "measured Yoga node has no Layout context");
+            THORIN_DEBUG_ASSERT(layout->owner() != nullptr, "measured Layout has no owner");
 
             // Layout runs before anything is drawn, so no ancestor's style is pushed yet. Push
             // them root first, as draw() would have, so the widget measures as it is drawn.
@@ -56,7 +56,7 @@ namespace thorin {
     }
 
     Layout::Layout(): node_(YGNodeNew()) {
-        DEBUG_ASSERT(node_ != nullptr, "YGNodeNew failed");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "YGNodeNew failed");
         YGNodeSetContext(node_, this);
     }
 
@@ -105,7 +105,7 @@ namespace thorin {
     }
 
     YGNodeRef Layout::node() {
-        DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "Layout::node called on moved-from Layout");
         return node_;
     }
 
@@ -118,14 +118,14 @@ namespace thorin {
     }
 
     void Layout::enable_measure() {
-        DEBUG_ASSERT(node_ != nullptr, "enable_measure called on moved-from Layout");
-        DEBUG_ASSERT(YGNodeGetChildCount(node_) == 0, "enable_measure: measured nodes must be leaves");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "enable_measure called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(YGNodeGetChildCount(node_) == 0, "enable_measure: measured nodes must be leaves");
 
         YGNodeSetMeasureFunc(node_, measure_trampoline);
     }
 
     void Layout::mark_dirty() {
-        DEBUG_ASSERT(node_ != nullptr, "mark_dirty called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "mark_dirty called on moved-from Layout");
 
         if (YGNodeHasMeasureFunc(node_)) {
             YGNodeMarkDirty(node_);
@@ -141,7 +141,7 @@ namespace thorin {
     }
 
     void Layout::remove_from_parent() {
-        DEBUG_ASSERT(node_ != nullptr, "remove_from_parent called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "remove_from_parent called on moved-from Layout");
 
         if (auto parent = YGNodeGetParent(node_); parent != nullptr) {
             YGNodeRemoveChild(parent, node_);
@@ -149,22 +149,22 @@ namespace thorin {
     }
 
     void Layout::add_child(Layout &child, size_t index) {
-        DEBUG_ASSERT(node_ != nullptr, "add_child called on moved-from Layout");
-        DEBUG_ASSERT(child.node_ != nullptr, "add_child called with moved-from child");
-        DEBUG_ASSERT(&child != this, "add_child: cannot add a Layout as its own child");
-        DEBUG_ASSERT(!YGNodeHasMeasureFunc(node_), "add_child: measured nodes must be leaves");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "add_child called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(child.node_ != nullptr, "add_child called with moved-from child");
+        THORIN_DEBUG_ASSERT(&child != this, "add_child: cannot add a Layout as its own child");
+        THORIN_DEBUG_ASSERT(!YGNodeHasMeasureFunc(node_), "add_child: measured nodes must be leaves");
 
         size_t count = YGNodeGetChildCount(node_);
         size_t idx = index == std::string::npos ? count : index;
-        DEBUG_ASSERT(idx <= count, "add_child index out of range", idx, count);
+        THORIN_DEBUG_ASSERT(idx <= count, "add_child index out of range", idx, count);
 
         YGNodeInsertChild(node_, child.node(), idx);
     }
 
     void Layout::calculate_layout(float width, float height) {
-        DEBUG_ASSERT(node_ != nullptr, "calculate_layout called on moved-from Layout");
-        DEBUG_ASSERT(width >= 0.0f, "calculate_layout: negative width", width);
-        DEBUG_ASSERT(height >= 0.0f, "calculate_layout: negative height", height);
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "calculate_layout called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(width >= 0.0f, "calculate_layout: negative width", width);
+        THORIN_DEBUG_ASSERT(height >= 0.0f, "calculate_layout: negative height", height);
 
         YGNodeCalculateLayout(node_, width, height, YGDirectionLTR);
         calculate_position();
@@ -179,7 +179,7 @@ namespace thorin {
     }
 
     void Layout::calculate_position() {
-        DEBUG_ASSERT(node_ != nullptr, "calculate_position called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "calculate_position called on moved-from Layout");
 
         auto parentLayout = parent();
 
@@ -223,7 +223,7 @@ namespace thorin {
     }
 
     Layout* Layout::parent() {
-        DEBUG_ASSERT(node_ != nullptr, "Layout::parent called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "Layout::parent called on moved-from Layout");
 
         auto parent = YGNodeGetParent(node_);
 
@@ -235,21 +235,21 @@ namespace thorin {
     }
 
     size_t Layout::child_count() {
-        DEBUG_ASSERT(node_ != nullptr, "Layout::child_count called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "Layout::child_count called on moved-from Layout");
         return YGNodeGetChildCount(node_);
     }
 
     Layout* Layout::child(size_t index) {
-        DEBUG_ASSERT(node_ != nullptr, "Layout::child called on moved-from Layout");
-        DEBUG_ASSERT(index < child_count(), "Layout::child index out of range", index, child_count());
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "Layout::child called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(index < child_count(), "Layout::child index out of range", index, child_count());
 
         auto layout = static_cast<Layout*>(YGNodeGetContext(YGNodeGetChild(node_, index)));
-        DEBUG_ASSERT(layout != nullptr, "Yoga child node has no Layout context", index);
+        THORIN_DEBUG_ASSERT(layout != nullptr, "Yoga child node has no Layout context", index);
         return layout;
     }
 
     bool Layout::visible() {
-        DEBUG_ASSERT(node_ != nullptr, "Layout::visible called on moved-from Layout");
+        THORIN_DEBUG_ASSERT(node_ != nullptr, "Layout::visible called on moved-from Layout");
         return YGNodeStyleGetDisplay(node_) != YGDisplayNone;
     }
 

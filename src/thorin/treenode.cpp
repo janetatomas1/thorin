@@ -1,5 +1,5 @@
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/treenode.hpp"
 #include "thorin/thorin.hpp"
@@ -19,7 +19,7 @@ namespace thorin {
     TreeNode& TreeNode::Header::node() {
         // Through the Yoga tree rather than a stored pointer, so it follows a moved node.
         auto* node = static_cast<TreeNode*>(parent());
-        DEBUG_ASSERT(node != nullptr, "TreeNode::Header has no TreeNode");
+        THORIN_DEBUG_ASSERT(node != nullptr, "TreeNode::Header has no TreeNode");
         return *node;
     }
 
@@ -89,7 +89,7 @@ namespace thorin {
     void TreeNode::display_children() {
         for (size_t i = 1; i < layout().child_count(); ++i) {
             Widget* child = layout().child(i)->owner();
-            DEBUG_ASSERT(child != nullptr, "TreeNode child Layout has no owner", i);
+            THORIN_DEBUG_ASSERT(child != nullptr, "TreeNode child Layout has no owner", i);
             child->display(open_ ? YGDisplayFlex : YGDisplayNone);
         }
     }

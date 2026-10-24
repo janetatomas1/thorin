@@ -3,7 +3,7 @@
 #include <cmath>
 #include <format>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/widget.hpp"
 #include "thorin/thorin.hpp"
@@ -14,7 +14,7 @@ namespace thorin {
     title_(title),
     titleID_(std::format("{}##{}", title, id_)) {
         const bool inserted = registry_.emplace(id_, this).second;
-        DEBUG_ASSERT(inserted, "Widget id collision", id_);
+        THORIN_DEBUG_ASSERT(inserted, "Widget id collision", id_);
 
         layout_.set_owner(this);
         if (parent != nullptr) {
@@ -72,7 +72,7 @@ namespace thorin {
     void Widget::init() {
         for (size_t i = 0; i < layout_.child_count(); ++i) {
             auto owner = layout_.child(i)->owner();
-            DEBUG_ASSERT(owner != nullptr, "Widget::init: child Layout has no owner", i);
+            THORIN_DEBUG_ASSERT(owner != nullptr, "Widget::init: child Layout has no owner", i);
             owner->init();
         }
     }
@@ -81,7 +81,7 @@ namespace thorin {
         // Reverse of init(): later children may depend on earlier ones.
         for (size_t i = layout_.child_count(); i-- > 0;) {
             auto owner = layout_.child(i)->owner();
-            DEBUG_ASSERT(owner != nullptr, "Widget::destroy: child Layout has no owner", i);
+            THORIN_DEBUG_ASSERT(owner != nullptr, "Widget::destroy: child Layout has no owner", i);
             owner->destroy();
         }
     }
@@ -247,7 +247,7 @@ namespace thorin {
             }
 
             auto owner = child->owner();
-            DEBUG_ASSERT(owner != nullptr, "Widget::show: child Layout has no owner", i);
+            THORIN_DEBUG_ASSERT(owner != nullptr, "Widget::show: child Layout has no owner", i);
             changed |= owner->render();
         }
 
@@ -260,7 +260,7 @@ namespace thorin {
         }
 
         auto p = parent();
-        DEBUG_ASSERT(p != nullptr, "Widget::window: no window_ and no parent to fall back to", title_);
+        THORIN_DEBUG_ASSERT(p != nullptr, "Widget::window: no window_ and no parent to fall back to", title_);
         return p->window();
     }
 
@@ -274,7 +274,7 @@ namespace thorin {
     }
 
     void Widget::set_parent(Widget* parent) {
-        DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
+        THORIN_DEBUG_ASSERT(parent != this, "set_parent: cannot set a Widget as its own parent");
 
         // The Yoga tree is the only record of parenthood. Only touch it when
         // the parent actually changes, so re-asserting the same parent

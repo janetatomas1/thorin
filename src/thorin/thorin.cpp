@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/thorin.hpp"
 #include "thorin/version.hpp"
@@ -22,9 +22,9 @@ namespace thorin {
     }
 
     Thorin::Thorin([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
-        DEBUG_ASSERT(argc >= 0, "argc is negative", argc);
-        DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
-        DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
+        THORIN_DEBUG_ASSERT(argc >= 0, "argc is negative", argc);
+        THORIN_DEBUG_ASSERT(argc == 0 || argv != nullptr, "argv is null but argc is nonzero", argc);
+        THORIN_DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
         current_ = this;
         configure_logging({});
 #ifdef THORIN_GL
@@ -71,7 +71,7 @@ namespace thorin {
     }
 
     Thorin& Thorin::current() {
-        DEBUG_ASSERT(current_ != nullptr, "Thorin::current called with no Thorin instance");
+        THORIN_DEBUG_ASSERT(current_ != nullptr, "Thorin::current called with no Thorin instance");
         return *current_;
     }
 
@@ -148,8 +148,8 @@ namespace thorin {
     }
 
     void Thorin::remove_font(const Font& font) {
-        DEBUG_ASSERT(theme_.font != &font, "remove_font called with the current theme's font");
-        DEBUG_ASSERT(
+        THORIN_DEBUG_ASSERT(theme_.font != &font, "remove_font called with the current theme's font");
+        THORIN_DEBUG_ASSERT(
             std::ranges::any_of(fonts_, [&font](const auto& owned) { return owned.get() == &font; }),
             "remove_font called with a font not from add_font"
         );
@@ -164,16 +164,16 @@ namespace thorin {
     }
 
     void Thorin::remove_image(const Image& image) {
-        DEBUG_ASSERT(
+        THORIN_DEBUG_ASSERT(
             std::ranges::any_of(images_, [&image](const auto& owned) { return owned.get() == &image; }),
             "remove_image called with an image not from add_image"
         );
         add_action([this, &image]() {
-            DEBUG_ASSERT(background_ != &image, "remove_image called with the app's background");
-            DEBUG_ASSERT(icon_ != &image, "remove_image called with the app's icon");
+            THORIN_DEBUG_ASSERT(background_ != &image, "remove_image called with the app's background");
+            THORIN_DEBUG_ASSERT(icon_ != &image, "remove_image called with the app's icon");
             // Checked when it runs, after any set_background() queued before it.
             for (size_t i = 0; i < windowManager_.count(); i++) {
-                DEBUG_ASSERT(
+                THORIN_DEBUG_ASSERT(
                     windowManager_.get_window_at(i)->background() != &image,
                     "remove_image called with an image a window still uses as its background"
                 );
@@ -183,7 +183,7 @@ namespace thorin {
     }
 
     void Thorin::set_background(const Image* image, float opacity) {
-        DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
+        THORIN_DEBUG_ASSERT(opacity >= 0.0f && opacity <= 1.0f, "background opacity out of [0, 1]", opacity);
         background_ = image;
         backgroundOpacity_ = opacity;
     }
@@ -210,7 +210,7 @@ namespace thorin {
 
     std::unique_ptr<GPUBackend> Thorin::make_backend(const WindowConfig &config) {
         // Checked in release too: without a backend the window would crash in init().
-        ASSERT(static_cast<bool>(backendFactory_), "no backend factory; build with THORIN_GL or call set_backend_factory()");
+        THORIN_ASSERT(static_cast<bool>(backendFactory_), "no backend factory; build with THORIN_GL or call set_backend_factory()");
         return backendFactory_(config);
     }
 
@@ -231,7 +231,7 @@ namespace thorin {
     }
 
     void Thorin::add_action(action &&fn, uint64_t delay) {
-        DEBUG_ASSERT(fn != nullptr, "add_action called with an empty/null action");
+        THORIN_DEBUG_ASSERT(fn != nullptr, "add_action called with an empty/null action");
         actionManager_.add_action(std::move(fn), delay);
         windowManager_.wake();
     }

@@ -1,6 +1,6 @@
 #include <SDL3/SDL.h>
 #include <imgui_impl_sdl3.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/nullbackend.hpp"
 
@@ -13,13 +13,13 @@ namespace thorin {
     ) : GPUBackend(config) {}
 
     void NullBackend::init() {
-        DEBUG_ASSERT(window_ != nullptr, "NullBackend::init called before set_window");
+        THORIN_DEBUG_ASSERT(window_ != nullptr, "NullBackend::init called before set_window");
 
         create_window(0);
         create_context();
 
         [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOther(handle_);
-        DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOther failed");
+        THORIN_DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOther failed");
 
         // Like ImGui's null renderer: the atlas builds on demand, and update() acknowledges texture
         // requests without uploading anything.
@@ -36,7 +36,7 @@ namespace thorin {
     }
 
     void NullBackend::destroy() {
-        DEBUG_ASSERT(handle_ != nullptr, "NullBackend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "NullBackend::destroy called with no window handle");
 
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 

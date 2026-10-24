@@ -2,7 +2,7 @@
 #include <array>
 #include <charconv>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/color.hpp"
 
@@ -145,19 +145,19 @@ namespace thorin {
         ImVec4 operator""_rgb(const char* s, std::size_t n) {
             const auto str = trim({s, n});
             const auto c = str.starts_with('#') ? parse_hex(str.substr(1)) : parse_rgb(str);
-            DEBUG_ASSERT(c.has_value(), "invalid rgb colour literal", str);
+            THORIN_DEBUG_ASSERT(c.has_value(), "invalid rgb colour literal", str);
             return c.value_or(ImVec4{});
         }
 
         ImVec4 operator""_hsv(const char* s, std::size_t n) {
             const auto c = parse_hsv({s, n});
-            DEBUG_ASSERT(c.has_value(), "invalid hsv colour literal", std::string_view{s, n});
+            THORIN_DEBUG_ASSERT(c.has_value(), "invalid hsv colour literal", std::string_view{s, n});
             return c.value_or(ImVec4{});
         }
 
         ImVec4 operator""_hsl(const char* s, std::size_t n) {
             const auto c = parse_hsl({s, n});
-            DEBUG_ASSERT(c.has_value(), "invalid hsl colour literal", std::string_view{s, n});
+            THORIN_DEBUG_ASSERT(c.has_value(), "invalid hsl colour literal", std::string_view{s, n});
             return c.value_or(ImVec4{});
         }
     }

@@ -1,5 +1,5 @@
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/radiogroup.hpp"
 
@@ -54,7 +54,7 @@ namespace thorin {
     }
 
     void RadioGroup::set_selected(int index) {
-        DEBUG_ASSERT(index >= 0 && static_cast<size_t>(index) < count(),
+        THORIN_DEBUG_ASSERT(index >= 0 && static_cast<size_t>(index) < count(),
                      "RadioGroup::set_selected index out of range", index, count());
         selected_ = index;
     }

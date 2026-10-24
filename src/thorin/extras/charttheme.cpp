@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/extras/charttheme.hpp"
 
@@ -59,7 +59,7 @@ namespace thorin {
     }
 
     void set_chart_theme(Thorin& app, const ChartTheme& theme) {
-        DEBUG_ASSERT(theme.palette.size() != 1, "a chart palette needs at least two colours");
+        THORIN_DEBUG_ASSERT(theme.palette.size() != 1, "a chart palette needs at least two colours");
 
         // Deferred: charts drawn earlier in the frame would keep the old style.
         app.add_action([&app, theme]() {
@@ -81,7 +81,7 @@ namespace thorin {
     namespace detail {
         void make_chart_contexts_current() {
             ImGuiContext* context = ImGui::GetCurrentContext();
-            DEBUG_ASSERT(context != nullptr, "charts drawn with no imgui context");
+            THORIN_DEBUG_ASSERT(context != nullptr, "charts drawn with no imgui context");
 
             ChartState& chart = state();
             auto [it, created] = chart.contexts.try_emplace(context);

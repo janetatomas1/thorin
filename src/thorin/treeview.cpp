@@ -1,4 +1,4 @@
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/treenode.hpp"
 #include "thorin/treeview.hpp"
@@ -11,7 +11,7 @@ namespace thorin {
     void TreeView::set_all_open(Widget& widget, bool open) {
         for (size_t i = 0; i < widget.layout().child_count(); ++i) {
             Widget* child = widget.layout().child(i)->owner();
-            DEBUG_ASSERT(child != nullptr, "TreeView: child Layout has no owner", i);
+            THORIN_DEBUG_ASSERT(child != nullptr, "TreeView: child Layout has no owner", i);
 
             auto* node = dynamic_cast<TreeNode*>(child);
             if (node != nullptr && !(node->flags() & ImGuiTreeNodeFlags_Leaf)) {

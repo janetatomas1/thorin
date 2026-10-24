@@ -56,7 +56,6 @@ find_package(concurrentqueue REQUIRED)
 find_package(imgui REQUIRED)
 find_package(function2 REQUIRED)
 find_package(yoga REQUIRED)
-find_package(libassert REQUIRED)
 find_package(stb REQUIRED)
 find_package(spdlog REQUIRED)
 
@@ -78,12 +77,18 @@ target_link_libraries(
     imgui::imgui
     function2::function2
     yoga::yoga
-    libassert::assert
     spdlog::spdlog
     PRIVATE
     # Only image.cpp decodes images.
     stb::stb
 )
+
+# libassert isn't available on Emscripten; thorin/assert.hpp turns the assertions into no-ops there.
+if(NOT EMSCRIPTEN)
+    find_package(libassert REQUIRED)
+    target_link_libraries(thorin PUBLIC libassert::assert)
+endif()
+
 # OpenGL backend and the GL widgets (RenderWidget, ImageWidget, ImageButton).
 option(THORIN_GL "Build the OpenGL backend" ON)
 if(THORIN_GL)

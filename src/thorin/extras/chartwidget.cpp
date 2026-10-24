@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/extras/chartwidget.hpp"
 
@@ -66,7 +66,7 @@ namespace thorin {
     }
 
     ChartWidget& ChartWidget::set_axis(ImAxis id, std::optional<Axis> axis) {
-        DEBUG_ASSERT(axis || (id != ImAxis_X1 && id != ImAxis_Y1), "ChartWidget: X1 and Y1 can't be disabled", id);
+        THORIN_DEBUG_ASSERT(axis || (id != ImAxis_X1 && id != ImAxis_Y1), "ChartWidget: X1 and Y1 can't be disabled", id);
         axes_[id] = std::move(axis);
         return *this;
     }

@@ -1,5 +1,5 @@
 
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/dropdown.hpp"
 #include "thorin/thorin.hpp"
@@ -20,7 +20,7 @@ namespace thorin {
     }
 
     Dropdown& Dropdown::insert_option(size_t index, const std::string& label) {
-        DEBUG_ASSERT(index <= options_.size(), "insert_option index out of range", index, options_.size());
+        THORIN_DEBUG_ASSERT(index <= options_.size(), "insert_option index out of range", index, options_.size());
 
         options_.insert(options_.begin() + index, label);
 
@@ -32,7 +32,7 @@ namespace thorin {
     }
 
     void Dropdown::remove_option(size_t index) {
-        DEBUG_ASSERT(index < options_.size(), "remove_option index out of range", index, options_.size());
+        THORIN_DEBUG_ASSERT(index < options_.size(), "remove_option index out of range", index, options_.size());
 
         options_.erase(options_.begin() + index);
 
@@ -56,14 +56,14 @@ namespace thorin {
     }
 
     void Dropdown::set_selected(int index) {
-        DEBUG_ASSERT(index == -1 || (index >= 0 && static_cast<size_t>(index) < options_.size()),
+        THORIN_DEBUG_ASSERT(index == -1 || (index >= 0 && static_cast<size_t>(index) < options_.size()),
                      "Dropdown::set_selected index out of range", index, options_.size());
         selected_ = index;
         layout().mark_dirty();
     }
 
     const std::string& Dropdown::selected_label() const {
-        DEBUG_ASSERT(has_selection(), "selected_label called with no selection");
+        THORIN_DEBUG_ASSERT(has_selection(), "selected_label called with no selection");
         return options_[selected_];
     }
 
@@ -76,7 +76,7 @@ namespace thorin {
     }
 
     const std::string& Dropdown::at(size_t index) const {
-        DEBUG_ASSERT(index < options_.size(), "option_at index out of range", index, options_.size());
+        THORIN_DEBUG_ASSERT(index < options_.size(), "option_at index out of range", index, options_.size());
         return options_[index];
     }
 

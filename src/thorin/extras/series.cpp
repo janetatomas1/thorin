@@ -2,7 +2,7 @@
 #include <format>
 
 #include <implot.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/extras/series.hpp"
 #include "thorin/thorin.hpp"
@@ -33,7 +33,7 @@ namespace thorin {
     }
 
     SeriesBuffer& SeriesBuffer::remove(std::size_t index) {
-        DEBUG_ASSERT(index < values_.size(), "SeriesBuffer::remove index out of range", index, values_.size());
+        THORIN_DEBUG_ASSERT(index < values_.size(), "SeriesBuffer::remove index out of range", index, values_.size());
         values_.erase(values_.begin() + static_cast<std::ptrdiff_t>(index));
         return *this;
     }
@@ -58,7 +58,7 @@ namespace thorin {
     }
 
     SeriesRing::SeriesRing(std::size_t capacity): capacity_(capacity) {
-        DEBUG_ASSERT(capacity > 0, "SeriesRing capacity must be > 0");
+        THORIN_DEBUG_ASSERT(capacity > 0, "SeriesRing capacity must be > 0");
         values_.reserve(capacity);
     }
 
@@ -146,7 +146,7 @@ namespace thorin {
     }
 
     Series& Series::set_axes(ImAxis x, ImAxis y) {
-        DEBUG_ASSERT(x >= ImAxis_X1 && x <= ImAxis_X3 && y >= ImAxis_Y1 && y <= ImAxis_Y3, "Series::set_axes: x must be X1..X3, y Y1..Y3", x, y);
+        THORIN_DEBUG_ASSERT(x >= ImAxis_X1 && x <= ImAxis_X3 && y >= ImAxis_Y1 && y <= ImAxis_Y3, "Series::set_axes: x must be X1..X3, y Y1..Y3", x, y);
         xAxis_ = x;
         yAxis_ = y;
         return *this;
@@ -182,7 +182,7 @@ namespace thorin {
     }
 
     int XYSeries::offset() const {
-        DEBUG_ASSERT(thorin::offset(xs_) == thorin::offset(ys_), "XYSeries: xs and ys rings out of step", thorin::offset(xs_), thorin::offset(ys_));
+        THORIN_DEBUG_ASSERT(thorin::offset(xs_) == thorin::offset(ys_), "XYSeries: xs and ys rings out of step", thorin::offset(xs_), thorin::offset(ys_));
         return static_cast<int>(thorin::offset(xs_));
     }
 

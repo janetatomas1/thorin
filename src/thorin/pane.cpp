@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/pane.hpp"
 #include "thorin/thorin.hpp"
@@ -22,7 +22,7 @@ namespace thorin {
     }
 
     Pane& Pane::set_ratio(float ratio) {
-        DEBUG_ASSERT(ratio > 0.0f && ratio <= 1.0f, "Pane::set_ratio ratio out of (0, 1]", ratio);
+        THORIN_DEBUG_ASSERT(ratio > 0.0f && ratio <= 1.0f, "Pane::set_ratio ratio out of (0, 1]", ratio);
 
         post([ratio](Pane& self) {
             self.ratio_ = ratio;

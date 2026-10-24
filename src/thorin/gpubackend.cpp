@@ -1,6 +1,6 @@
 
 #include <imgui_impl_sdl3.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/gpubackend.hpp"
 
@@ -17,7 +17,7 @@ namespace thorin {
     }
 
     void GPUBackend::create_window(SDL_WindowFlags apiFlags) {
-        DEBUG_ASSERT(window_ != nullptr, "GPUBackend::create_window called before set_window");
+        THORIN_DEBUG_ASSERT(window_ != nullptr, "GPUBackend::create_window called before set_window");
 
         scale_ = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
         if (scale_ <= 0.0f) {
@@ -31,7 +31,7 @@ namespace thorin {
             config_.height,
             config_.sdlFlags | apiFlags
         );
-        DEBUG_ASSERT(handle_ != nullptr, "SDL_CreateWindow failed", SDL_GetError());
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "SDL_CreateWindow failed", SDL_GetError());
 
         if (config_.windowState == WindowState::MAXIMIZED) {
             maximize();
@@ -59,7 +59,7 @@ namespace thorin {
     }
 
     void GPUBackend::destroy_context() {
-        DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_context called with no imgui context");
+        THORIN_DEBUG_ASSERT(imguiContext_ != nullptr, "GPUBackend::destroy_context called with no imgui context");
 
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext(imguiContext_);
@@ -67,14 +67,14 @@ namespace thorin {
     }
 
     void GPUBackend::make_current() {
-        DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
+        THORIN_DEBUG_ASSERT(imguiContext_ != nullptr, "make_current called with no imgui context");
 
         ImGui::SetCurrentContext(imguiContext_);
     }
 
     void GPUBackend::build_frame(Widget *rootWidget) {
-        DEBUG_ASSERT(handle_ != nullptr, "GPUBackend::build_frame called with no window handle");
-        DEBUG_ASSERT(rootWidget != nullptr, "GPUBackend::build_frame called with null root widget");
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "GPUBackend::build_frame called with no window handle");
+        THORIN_DEBUG_ASSERT(rootWidget != nullptr, "GPUBackend::build_frame called with null root widget");
 
         SDL_GetWindowSize(handle_, &config_.width, &config_.height);
 
@@ -129,7 +129,7 @@ namespace thorin {
     }
 
     void GPUBackend::process_event(const SDL_Event& event) {
-        DEBUG_ASSERT(imguiContext_ != nullptr, "process_event called with no imgui context");
+        THORIN_DEBUG_ASSERT(imguiContext_ != nullptr, "process_event called with no imgui context");
 
         ImGui::SetCurrentContext(imguiContext_);
         ImGui_ImplSDL3_ProcessEvent(&event);

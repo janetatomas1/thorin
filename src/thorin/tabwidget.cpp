@@ -1,7 +1,7 @@
 #include <algorithm>
 
 #include <imgui_internal.h>
-#include <libassert/assert.hpp>
+#include "thorin/assert.hpp"
 
 #include "thorin/tabwidget.hpp"
 #include "thorin/thorin.hpp"
@@ -118,7 +118,7 @@ namespace thorin {
 
     void TabWidget::remove_tab(size_t index) {
         post([index](auto& self) {
-            DEBUG_ASSERT(index < self.count(), "TabWidget::remove_tab index out of range", index, self.count());
+            THORIN_DEBUG_ASSERT(index < self.count(), "TabWidget::remove_tab index out of range", index, self.count());
 
             size_t& selected = self.tabBar.selected_;
             const bool wasSelected = index == selected;
@@ -140,7 +140,7 @@ namespace thorin {
     }
 
     TabWidget& TabWidget::set_selected(size_t index) {
-        DEBUG_ASSERT(index < count(), "TabWidget::set_selected index out of range", index, count());
+        THORIN_DEBUG_ASSERT(index < count(), "TabWidget::set_selected index out of range", index, count());
         display_page(index);
         return *this;
     }

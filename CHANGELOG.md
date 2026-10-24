@@ -10,6 +10,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 ### Added
 
 - `Thorin::window_count()`.
+- `thorin/assert.hpp` with `THORIN_ASSERT` / `THORIN_DEBUG_ASSERT`, used instead of libassert's macros.
+  On Emscripten they are no-ops and libassert isn't linked.
 - `NullBackend`: an SDL window and ImGui context without a graphics API. Frames are built (layout,
   widgets, events) but nothing is drawn; texture requests are acknowledged without uploading.
 - `thorin::extras` library (`THORIN_EXTRAS`, ON by default): `ChartWidget`, `Chart3DWidget` and their
