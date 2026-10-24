@@ -40,7 +40,7 @@
 #include <thorin/button.hpp>
 #include <thorin/checkbox.hpp>
 #include <thorin/dropdown.hpp>
-#include <thorin/chartwidget.hpp>
+#include <thorin/extras/chartwidget.hpp>
 #include <thorin/text.hpp>
 #include <thorin/textinput.hpp>
 #include <thorin/logwidget.hpp>

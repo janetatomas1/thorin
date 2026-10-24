@@ -4,7 +4,7 @@
 #include <implot.h>
 #include <libassert/assert.hpp>
 
-#include "thorin/series.hpp"
+#include "thorin/extras/series.hpp"
 #include "thorin/thorin.hpp"
 
 namespace thorin {

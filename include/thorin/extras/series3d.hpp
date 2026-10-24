@@ -7,7 +7,7 @@
 
 #include <imgui.h>
 
-#include "thorin/series.hpp"
+#include "thorin/extras/series.hpp"
 
 namespace thorin {
     // One plot item of a Chart3DWidget. Subclasses draw themselves in plot(),

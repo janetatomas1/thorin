@@ -5,7 +5,7 @@
 #include <span>
 #include <vector>
 
-#include <thorin/series.hpp>
+#include <thorin/extras/series.hpp>
 
 using namespace thorin;
 

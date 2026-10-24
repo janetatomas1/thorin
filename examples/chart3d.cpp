@@ -2,7 +2,7 @@
 #include <string>
 
 #include <thorin/thorin.hpp>
-#include <thorin/chart3dwidget.hpp>
+#include <thorin/extras/chart3dwidget.hpp>
 
 using namespace thorin;
 

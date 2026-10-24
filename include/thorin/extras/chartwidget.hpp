@@ -9,7 +9,7 @@
 
 #include <implot.h>
 
-#include "thorin/series.hpp"
+#include "thorin/extras/series.hpp"
 #include "thorin/widget.hpp"
 
 namespace thorin {

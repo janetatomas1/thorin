@@ -2,7 +2,7 @@
 
 #include <libassert/assert.hpp>
 
-#include "thorin/chartwidget.hpp"
+#include "thorin/extras/chartwidget.hpp"
 
 namespace thorin {
     namespace {

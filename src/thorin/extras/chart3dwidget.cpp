@@ -1,6 +1,6 @@
 #include <algorithm>
 
-#include "thorin/chart3dwidget.hpp"
+#include "thorin/extras/chart3dwidget.hpp"
 
 namespace thorin {
     namespace {

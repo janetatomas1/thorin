@@ -47,10 +47,6 @@ set(
     ${THORIN_SOURCE_DIR}/separator.cpp
     ${THORIN_SOURCE_DIR}/pane.cpp
     ${THORIN_SOURCE_DIR}/dockarea.cpp
-    ${THORIN_SOURCE_DIR}/series.cpp
-    ${THORIN_SOURCE_DIR}/chartwidget.cpp
-    ${THORIN_SOURCE_DIR}/series3d.cpp
-    ${THORIN_SOURCE_DIR}/chart3dwidget.cpp
     ${THORIN_SOURCE_DIR}/style.cpp
     ${THORIN_SOURCE_DIR}/color.cpp
 )
@@ -108,6 +104,22 @@ if(THORIN_GL)
     target_compile_definitions(thorin PUBLIC THORIN_GL)
 endif()
 
+# Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).
+option(THORIN_EXTRAS "Build the extras library" ON)
+if(THORIN_EXTRAS)
+    add_library(
+        thorin_extras
+        STATIC
+        ${THORIN_SOURCE_DIR}/extras/series.cpp
+        ${THORIN_SOURCE_DIR}/extras/chartwidget.cpp
+        ${THORIN_SOURCE_DIR}/extras/series3d.cpp
+        ${THORIN_SOURCE_DIR}/extras/chart3dwidget.cpp
+    )
+    add_library(thorin::extras ALIAS thorin_extras)
+    set_target_properties(thorin_extras PROPERTIES EXPORT_NAME extras)
+    target_link_libraries(thorin_extras PUBLIC thorin)
+endif()
+
 # Inter, JetBrains Mono and Noto Sans (OFL, see fonts/*/OFL.txt) compiled in as Font::inter() etc.
 option(THORIN_BUNDLE_FONTS "Embed the fonts in fonts/ (~1.3 MB)" ON)
 if(THORIN_BUNDLE_FONTS)
@@ -158,8 +170,14 @@ target_include_directories(
 # provide the same dependencies, e.g. through the same Conan toolchain.
 include(CMakePackageConfigHelpers)
 install(TARGETS thorin EXPORT thorinTargets)
+if(THORIN_EXTRAS)
+    install(TARGETS thorin_extras EXPORT thorinTargets)
+endif()
 if(NOT THORIN_GL)
-    set(THORIN_INSTALL_EXCLUDE PATTERN "gl" EXCLUDE)
+    list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "gl" EXCLUDE)
+endif()
+if(NOT THORIN_EXTRAS)
+    list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "extras" EXCLUDE)
 endif()
 install(
     DIRECTORY ${THORIN_HEADER_DIR}
