@@ -8,6 +8,7 @@
 
 #include "thorin/gl/glbackend.hpp"
 
+#include <format>
 #include <iostream>
 
 #include "thorin/window.hpp"
@@ -18,16 +19,31 @@
 using namespace gl;
 
 namespace thorin {
+    namespace {
+        // GLSL version of a core-profile GL version: 3.2 -> 150, from 3.3 on it matches (4.1 -> 410).
+        int glsl_version(int major, int minor) {
+            DEBUG_ASSERT(major > 3 || (major == 3 && minor >= 2), "core profile needs GL 3.2 or later", major, minor);
+            if (major == 3 && minor == 2) {
+                return 150;
+            }
+            return major * 100 + minor * 10;
+        }
+    }
+
     GLBackend::GLBackend(
-        const WindowConfig &config
-    ) : GPUBackend(config), gl_context(nullptr){}
+        const WindowConfig &config,
+        const GLBackendConfig &glConfig
+    ) : GPUBackend(config), gl_context(nullptr), glConfig_(glConfig) {}
 
     void GLBackend::init() {
         DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
 
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, glConfig_.majorVersion);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glConfig_.minorVersion);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, glConfig_.depthBits);
+        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, glConfig_.stencilBits);
 
         create_window(SDL_WINDOW_OPENGL);
 
@@ -53,8 +69,13 @@ namespace thorin {
         [[maybe_unused]] bool sdlInitOk = ImGui_ImplSDL3_InitForOpenGL(handle_, gl_context);
         DEBUG_ASSERT(sdlInitOk, "ImGui_ImplSDL3_InitForOpenGL failed");
 
-        [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glsl_version.c_str());
-        DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glsl_version);
+        // ImGui copies the string.
+        const std::string glslVersion = std::format(
+            "#version {} core",
+            glsl_version(glConfig_.majorVersion, glConfig_.minorVersion)
+        );
+        [[maybe_unused]] bool gl3InitOk = ImGui_ImplOpenGL3_Init(glslVersion.c_str());
+        DEBUG_ASSERT(gl3InitOk, "ImGui_ImplOpenGL3_Init failed", glslVersion);
 
         logger().info(
             "window {} '{}' created {}x{}, OpenGL {} on {}, scale {}",

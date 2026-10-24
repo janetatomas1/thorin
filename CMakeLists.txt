@@ -91,7 +91,7 @@ target_link_libraries(
     # Only image.cpp decodes images.
     stb::stb
 )
-# OpenGL backend and the GL widgets (RenderWidget, ImageWidget, ImageButton). Off leaves no backend.
+# OpenGL backend and the GL widgets (RenderWidget, ImageWidget, ImageButton).
 option(THORIN_GL "Build the OpenGL backend" ON)
 if(THORIN_GL)
     find_package(glbinding REQUIRED)

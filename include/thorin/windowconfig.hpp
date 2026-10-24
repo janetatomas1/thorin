@@ -40,4 +40,15 @@ namespace thorin {
         // Each window has its own context, so windows must not share a file.
         std::string iniFile;
     };
+
+#ifdef THORIN_GL
+    // OpenGL settings of a GLBackend; set through Thorin::set_backend_factory(), shared by every window it makes.
+    struct GLBackendConfig {
+        // Requested core-profile context version, 3.2 or later; the GLSL version is derived from it (3.2 -> 150, 4.1 -> 410).
+        int majorVersion = 3,
+        minorVersion = 3;
+        int depthBits = 24,
+        stencilBits = 8;
+    };
+#endif
 }
