@@ -10,6 +10,25 @@
 #include "thorin/gpubackend.hpp"
 
 namespace thorin {
+    // OpenGL settings of a GLBackend; set through Thorin::set_backend_factory(), shared by every window it makes.
+    struct GLBackendConfig {
+#ifdef __EMSCRIPTEN__
+        // Browsers only have GLES (WebGL2 is GLES 3.0).
+        bool es = true;
+        int majorVersion = 3,
+        minorVersion = 0;
+#else
+        // An OpenGL ES context instead of a core-profile one.
+        bool es = false;
+        // Requested context version: core 3.2 or later, or ES 3.0 or later. The GLSL version is derived from
+        // it (core 3.2 -> 150, 4.1 -> 410; ES 3.0 -> 300 es).
+        int majorVersion = 3,
+        minorVersion = 3;
+#endif
+        int depthBits = 24,
+        stencilBits = 8;
+    };
+
     // OpenGL backend, core profile or GLES (3.3 core by default, GLES 3.0 on Emscripten; see
     // GLBackendConfig): an SDL GL context and ImGui context per window.
     class GLBackend: public GPUBackend {
