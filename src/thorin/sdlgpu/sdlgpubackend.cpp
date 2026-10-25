@@ -98,6 +98,41 @@ namespace thorin {
     }
 
     void SDLGPUBackend::update(Widget *rootWidget) {
+        make_current();
+
+        ImGui_ImplSDLGPU3_NewFrame();
+        build_frame(rootWidget);
+
+        ImDrawData* drawData = ImGui::GetDrawData();
+        SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(device_.get());
+        if (commandBuffer == nullptr) {
+            logger().error("window {}: SDL_AcquireGPUCommandBuffer failed: {}", window_->id(), SDL_GetError());
+            return;
+        }
+
+        // Null without an error while the window is minimized or the swapchain is not ready; the frame is skipped.
+        SDL_GPUTexture* swapchainTexture = nullptr;
+        if (!SDL_WaitAndAcquireGPUSwapchainTexture(commandBuffer, handle_, &swapchainTexture, nullptr, nullptr)) {
+            logger().error("window {}: SDL_WaitAndAcquireGPUSwapchainTexture failed: {}", window_->id(), SDL_GetError());
+        }
+
+        const bool minimized = drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f;
+        if (swapchainTexture != nullptr && !minimized) {
+            // Uploads vertices and indices; has to run before the render pass begins.
+            ImGui_ImplSDLGPU3_PrepareDrawData(drawData, commandBuffer);
+
+            SDL_GPUColorTargetInfo target{};
+            target.texture = swapchainTexture;
+            target.load_op = SDL_GPU_LOADOP_CLEAR;
+            target.store_op = SDL_GPU_STOREOP_STORE;
+
+            SDL_GPURenderPass* renderPass = SDL_BeginGPURenderPass(commandBuffer, &target, 1, nullptr);
+            ImGui_ImplSDLGPU3_RenderDrawData(drawData, commandBuffer, renderPass);
+            SDL_EndGPURenderPass(renderPass);
+        }
+
+        // Presents the swapchain texture, if one was acquired.
+        SDL_SubmitGPUCommandBuffer(commandBuffer);
     }
 
     ImTextureID SDLGPUBackend::upload_background() {
