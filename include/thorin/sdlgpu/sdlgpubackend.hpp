@@ -1,11 +1,16 @@
 #pragma once
 
-#include "thorin/gpubackend.hpp"
+#include <memory>
+
 #include <SDL3/SDL_gpu.h>
+
+#include "thorin/gpubackend.hpp"
 
 namespace thorin {
     // SDL_GPU settings of an SDLGPUBackend; set through Thorin::set_backend_factory(), shared by every window it makes.
     struct SDLGPUBackendConfig {
+        SDL_GPUShaderFormat shaderFormat = SDL_GPU_SHADERFORMAT_SPIRV;
+
         // Driver SDL should use ("vulkan", "direct3d12", "metal"); empty lets SDL pick.
         std::string driver;
         // Turns on the driver's validation layers (SDL_CreateGPUDevice's debug_mode).
@@ -19,7 +24,8 @@ namespace thorin {
     // SDL_GPU backend (Vulkan, Metal or D3D12, chosen by SDL): an SDL GPU device and ImGui context per window.
     class SDLGPUBackend: public GPUBackend {
         SDLGPUBackendConfig gpuConfig_;
-        std::shared_ptr<SDL_GPUDevice> sharedDevice_;
+        std::shared_ptr<SDL_GPUDevice> device_;
+        SDL_GPUTexture* backgroundTexture_ = nullptr;
 
     protected:
         ImTextureID upload_background() override;
