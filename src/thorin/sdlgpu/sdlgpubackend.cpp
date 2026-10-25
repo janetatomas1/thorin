@@ -5,6 +5,7 @@
 
 #include "thorin/window.hpp"
 #include "thorin/log.hpp"
+#include "thorin/assert.hpp"
 
 namespace thorin {
     namespace {
@@ -73,6 +74,27 @@ namespace thorin {
     }
 
     void SDLGPUBackend::destroy() {
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "SDLGPUBackend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "SDLGPUBackend::destroy called with no gpu device");
+
+        logger().info("window {} '{}' closed", window_->id(), config_.title);
+
+        // Frames still in flight may use the textures and buffers released below.
+        SDL_WaitForGPUIdle(device_.get());
+
+        // The backends and the context are per window; shut them down while this window's context is current.
+        make_current();
+        ImGui_ImplSDLGPU3_Shutdown();
+        if (backgroundTexture_ != nullptr) {
+            SDL_ReleaseGPUTexture(device_.get(), backgroundTexture_);
+            backgroundTexture_ = nullptr;
+        }
+        destroy_context();
+
+        SDL_ReleaseWindowFromGPUDevice(device_.get(), handle_);
+        SDL_DestroyWindow(handle_);
+        // Last: the device goes with the last window that holds it.
+        device_.reset();
     }
 
     void SDLGPUBackend::update(Widget *rootWidget) {
@@ -80,9 +102,5 @@ namespace thorin {
 
     ImTextureID SDLGPUBackend::upload_background() {
         return ImTextureID_Invalid;
-    }
-
-    void SDLGPUBackend::make_current() {
-        GPUBackend::make_current();
     }
 }
