@@ -1,7 +1,7 @@
 #pragma once
 
-#include "thorin/sdlgpu/sdlgpurenderwidget.hpp"
+#include "thorin/sdlgpu/renderwidget.hpp"
 
-namespace thorin {
-    using SDLGPUImageWidget = SDLGPURenderWidget;
+namespace thorin::sdlgpu {
+    using ImageWidget = RenderWidget;
 }

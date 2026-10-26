@@ -1,4 +1,4 @@
-#include "thorin/sdlgpu/sdlgpubackend.hpp"
+#include "thorin/sdlgpu/backend.hpp"
 
 #include <cstring>
 
@@ -9,17 +9,17 @@
 #include "thorin/log.hpp"
 #include "thorin/assert.hpp"
 
-namespace thorin {
+namespace thorin::sdlgpu {
     namespace {
         std::weak_ptr<SDL_GPUDevice> sharedDevice;
     }
 
-    SDLGPUBackend::SDLGPUBackend(
+    Backend::Backend(
         const WindowConfig &config,
-        const SDLGPUBackendConfig &gpuConfig
+        const BackendConfig &gpuConfig
     ) : GPUBackend(config), gpuConfig_(gpuConfig) {}
 
-    void SDLGPUBackend::init() {
+    void Backend::init() {
         device_ = sharedDevice.lock();
         if (!device_) {
             auto raw = SDL_CreateGPUDevice(
@@ -75,9 +75,9 @@ namespace thorin {
        );
     }
 
-    void SDLGPUBackend::destroy() {
-        THORIN_DEBUG_ASSERT(handle_ != nullptr, "SDLGPUBackend::destroy called with no window handle");
-        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "SDLGPUBackend::destroy called with no gpu device");
+    void Backend::destroy() {
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "sdlgpu::Backend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "sdlgpu::Backend::destroy called with no gpu device");
 
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 
@@ -99,7 +99,7 @@ namespace thorin {
         device_.reset();
     }
 
-    void SDLGPUBackend::update(Widget *rootWidget) {
+    void Backend::update(Widget *rootWidget) {
         make_current();
 
         ImGui_ImplSDLGPU3_NewFrame();
@@ -137,7 +137,7 @@ namespace thorin {
         SDL_SubmitGPUCommandBuffer(commandBuffer);
     }
 
-    ImTextureID SDLGPUBackend::upload_background() {
+    ImTextureID Backend::upload_background() {
         // SDL defers the release until frames in flight are done with it.
         if (backgroundImage_ != nullptr) {
             SDL_ReleaseGPUTexture(device_.get(), backgroundImage_);
@@ -156,12 +156,12 @@ namespace thorin {
         return static_cast<ImTextureID>(reinterpret_cast<intptr_t>(backgroundImage_));
     }
 
-    SDL_GPUDevice* SDLGPUBackend::device() const {
+    SDL_GPUDevice* Backend::device() const {
         return device_.get();
     }
 
-    SDL_GPUTexture* SDLGPUBackend::upload_texture(const Image& image) {
-        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "SDLGPUBackend::upload_texture called before init");
+    SDL_GPUTexture* Backend::upload_texture(const Image& image) {
+        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "sdlgpu::Backend::upload_texture called before init");
 
         SDL_GPUTextureCreateInfo textureInfo{};
         textureInfo.type = SDL_GPU_TEXTURETYPE_2D;

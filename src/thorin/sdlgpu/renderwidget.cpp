@@ -1,35 +1,35 @@
 #include <cmath>
 #include <cstdint>
 
-#include "thorin/sdlgpu/sdlgpurenderwidget.hpp"
-#include "thorin/sdlgpu/sdlgpubackend.hpp"
+#include "thorin/sdlgpu/renderwidget.hpp"
+#include "thorin/sdlgpu/backend.hpp"
 #include "thorin/thorin.hpp"
 #include "thorin/window.hpp"
 #include "thorin/log.hpp"
 #include "thorin/assert.hpp"
 
-namespace thorin {
-    SDLGPURenderWidget::SDLGPURenderWidget(Widget* parent): Widget("", parent) {}
+namespace thorin::sdlgpu {
+    RenderWidget::RenderWidget(Widget* parent): Widget("", parent) {}
 
-    SDL_GPUDevice* SDLGPURenderWidget::device() {
-        THORIN_DEBUG_ASSERT(window() != nullptr, "SDLGPURenderWidget needs to be in a window");
-        auto* backend = dynamic_cast<SDLGPUBackend*>(window()->backend());
-        THORIN_DEBUG_ASSERT(backend != nullptr, "SDLGPURenderWidget needs an SDLGPUBackend window");
+    SDL_GPUDevice* RenderWidget::device() {
+        THORIN_DEBUG_ASSERT(window() != nullptr, "sdlgpu::RenderWidget needs to be in a window");
+        auto* backend = dynamic_cast<Backend*>(window()->backend());
+        THORIN_DEBUG_ASSERT(backend != nullptr, "sdlgpu::RenderWidget needs an sdlgpu::Backend window");
         return backend->device();
     }
 
-    void SDLGPURenderWidget::release_depth() {
+    void RenderWidget::release_depth() {
         if (depth_ != nullptr) {
             SDL_ReleaseGPUTexture(device(), depth_);
             depth_ = nullptr;
         }
     }
 
-    SDL_GPUTexture* SDLGPURenderWidget::texture() const {
+    SDL_GPUTexture* RenderWidget::texture() const {
         return texture_;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_texture(
+    RenderWidget& RenderWidget::set_texture(
         SDL_GPUTexture* texture,
         int width,
         int height,
@@ -48,7 +48,7 @@ namespace thorin {
         return *this;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::resize(int width, int height) {
+    RenderWidget& RenderWidget::resize(int width, int height) {
         if (texture_ == nullptr) {
             return *this;
         }
@@ -63,54 +63,54 @@ namespace thorin {
         info.num_levels = 1;
         SDL_GPUTexture* texture = SDL_CreateGPUTexture(device(), &info);
         if (texture == nullptr) {
-            logger().error("SDLGPURenderWidget: SDL_CreateGPUTexture failed: {}", SDL_GetError());
+            logger().error("sdlgpu::RenderWidget: SDL_CreateGPUTexture failed: {}", SDL_GetError());
             return *this;
         }
         // The depth texture is recreated at the new size on the next render.
         return set_texture(texture, width, height, format_);
     }
 
-    ImTextureID SDLGPURenderWidget::texture_id() const {
+    ImTextureID RenderWidget::texture_id() const {
         // ImGui_ImplSDLGPU3 takes the SDL_GPUTexture* as the id.
         return static_cast<ImTextureID>(reinterpret_cast<intptr_t>(texture_));
     }
 
-    int SDLGPURenderWidget::texture_width() const {
+    int RenderWidget::texture_width() const {
         return textureWidth_;
     }
 
-    int SDLGPURenderWidget::texture_height() const {
+    int RenderWidget::texture_height() const {
         return textureHeight_;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_on_render(RenderCallback callback) {
+    RenderWidget& RenderWidget::set_on_render(RenderCallback callback) {
         onRender_ = std::move(callback);
         return *this;
     }
 
-    std::optional<ImVec4> SDLGPURenderWidget::clear_color() const {
+    std::optional<ImVec4> RenderWidget::clear_color() const {
         return clearColor_;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_clear_color(std::optional<ImVec4> color) {
+    RenderWidget& RenderWidget::set_clear_color(std::optional<ImVec4> color) {
         clearColor_ = color;
         return *this;
     }
 
-    bool SDLGPURenderWidget::auto_size() const {
+    bool RenderWidget::auto_size() const {
         return autoSize_;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_auto_size(bool enabled) {
+    RenderWidget& RenderWidget::set_auto_size(bool enabled) {
         autoSize_ = enabled;
         return *this;
     }
 
-    bool SDLGPURenderWidget::depth() const {
+    bool RenderWidget::depth() const {
         return hasDepth_;
     }
 
-    SDL_GPUTextureFormat SDLGPURenderWidget::depth_format() {
+    SDL_GPUTextureFormat RenderWidget::depth_format() {
         // Every device supports at least one of the two.
         const bool d24 = SDL_GPUTextureSupportsFormat(
             device(),
@@ -121,7 +121,7 @@ namespace thorin {
         return d24 ? SDL_GPU_TEXTUREFORMAT_D24_UNORM : SDL_GPU_TEXTUREFORMAT_D32_FLOAT;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_depth(bool enabled) {
+    RenderWidget& RenderWidget::set_depth(bool enabled) {
         hasDepth_ = enabled;
         if (!enabled) {
             release_depth();
@@ -129,26 +129,26 @@ namespace thorin {
         return *this;
     }
 
-    bool SDLGPURenderWidget::capture_mouse() const {
+    bool RenderWidget::capture_mouse() const {
         return captureMouse_;
     }
 
-    SDLGPURenderWidget& SDLGPURenderWidget::set_capture_mouse(bool enabled) {
+    RenderWidget& RenderWidget::set_capture_mouse(bool enabled) {
         captureMouse_ = enabled;
         hovered_ = false;
         active_ = false;
         return *this;
     }
 
-    bool SDLGPURenderWidget::hovered() const {
+    bool RenderWidget::hovered() const {
         return hovered_;
     }
 
-    bool SDLGPURenderWidget::active() const {
+    bool RenderWidget::active() const {
         return active_;
     }
 
-    void SDLGPURenderWidget::destroy() {
+    void RenderWidget::destroy() {
         // Released before the backend destroys the device.
         if (texture_ != nullptr) {
             set_texture(nullptr, 0, 0, format_);
@@ -156,7 +156,7 @@ namespace thorin {
         Widget::destroy();
     }
 
-    void SDLGPURenderWidget::render_texture() {
+    void RenderWidget::render_texture() {
         if (texture_ == nullptr) {
             return;
         }
@@ -189,13 +189,13 @@ namespace thorin {
             info.num_levels = 1;
             depth_ = SDL_CreateGPUTexture(gpu, &info);
             if (depth_ == nullptr) {
-                logger().error("SDLGPURenderWidget: depth SDL_CreateGPUTexture failed: {}", SDL_GetError());
+                logger().error("sdlgpu::RenderWidget: depth SDL_CreateGPUTexture failed: {}", SDL_GetError());
             }
         }
 
         SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(gpu);
         if (commandBuffer == nullptr) {
-            logger().error("SDLGPURenderWidget: SDL_AcquireGPUCommandBuffer failed: {}", SDL_GetError());
+            logger().error("sdlgpu::RenderWidget: SDL_AcquireGPUCommandBuffer failed: {}", SDL_GetError());
             return;
         }
 
@@ -229,7 +229,7 @@ namespace thorin {
         Thorin::current().request_redraw();
     }
 
-    bool SDLGPURenderWidget::show() {
+    bool RenderWidget::show() {
         if (texture_ == nullptr) {
             return false;
         }

@@ -7,16 +7,16 @@
 
 #include "thorin/widget.hpp"
 
-namespace thorin {
+namespace thorin::sdlgpu {
     // Draws an SDL_GPU texture at this widget's Yoga box; it has no intrinsic size.
-    // The texture must belong to this window's device (SDLGPUBackend::device()).
-    class SDLGPURenderWidget : public Widget {
+    // The texture must belong to this window's device (Backend::device()).
+    class RenderWidget : public Widget {
     public:
         // Called from show() inside a render pass on texture() (with the depth texture if depth()), in a command
         // buffer of its own that is submitted right after, before the window's frame. The viewport covers the
         // texture. Copy passes can't run inside a render pass: upload data in your own command buffer first.
         using RenderCallback = fu2::unique_function<
-            void(SDLGPURenderWidget &self, SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass)
+            void(RenderWidget &self, SDL_GPUCommandBuffer* commandBuffer, SDL_GPURenderPass* renderPass)
         >;
 
     private:
@@ -42,16 +42,16 @@ namespace thorin {
         void render_texture();
 
     public:
-        SDLGPURenderWidget(Widget* parent = nullptr);
+        RenderWidget(Widget* parent = nullptr);
 
         [[nodiscard]] SDL_GPUTexture* texture() const;
         // Takes ownership of texture, which is width x height pixels in format; nullptr removes it. To render
         // into it, it needs SDL_GPU_TEXTUREUSAGE_COLOR_TARGET as well as SAMPLER. Replacing a texture needs the
         // widget to be in a window.
-        SDLGPURenderWidget& set_texture(SDL_GPUTexture* texture, int width, int height, SDL_GPUTextureFormat format);
+        RenderWidget& set_texture(SDL_GPUTexture* texture, int width, int height, SDL_GPUTextureFormat format);
         // Recreates texture() at the new size and the same format, with SAMPLER and COLOR_TARGET usage; the
         // contents are lost. The depth texture is resized with it. Does nothing without a texture.
-        SDLGPURenderWidget& resize(int width, int height);
+        RenderWidget& resize(int width, int height);
         // texture() as ImGui::Image takes it. SDL_GPU's origin is top-left like ImGui's, so no UV flip is needed.
         // Read it after render_texture(): auto-size replaces the texture.
         [[nodiscard]] ImTextureID texture_id() const;
@@ -60,30 +60,30 @@ namespace thorin {
         [[nodiscard]] int texture_height() const;
 
         // Called every frame the widget is drawn; it also keeps an OnDemand or Adaptive loop drawing.
-        SDLGPURenderWidget& set_on_render(RenderCallback callback);
+        RenderWidget& set_on_render(RenderCallback callback);
 
         // Cleared to before each render callback, with the depth texture (to 1) if depth(). Empty by default: the
         // previous contents are kept.
         [[nodiscard]] std::optional<ImVec4> clear_color() const;
-        SDLGPURenderWidget& set_clear_color(std::optional<ImVec4> color);
+        RenderWidget& set_clear_color(std::optional<ImVec4> color);
 
         // Resizes the texture to the Yoga box in pixels (points times the framebuffer scale) whenever the
         // box changes. Needs a texture; its initial size does not matter.
         [[nodiscard]] bool auto_size() const;
-        SDLGPURenderWidget& set_auto_size(bool enabled);
+        RenderWidget& set_auto_size(bool enabled);
 
         // A depth texture in the render pass, sized with the texture: D24_UNORM, or D32_FLOAT where that is not
         // supported. Created on the next render. Off by default.
         [[nodiscard]] bool depth() const;
         // The depth texture's format, for the pipeline's depth_stencil_format. Needs the widget to be in a window.
         [[nodiscard]] SDL_GPUTextureFormat depth_format();
-        SDLGPURenderWidget& set_depth(bool enabled);
+        RenderWidget& set_depth(bool enabled);
 
         // Puts an invisible button over the box, so mouse drags and the wheel belong to the view instead of
         // moving or scrolling the window around it. Read the input from ImGui::GetIO() in the render callback,
         // with hovered() / active() telling whether it is meant for this view. Off by default.
         [[nodiscard]] bool capture_mouse() const;
-        SDLGPURenderWidget& set_capture_mouse(bool enabled);
+        RenderWidget& set_capture_mouse(bool enabled);
         // With capture_mouse(), as of this frame: the mouse is over the view, and a button pressed over it is
         // still held (true while dragging outside the box too). Always false without it.
         [[nodiscard]] bool hovered() const;

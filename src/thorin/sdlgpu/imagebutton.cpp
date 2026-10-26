@@ -1,26 +1,26 @@
 #include <algorithm>
 
-#include "thorin/sdlgpu/sdlgpuimagebutton.hpp"
+#include "thorin/sdlgpu/imagebutton.hpp"
 #include "thorin/thorin.hpp"
 
-namespace thorin {
-    SDLGPUImageButton::SDLGPUImageButton(const std::string& title, Widget* parent): SDLGPURenderWidget(parent) {
+namespace thorin::sdlgpu {
+    ImageButton::ImageButton(const std::string& title, Widget* parent): RenderWidget(parent) {
         set_title(title);
     }
 
-    SDLGPUImageButton::SDLGPUImageButton(
+    ImageButton::ImageButton(
         const std::string& title,
         fu2::unique_function<void()> callback,
         Widget* parent
-    ) : SDLGPURenderWidget(parent), callback_(std::move(callback)) {
+    ) : RenderWidget(parent), callback_(std::move(callback)) {
         set_title(title);
     }
 
-    void SDLGPUImageButton::set_callback(fu2::unique_function<void()> callback) {
+    void ImageButton::set_callback(fu2::unique_function<void()> callback) {
         callback_ = std::move(callback);
     }
 
-    bool SDLGPUImageButton::show() {
+    bool ImageButton::show() {
         if (texture() == nullptr) {
             return false;
         }
