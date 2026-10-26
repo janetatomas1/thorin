@@ -41,9 +41,8 @@ namespace thorin {
             if (queued.second == 0) {
                 queued.first();
             } else {
-                THORIN_DEBUG_ASSERT(queued.second < ring_.size(), "action delay exceeds the ring size", queued.second, ring_.size());
-
-                // The bucket at frameIndex_ has already run, so delay d lands d slots ahead of it.
+                // The bucket at frameIndex_ has already run, so delay d lands d slots ahead of it. Longer delays
+                // than the ring run at its limit, as documented.
                 const size_t offset = std::min<uint64_t>(queued.second, ring_.size() - 1);
                 const size_t index = (frameIndex_ + offset) % ring_.size();
                 THORIN_DEBUG_ASSERT(index < ring_.size(), "computed ring index out of range", index, ring_.size());

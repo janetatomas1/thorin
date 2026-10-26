@@ -109,6 +109,17 @@ TEST(ActionManager, LargestDelayIsRingSizeMinusOne) {
     EXPECT_EQ(ranAt, 3);
 }
 
+TEST(ActionManager, LongerDelayRunsAtTheLimit) {
+    ActionManager manager(4);
+    int dispatches = 0;
+    int ranAt = -1;
+    manager.add_action([&] { ranAt = dispatches; }, 10);
+    for (; dispatches < 8; ++dispatches) {
+        manager.dispatch();
+    }
+    EXPECT_EQ(ranAt, 3);
+}
+
 TEST(ActionManager, RunsMoveOnlyActions) {
     ActionManager manager;
     auto value = std::make_unique<int>(42);
