@@ -577,3 +577,60 @@ TEST_F(Measure, ScrollingTableDrawsOnlyVisibleRows) {
     EXPECT_GT(shown, 0);
     EXPECT_LE(shown, static_cast<int>(100.0f / row) + 3);
 }
+
+// Entries drawn outside Yoga dirty their owner
+
+TEST_F(Measure, RenamingAMenuRemeasuresTheBar) {
+    MenuBar bar(&root);
+    bar.align_self(YGAlignFlexStart).width(auto_());
+    auto& menu = bar.add_menu("File");
+
+    frame([] {});
+    const float before = bar.size().x;
+    menu.set_title("File and more");
+    frame([] {});
+    EXPECT_GT(bar.size().x, before + 1.0f);
+}
+
+TEST_F(Measure, RestylingACellRemeasuresTheTable) {
+    Table table(1, &root);
+    auto& button = table.add_cell<Button>("Click me");
+
+    frame([] {});
+    const float before = table.size().y;
+    const ImVec2 padding = ImGui::GetStyle().FramePadding;
+    button.set_frame_padding(ImVec2{padding.x, padding.y + 10.0f});
+    frame([] {});
+    EXPECT_NEAR(table.size().y - before, 20.0f, tolerance);
+}
+
+TEST_F(Measure, RemovingAnOptionKeepsTheSelectedOne) {
+    RadioGroup group(&root);
+    group.add_option("A");
+    group.add_option("B");
+    group.add_option("C");
+    group.set_selected(2);
+
+    group.remove_option(0);
+    EXPECT_EQ(group.count(), 2u);
+    EXPECT_EQ(group.selected(), 1);
+    EXPECT_TRUE(group.at(1).selected());
+
+    // Values follow the new indices.
+    group.at(0).select();
+    EXPECT_EQ(group.selected(), 0);
+    EXPECT_FALSE(group.at(1).selected());
+}
+
+TEST_F(Measure, RemovingTheSelectedOptionSelectsTheFirst) {
+    RadioGroup group(&root);
+    group.add_option("A");
+    group.add_option("B");
+    group.add_option("C");
+    group.set_selected(1);
+
+    group.remove_option(1);
+    EXPECT_EQ(group.selected(), 0);
+    EXPECT_TRUE(group.at(0).selected());
+    EXPECT_FALSE(group.at(1).selected());
+}
