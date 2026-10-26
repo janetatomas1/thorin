@@ -1,6 +1,6 @@
 # Each example is built when its backend is.
 set(THORIN_EXAMPLE_NAMES)
-if(THORIN_GL)
+if(THORIN_OPENGL)
     list(APPEND THORIN_EXAMPLE_NAMES chart chart3d)
     set(chart_BACKEND thorin::opengl)
     set(chart3d_BACKEND thorin::opengl)

@@ -31,7 +31,7 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 - `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
   each render callback. Empty by default.
-- `thorin::opengl` library (`THORIN_GL`, ON by default): the OpenGL backend and the GL widgets. It is
+- `thorin::opengl` library (`THORIN_OPENGL`, ON by default): the OpenGL backend and the GL widgets. It is
   the only part that links glbinding / globjects.
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. There is no
   default; set one before adding windows.

@@ -90,8 +90,8 @@ if(NOT EMSCRIPTEN)
 endif()
 
 # OpenGL backend and widgets, in thorin::opengl. The only part that links glbinding / globjects.
-option(THORIN_GL "Build the OpenGL backend" ON)
-if(THORIN_GL)
+option(THORIN_OPENGL "Build the OpenGL backend" ON)
+if(THORIN_OPENGL)
     add_library(
         thorin_opengl
         STATIC
@@ -124,6 +124,10 @@ if(THORIN_SDLGPU)
     add_library(thorin::sdlgpu ALIAS thorin_sdlgpu)
     set_target_properties(thorin_sdlgpu PROPERTIES EXPORT_NAME sdlgpu)
     target_link_libraries(thorin_sdlgpu PUBLIC thorin)
+endif()
+
+if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU)
+    message(STATUS "thorin: no real backend built (THORIN_OPENGL and THORIN_SDLGPU are off); only NullBackend, which draws nothing")
 endif()
 
 # Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).
@@ -196,7 +200,7 @@ target_include_directories(
 # same Conan toolchain.
 include(CMakePackageConfigHelpers)
 install(TARGETS thorin EXPORT thorinTargets)
-if(THORIN_GL)
+if(THORIN_OPENGL)
     install(TARGETS thorin_opengl EXPORT thorinTargets)
 endif()
 if(THORIN_SDLGPU)
@@ -205,7 +209,7 @@ endif()
 if(THORIN_EXTRAS)
     install(TARGETS thorin_extras EXPORT thorinTargets)
 endif()
-if(NOT THORIN_GL)
+if(NOT THORIN_OPENGL)
     list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "opengl" EXCLUDE)
 endif()
 if(NOT THORIN_SDLGPU)

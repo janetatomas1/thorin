@@ -45,7 +45,6 @@
 #include <thorin/textinput.hpp>
 #include <thorin/logwidget.hpp>
 
-#include "thorin/nullbackend.hpp"
 #include "thorin/sdlgpu/backend.hpp"
 
 using namespace thorin;
