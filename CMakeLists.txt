@@ -89,23 +89,24 @@ if(NOT EMSCRIPTEN)
     target_link_libraries(thorin PUBLIC libassert::assert)
 endif()
 
-# OpenGL backend and widgets, in thorin::opengl.
+# OpenGL backend and widgets, in thorin::opengl. The only part that links glbinding / globjects.
 option(THORIN_GL "Build the OpenGL backend" ON)
 if(THORIN_GL)
-    find_package(glbinding REQUIRED)
-    find_package(globjects REQUIRED)
-    target_sources(
-        thorin
-        PRIVATE
+    add_library(
+        thorin_opengl
+        STATIC
         ${THORIN_SOURCE_DIR}/opengl/backend.cpp
         ${THORIN_SOURCE_DIR}/opengl/renderwidget.cpp
         ${THORIN_SOURCE_DIR}/opengl/imagebutton.cpp
     )
-    target_link_libraries(thorin PUBLIC glbinding::glbinding globjects::globjects)
-    target_compile_definitions(thorin PUBLIC THORIN_GL)
+    add_library(thorin::opengl ALIAS thorin_opengl)
+    set_target_properties(thorin_opengl PROPERTIES EXPORT_NAME opengl)
+    find_package(glbinding REQUIRED)
+    find_package(globjects REQUIRED)
+    target_link_libraries(thorin_opengl PUBLIC thorin glbinding::glbinding globjects::globjects)
     # Emscripten links WebGL 1 only by default; opengl::Backend needs WebGL2 (GLES 3.0).
     if(EMSCRIPTEN)
-        target_link_options(thorin PUBLIC -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
+        target_link_options(thorin_opengl PUBLIC -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
     endif()
 endif()
 
@@ -113,14 +114,16 @@ endif()
 include(CMakeDependentOption)
 cmake_dependent_option(THORIN_SDLGPU "Build the SDL_GPU backend" ON "NOT EMSCRIPTEN" OFF)
 if(THORIN_SDLGPU)
-    target_sources(
-        thorin
-        PRIVATE
+    add_library(
+        thorin_sdlgpu
+        STATIC
         ${THORIN_SOURCE_DIR}/sdlgpu/backend.cpp
         ${THORIN_SOURCE_DIR}/sdlgpu/renderwidget.cpp
         ${THORIN_SOURCE_DIR}/sdlgpu/imagebutton.cpp
     )
-    target_compile_definitions(thorin PUBLIC THORIN_SDLGPU)
+    add_library(thorin::sdlgpu ALIAS thorin_sdlgpu)
+    set_target_properties(thorin_sdlgpu PROPERTIES EXPORT_NAME sdlgpu)
+    target_link_libraries(thorin_sdlgpu PUBLIC thorin)
 endif()
 
 # Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).
@@ -187,11 +190,18 @@ target_include_directories(
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# CMake package: find_package(thorin) and link thorin::thorin. Usable from the build tree (thorin_DIR =
-# this build directory) or after cmake --install (CMAKE_PREFIX_PATH = the install prefix). The app has to
-# provide the same dependencies, e.g. through the same Conan toolchain.
+# CMake package: find_package(thorin) and link a backend, thorin::opengl or thorin::sdlgpu (both bring in
+# thorin::thorin). Usable from the build tree (thorin_DIR = this build directory) or after cmake --install
+# (CMAKE_PREFIX_PATH = the install prefix). The app has to provide the same dependencies, e.g. through the
+# same Conan toolchain.
 include(CMakePackageConfigHelpers)
 install(TARGETS thorin EXPORT thorinTargets)
+if(THORIN_GL)
+    install(TARGETS thorin_opengl EXPORT thorinTargets)
+endif()
+if(THORIN_SDLGPU)
+    install(TARGETS thorin_sdlgpu EXPORT thorinTargets)
+endif()
 if(THORIN_EXTRAS)
     install(TARGETS thorin_extras EXPORT thorinTargets)
 endif()

@@ -2,6 +2,7 @@
 #include <string>
 
 #include <thorin/thorin.hpp>
+#include <thorin/opengl/backend.hpp>
 #include <thorin/extras/chartwidget.hpp>
 
 using namespace thorin;
@@ -42,6 +43,9 @@ struct Chart: Widget {
 
 int main(const int argc, char** argv) {
     auto app = Thorin(argc, argv);
+    app.set_backend_factory([](const WindowConfig& config) {
+        return std::make_unique<opengl::Backend>(config);
+    });
     app.add_window<Chart>(std::string("Chart"));
     return app.exec();
 }

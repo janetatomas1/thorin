@@ -2,6 +2,7 @@
 #include <string>
 
 #include <thorin/thorin.hpp>
+#include <thorin/opengl/backend.hpp>
 #include <thorin/extras/chart3dwidget.hpp>
 
 using namespace thorin;
@@ -40,6 +41,9 @@ struct Chart3D: Widget {
 
 int main(const int argc, char** argv) {
     auto app = Thorin(argc, argv);
+    app.set_backend_factory([](const WindowConfig& config) {
+        return std::make_unique<opengl::Backend>(config);
+    });
     app.add_window<Chart3D>(std::string("Chart3D"));
     return app.exec();
 }

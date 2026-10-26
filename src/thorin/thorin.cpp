@@ -4,9 +4,6 @@
 
 #include "thorin/thorin.hpp"
 #include "thorin/version.hpp"
-#ifdef THORIN_GL
-#include "thorin/opengl/backend.hpp"
-#endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
@@ -30,9 +27,6 @@ namespace thorin {
         THORIN_DEBUG_ASSERT(current_ == nullptr, "only one Thorin may exist at a time");
         current_ = this;
         configure_logging({});
-#ifdef THORIN_GL
-        backendFactory_ = [](const WindowConfig& config) { return std::make_unique<opengl::Backend>(config); };
-#endif
 
         // SDL's own messages (errors, warnings) go to the thorin logger.
         SDL_SetLogOutputFunction(
@@ -230,7 +224,7 @@ namespace thorin {
 
     std::unique_ptr<GPUBackend> Thorin::make_backend(const WindowConfig &config) {
         // Checked in release too: without a backend the window would crash in init().
-        THORIN_ASSERT(static_cast<bool>(backendFactory_), "no backend factory; build with THORIN_GL or call set_backend_factory()");
+        THORIN_ASSERT(static_cast<bool>(backendFactory_), "no backend factory; call set_backend_factory()");
         return backendFactory_(config);
     }
 

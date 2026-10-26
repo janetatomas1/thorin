@@ -31,15 +31,16 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 - `RenderWidget::set_clear_color()`: clears the texture (and the depth buffer, with `depth()`) before
   each render callback. Empty by default.
-- `THORIN_GL` CMake option (ON by default): builds the OpenGL backend and the GL widgets, and links
-  glbinding / globjects only when on.
-- `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
-  to `opengl::Backend` with `THORIN_GL`.
+- `thorin::opengl` library (`THORIN_GL`, ON by default): the OpenGL backend and the GL widgets. It is
+  the only part that links glbinding / globjects.
+- `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. There is no
+  default; set one before adding windows.
 - `GPUBackend` helpers for custom backends: `create_window()`, `create_context()`,
   `destroy_context()`, `build_frame()` and the `upload_background()` hook; `process_event()` and
   `make_current()` (sets the ImGui context) now have defaults.
-- `sdlgpu::Backend` (`THORIN_SDLGPU`, ON except on Emscripten): SDL_GPU (Vulkan, Metal or D3D12) with
-  one device shared by all windows, background images, `device()` and `upload_texture(image)`.
+- `sdlgpu::Backend` (`thorin::sdlgpu` library, `THORIN_SDLGPU`, ON except on Emscripten): SDL_GPU
+  (Vulkan, Metal or D3D12) with one device shared by all windows, background images, `device()` and
+  `upload_texture(image)`.
 - `sdlgpu::RenderWidget` / `sdlgpu::ImageWidget`: draws an SDL_GPU texture and runs a render callback
   in a render pass on it, with clear colour, auto-size, an optional depth texture and mouse capture.
   `sdlgpu::ImageButton` is a clickable `sdlgpu::RenderWidget`.
@@ -64,6 +65,9 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)
   instead of creating a `opengl::Backend` itself; use `app.make_backend(config)`.
 - `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `opengl::Backend` adds it.
+- Each backend is its own library linking `thorin::thorin`: apps link `thorin::opengl` or
+  `thorin::sdlgpu` and call `set_backend_factory()`. The core library no longer defines `THORIN_GL` /
+  `THORIN_SDLGPU`.
 
 ## [0.2.0] - 2026-10-20
 

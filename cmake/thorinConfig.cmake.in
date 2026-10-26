@@ -1,6 +1,6 @@
 @PACKAGE_INIT@
 
-# thorin's public dependencies; stb is private, but the static library still names it.
+# The public dependencies of thorin and its backends; stb is private, but the static library still names it.
 include(CMakeFindDependencyMacro)
 find_dependency(sdl)
 if(@THORIN_GL@)
