@@ -1,5 +1,7 @@
 #include "thorin/sdlgpu/sdlgpubackend.hpp"
 
+#include <cstring>
+
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlgpu3.h>
 
@@ -85,9 +87,9 @@ namespace thorin {
         // The backends and the context are per window; shut them down while this window's context is current.
         make_current();
         ImGui_ImplSDLGPU3_Shutdown();
-        if (backgroundTexture_ != nullptr) {
-            SDL_ReleaseGPUTexture(device_.get(), backgroundTexture_);
-            backgroundTexture_ = nullptr;
+        if (backgroundImage_ != nullptr) {
+            SDL_ReleaseGPUTexture(device_.get(), backgroundImage_);
+            backgroundImage_ = nullptr;
         }
         destroy_context();
 
@@ -136,6 +138,73 @@ namespace thorin {
     }
 
     ImTextureID SDLGPUBackend::upload_background() {
-        return ImTextureID_Invalid;
+        // SDL defers the release until frames in flight are done with it.
+        if (backgroundImage_ != nullptr) {
+            SDL_ReleaseGPUTexture(device_.get(), backgroundImage_);
+            backgroundImage_ = nullptr;
+        }
+
+        if (background_ == nullptr) {
+            return ImTextureID_Invalid;
+        }
+
+        backgroundImage_ = upload_texture(*background_);
+        if (backgroundImage_ == nullptr) {
+            return ImTextureID_Invalid;
+        }
+
+        return static_cast<ImTextureID>(reinterpret_cast<intptr_t>(backgroundImage_));
+    }
+
+    SDL_GPUDevice* SDLGPUBackend::device() const {
+        return device_.get();
+    }
+
+    SDL_GPUTexture* SDLGPUBackend::upload_texture(const Image& image) {
+        THORIN_DEBUG_ASSERT(device_.get() != nullptr, "SDLGPUBackend::upload_texture called before init");
+
+        SDL_GPUTextureCreateInfo textureInfo{};
+        textureInfo.type = SDL_GPU_TEXTURETYPE_2D;
+        textureInfo.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+        textureInfo.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+        textureInfo.width = static_cast<Uint32>(image.width());
+        textureInfo.height = static_cast<Uint32>(image.height());
+        textureInfo.layer_count_or_depth = 1;
+        textureInfo.num_levels = 1;
+        SDL_GPUTexture* texture = SDL_CreateGPUTexture(device_.get(), &textureInfo);
+        if (texture == nullptr) {
+            logger().error("SDL_CreateGPUTexture failed: {}", SDL_GetError());
+            return nullptr;
+        }
+
+        const auto pixels = image.pixels();
+        SDL_GPUTransferBufferCreateInfo bufferInfo{};
+        bufferInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+        bufferInfo.size = static_cast<Uint32>(pixels.size());
+        SDL_GPUTransferBuffer* buffer = SDL_CreateGPUTransferBuffer(device_.get(), &bufferInfo);
+        if (buffer == nullptr) {
+            logger().error("SDL_CreateGPUTransferBuffer failed: {}", SDL_GetError());
+            SDL_ReleaseGPUTexture(device_.get(), texture);
+            return nullptr;
+        }
+        std::memcpy(SDL_MapGPUTransferBuffer(device_.get(), buffer, false), pixels.data(), pixels.size());
+        SDL_UnmapGPUTransferBuffer(device_.get(), buffer);
+
+        SDL_GPUCommandBuffer* commandBuffer = SDL_AcquireGPUCommandBuffer(device_.get());
+        SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(commandBuffer);
+        SDL_GPUTextureTransferInfo source{};
+        source.transfer_buffer = buffer;
+        SDL_GPUTextureRegion destination{};
+        destination.texture = texture;
+        destination.w = textureInfo.width;
+        destination.h = textureInfo.height;
+        destination.d = 1;
+        SDL_UploadToGPUTexture(copyPass, &source, &destination, false);
+        SDL_EndGPUCopyPass(copyPass);
+        SDL_SubmitGPUCommandBuffer(commandBuffer);
+
+        // Freed once the copy has run.
+        SDL_ReleaseGPUTransferBuffer(device_.get(), buffer);
+        return texture;
     }
 }

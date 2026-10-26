@@ -25,7 +25,8 @@ namespace thorin {
     class SDLGPUBackend: public GPUBackend {
         SDLGPUBackendConfig gpuConfig_;
         std::shared_ptr<SDL_GPUDevice> device_;
-        SDL_GPUTexture* backgroundTexture_ = nullptr;
+        // This window's copy of background_.
+        SDL_GPUTexture* backgroundImage_ = nullptr;
 
     protected:
         ImTextureID upload_background() override;
@@ -35,5 +36,11 @@ namespace thorin {
         void init() override;
         void destroy() override;
         void update(Widget *rootWidget) override;
+        // Shared by every window this backend type makes; nullptr before init().
+        [[nodiscard]] SDL_GPUDevice* device() const;
+        // A new R8G8B8A8_UNORM texture with SAMPLER usage holding image's pixels, or nullptr on failure. The
+        // upload is submitted before this returns. Release it with SDL_ReleaseGPUTexture(), or hand it to an
+        // SDLGPURenderWidget.
+        [[nodiscard]] SDL_GPUTexture* upload_texture(const Image& image);
     };
 }
