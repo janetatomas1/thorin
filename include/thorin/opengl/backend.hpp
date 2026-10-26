@@ -9,9 +9,9 @@
 
 #include "thorin/gpubackend.hpp"
 
-namespace thorin {
-    // OpenGL settings of a GLBackend; set through Thorin::set_backend_factory(), shared by every window it makes.
-    struct GLBackendConfig {
+namespace thorin::opengl {
+    // OpenGL settings of a Backend; set through Thorin::set_backend_factory(), shared by every window it makes.
+    struct BackendConfig {
 #ifdef __EMSCRIPTEN__
         // Browsers only have GLES (WebGL2 is GLES 3.0).
         bool es = true;
@@ -30,10 +30,10 @@ namespace thorin {
     };
 
     // OpenGL backend, core profile or GLES (3.3 core by default, GLES 3.0 on Emscripten; see
-    // GLBackendConfig): an SDL GL context and ImGui context per window.
-    class GLBackend: public GPUBackend {
+    // BackendConfig): an SDL GL context and ImGui context per window.
+    class Backend: public GPUBackend {
         SDL_GLContext glContext_;
-        GLBackendConfig glConfig_;
+        BackendConfig glConfig_;
         // This window's copy of background_, in its GL context.
         std::unique_ptr<globjects::Texture> backgroundImage_;
 
@@ -41,7 +41,7 @@ namespace thorin {
         ImTextureID upload_background() override;
 
     public:
-        GLBackend(const WindowConfig &config = {}, const GLBackendConfig &glConfig = {});
+        Backend(const WindowConfig &config = {}, const BackendConfig &glConfig = {});
         void init() override;
         void destroy() override;
         void update(Widget *rootWidget) override;

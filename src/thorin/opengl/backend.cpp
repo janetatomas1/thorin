@@ -6,7 +6,7 @@
 #include <imgui_impl_opengl3.h>
 #include "thorin/assert.hpp"
 
-#include "thorin/gl/glbackend.hpp"
+#include "thorin/opengl/backend.hpp"
 
 #include <format>
 
@@ -17,11 +17,11 @@
 
 using namespace gl;
 
-namespace thorin {
+namespace thorin::opengl {
     namespace {
         // The #version line for a context: core 3.2 -> "150 core", from 3.3 on it matches (4.1 -> "410 core");
         // ES matches too (3.0 -> "300 es").
-        std::string glsl_version(const GLBackendConfig &config) {
+        std::string glsl_version(const BackendConfig &config) {
             const int major = config.majorVersion;
             const int minor = config.minorVersion;
 
@@ -34,18 +34,18 @@ namespace thorin {
         }
     }
 
-    GLBackend::GLBackend(
+    Backend::Backend(
         const WindowConfig &config,
-        const GLBackendConfig &glConfig
+        const BackendConfig &glConfig
     ) : GPUBackend(config), glContext_(nullptr), glConfig_(glConfig) {}
 
-    void GLBackend::init() {
-        THORIN_DEBUG_ASSERT(window_ != nullptr, "GLBackend::init called before set_window");
+    void Backend::init() {
+        THORIN_DEBUG_ASSERT(window_ != nullptr, "opengl::Backend::init called before set_window");
 
 #ifdef __EMSCRIPTEN__
         // SDL would still create a WebGL context, and the core-profile shaders would fail to compile.
         if (!glConfig_.es) {
-            fail("GLBackendConfig::es must be true on Emscripten: browsers only provide GLES (WebGL2)");
+            fail("opengl::BackendConfig::es must be true on Emscripten: browsers only provide GLES (WebGL2)");
         }
 #endif
 
@@ -111,9 +111,9 @@ namespace thorin {
         );
     }
 
-    void GLBackend::destroy() {
-        THORIN_DEBUG_ASSERT(handle_ != nullptr, "GLBackend::destroy called with no window handle");
-        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "GLBackend::destroy called with no gl context");
+    void Backend::destroy() {
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "opengl::Backend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(glContext_ != nullptr, "opengl::Backend::destroy called with no gl context");
 
         logger().info("window {} '{}' closed", window_->id(), config_.title);
 
@@ -128,7 +128,7 @@ namespace thorin {
         SDL_DestroyWindow(handle_);
     }
 
-    void GLBackend::update(Widget *rootWidget) {
+    void Backend::update(Widget *rootWidget) {
         make_current();
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -144,7 +144,7 @@ namespace thorin {
         SDL_GL_SwapWindow(handle_);
     }
 
-    ImTextureID GLBackend::upload_background() {
+    ImTextureID Backend::upload_background() {
         backgroundImage_.reset();
 
         if (background_ == nullptr) {
@@ -164,7 +164,7 @@ namespace thorin {
         return static_cast<ImTextureID>(backgroundImage_->id());
     }
 
-    void GLBackend::make_current() {
+    void Backend::make_current() {
         THORIN_DEBUG_ASSERT(handle_ != nullptr, "make_current called with no window handle");
         THORIN_DEBUG_ASSERT(glContext_ != nullptr, "make_current called with no gl context");
 

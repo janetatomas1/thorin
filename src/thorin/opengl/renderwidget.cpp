@@ -4,11 +4,11 @@
 #include <glbinding/gl/enum.h>
 #include <glbinding/gl/functions.h>
 
-#include "thorin/gl/renderwidget.hpp"
+#include "thorin/opengl/renderwidget.hpp"
 #include "thorin/thorin.hpp"
 #include "thorin/window.hpp"
 
-namespace thorin {
+namespace thorin::opengl {
     RenderWidget::RenderWidget(Widget* parent): Widget("", parent) {}
 
     globjects::Texture* RenderWidget::texture() const {

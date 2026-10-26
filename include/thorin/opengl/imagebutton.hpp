@@ -4,9 +4,9 @@
 
 #include <function2/function2.hpp>
 
-#include "thorin/gl/renderwidget.hpp"
+#include "thorin/opengl/renderwidget.hpp"
 
-namespace thorin {
+namespace thorin::opengl {
     // A button showing texture(), drawn at this widget's Yoga box (frame padding included).
     // It has no intrinsic size. title is only its ImGui id; it is not shown.
     class ImageButton : public RenderWidget {

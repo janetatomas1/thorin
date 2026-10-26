@@ -11,7 +11,7 @@
 
 #include "thorin/widget.hpp"
 
-namespace thorin {
+namespace thorin::opengl {
     // Draws a GL texture at this widget's Yoga box; it has no intrinsic size.
     // The texture must belong to this widget's window's GL context.
     class RenderWidget : public Widget {

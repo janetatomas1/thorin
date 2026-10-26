@@ -1,7 +1,7 @@
 #pragma once
 
-#include "thorin/gl/renderwidget.hpp"
+#include "thorin/opengl/renderwidget.hpp"
 
-namespace thorin {
+namespace thorin::opengl {
     using ImageWidget = RenderWidget;
 }

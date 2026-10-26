@@ -1,9 +1,9 @@
 #include <algorithm>
 
-#include "thorin/gl/imagebutton.hpp"
+#include "thorin/opengl/imagebutton.hpp"
 #include "thorin/thorin.hpp"
 
-namespace thorin {
+namespace thorin::opengl {
     ImageButton::ImageButton(const std::string& title, Widget* parent): RenderWidget(parent) {
         set_title(title);
     }
