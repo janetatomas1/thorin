@@ -46,7 +46,7 @@
 #include <thorin/logwidget.hpp>
 
 #include "thorin/nullbackend.hpp"
-#include "thorin/sdlgpu/sdlgpubackend.hpp"
+#include "thorin/sdlgpu/backend.hpp"
 
 using namespace thorin;
 using namespace literals;
@@ -1357,7 +1357,7 @@ int main(const int argc, char** argv) {
     });
 
     app.set_backend_factory([] (const WindowConfig &config) {
-       return std::make_unique<SDLGPUBackend>(config);
+       return std::make_unique<sdlgpu::Backend>(config);
     });
 
     if (auto icon = Image::from_file(THORIN_EXAMPLES_ASSETS "/zion-icon.png")) {

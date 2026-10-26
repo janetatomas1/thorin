@@ -60,7 +60,7 @@ namespace {
             ImGui::DestroyContext();
         }
 
-        // One frame as GLBackend::update runs it: layout inside the frame, then draw.
+        // One frame as opengl::Backend::update runs it: layout inside the frame, then draw.
         void frame(const std::function<void()>& draw) {
             ImGui::NewFrame();
             ImGui::SetNextWindowPos(ImVec2{0.0f, 0.0f});
