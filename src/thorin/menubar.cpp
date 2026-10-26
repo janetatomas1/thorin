@@ -14,6 +14,7 @@ namespace thorin {
 
     Menu& MenuBar::add_menu(const std::string& title) {
         auto& menu = add(title);
+        menu.set_entry_owner(*this);
         layout().mark_dirty();
         return menu;
     }

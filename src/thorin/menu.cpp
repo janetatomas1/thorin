@@ -72,15 +72,19 @@ namespace thorin {
         fu2::unique_function<void()> callback,
         const std::string& shortcut
     ) {
-        return add<MenuItem>(title, std::move(callback), shortcut);
+        auto& item = add<MenuItem>(title, std::move(callback), shortcut);
+        item.set_entry_owner(*this);
+        return item;
     }
 
     Menu& Menu::add_menu(const std::string& title) {
-        return add<Menu>(title);
+        auto& menu = add<Menu>(title);
+        menu.set_entry_owner(*this);
+        return menu;
     }
 
     Menu& Menu::add_separator() {
-        add<MenuSeparator>();
+        add<MenuSeparator>().set_entry_owner(*this);
         return *this;
     }
 

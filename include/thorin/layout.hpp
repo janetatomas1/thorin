@@ -74,7 +74,8 @@ namespace thorin {
 
         // Makes Yoga size this node by calling owner()->measure(). Leaf nodes only.
         void enable_measure();
-        // Invalidates Yoga's cached measurement. No-op on nodes without a measure function.
+        // Invalidates Yoga's cached measurement. No-op on nodes without a measure function, except that an
+        // entry drawn outside Yoga also marks its entry owner (Widget::set_entry_owner()).
         void mark_dirty();
         // mark_dirty() on this node and every node below it.
         void mark_dirty_tree();

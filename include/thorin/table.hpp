@@ -47,6 +47,7 @@ namespace thorin {
         template <WidgetConcept W, class... Args>
         W& add_cell(Args&&... args) {
             auto& cell = add<W>(std::forward<Args>(args)...);
+            cell.set_entry_owner(*this);
             cells_.emplace_back(&cell);
             layout().mark_dirty();
             return cell;

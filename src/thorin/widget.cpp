@@ -30,6 +30,7 @@ namespace thorin {
         enabled_(other.enabled_),
         window_(other.window_),
         screenPos_(other.screenPos_),
+        entryOwner_(other.entryOwner_),
         layout_(std::move(other.layout_)),
         style_(std::move(other.style_)) {
         layout_.set_owner(this);
@@ -60,6 +61,7 @@ namespace thorin {
             enabled_ = other.enabled_;
             window_ = other.window_;
             screenPos_ = other.screenPos_;
+            entryOwner_ = other.entryOwner_;
             layout_ = std::move(other.layout_);
             layout_.set_owner(this);
             style_ = std::move(other.style_);
@@ -291,6 +293,15 @@ namespace thorin {
             // The new tree may belong to a window with a different style.
             layout_.mark_dirty_tree();
         }
+    }
+
+    void Widget::set_entry_owner(Widget& owner) {
+        THORIN_DEBUG_ASSERT(&owner != this, "set_entry_owner: a Widget cannot own itself");
+        entryOwner_ = owner.id();
+    }
+
+    Widget* Widget::entry_owner() {
+        return entryOwner_ != 0 ? find(entryOwner_) : nullptr;
     }
 
     Thorin& Widget::app() {

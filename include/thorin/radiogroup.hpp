@@ -29,6 +29,10 @@ namespace thorin {
         // Returned reference stays valid for the RadioGroup's lifetime.
         RadioButton& add_option(const std::string& label);
         RadioButton& add_option(const std::string& label, std::function<void()> onSelect);
+        // Removes and destroys the option at index; later options move down by one, so values stay equal to
+        // indices. The same option stays selected; if it was the removed one, the first option is. Not from
+        // inside a draw.
+        void remove_option(size_t index);
 
         // Index of the selected option. set_selected() doesn't call the option's on_select.
         [[nodiscard]] int selected() const;

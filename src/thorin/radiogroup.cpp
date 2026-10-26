@@ -49,6 +49,23 @@ namespace thorin {
         return rb;
     }
 
+    void RadioGroup::remove_option(size_t index) {
+        THORIN_DEBUG_ASSERT(index < count(), "RadioGroup::remove_option index out of range", index, count());
+        remove(index);
+
+        int value = 0;
+        for (auto& option : items()) {
+            option.value_ = value++;
+        }
+
+        const int removed = static_cast<int>(index);
+        if (selected_ > removed) {
+            selected_ -= 1;
+        } else if (selected_ == removed) {
+            selected_ = 0;
+        }
+    }
+
     int RadioGroup::selected() const {
         return selected_;
     }

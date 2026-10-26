@@ -130,6 +130,13 @@ namespace thorin {
         if (YGNodeHasMeasureFunc(node_)) {
             YGNodeMarkDirty(node_);
         }
+
+        // Entries drawn outside Yoga (menus, table cells) are measured by their owner instead.
+        if (owner_ != nullptr && YGNodeGetParent(node_) == nullptr) {
+            if (Widget* entryOwner = owner_->entry_owner()) {
+                entryOwner->layout().mark_dirty();
+            }
+        }
     }
 
     void Layout::mark_dirty_tree() {

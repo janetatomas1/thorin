@@ -36,6 +36,9 @@ namespace thorin {
         Window* window_ = nullptr;
         // Top-left of the Yoga box in screen space, recorded by render().
         ImVec2 screenPos_{0.0f, 0.0f};
+        // The widget that measures this one when it is drawn outside the Yoga tree (a menu's bar, a cell's
+        // table); 0 = none. An id, so a destroyed owner is just skipped.
+        uint64_t entryOwner_ = 0;
 
         Layout layout_;
         Style style_{this};
@@ -125,6 +128,11 @@ namespace thorin {
         void set_window(Window* window);
         Widget* parent();
         void set_parent(Widget* parent);
+        // For widgets drawn outside the Yoga tree: owner measures them, so it is marked dirty whenever they
+        // are (title, style). Set by the owner when it adds the entry. Unrelated to parent().
+        void set_entry_owner(Widget& owner);
+        // The live entry owner, or nullptr.
+        [[nodiscard]] Widget* entry_owner();
         Thorin& app();
         Layout& layout();
         // Pushed around show(), so it applies to the children too; measure sees it as well.
