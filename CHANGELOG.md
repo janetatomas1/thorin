@@ -59,6 +59,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window::set_title()` changes the OS window title (`SDL_SetWindowTitle`); it only changed the stored
   one. The root ImGui window has a fixed name, so renaming no longer resets tree nodes, scroll, tables
   and other ImGui state.
+- `set_parent()` marks the whole subtree dirty, as documented: moving a container left its leaves
+  measured with the old parent's style.
 - `Window::set_root_widget()` no longer touches a closed window: the swap goes through `Window::post()`
   instead of capturing the window.
 

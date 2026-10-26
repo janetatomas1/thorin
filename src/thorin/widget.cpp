@@ -289,7 +289,7 @@ namespace thorin {
             }
 
             // The new tree may belong to a window with a different style.
-            layout_.mark_dirty();
+            layout_.mark_dirty_tree();
         }
     }
 

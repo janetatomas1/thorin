@@ -455,3 +455,26 @@ TEST_F(Measure, MoveAssignedRadioGroupKeepsSelection) {
     target.set_selected(1);
     EXPECT_TRUE(target.at(1).selected());
 }
+
+// Re-parenting
+
+TEST_F(Measure, ReparentedContainerRemeasuresItsLeaves) {
+    Widget padded("padded", &root);
+    padded.align_items(YGAlignFlexStart).set_frame_padding(ImVec2{30.0f, 3.0f});
+    Widget plain("plain", &root);
+    plain.align_items(YGAlignFlexStart);
+
+    Widget box("box", &padded);
+    box.align_items(YGAlignFlexStart);
+    Button button("Click me", &box);
+    Button reference("Click me", &plain);
+
+    frame([] {});
+    const float paddedWidth = button.size().x;
+    ASSERT_GT(paddedWidth, reference.size().x + 1.0f);
+
+    // Moving the container, not the leaf: the button now inherits plain's style.
+    box.set_parent(&plain);
+    frame([] {});
+    EXPECT_NEAR(button.size().x, reference.size().x, tolerance);
+}
