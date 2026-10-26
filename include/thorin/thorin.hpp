@@ -95,7 +95,7 @@ namespace thorin {
         // Empty = none.
         void set_background_painter(std::function<BackgroundPainter()> factory);
         [[nodiscard]] const std::function<BackgroundPainter()>& background_painter_factory() const;
-        // Makes the backend of each window created afterwards. Defaults to GLBackend when thorin is built
+        // Makes the backend of each window created afterwards. Defaults to opengl::Backend when thorin is built
         // with THORIN_GL; without it the app has to set one before adding windows.
         void set_backend_factory(BackendFactory factory);
         // A backend for a new window, from the factory. Asserts when there is no factory.

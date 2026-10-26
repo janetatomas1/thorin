@@ -25,7 +25,7 @@ namespace thorin {
     using BackendFactory = fu2::unique_function<std::unique_ptr<GPUBackend>(const WindowConfig& config)>;
 
     // The per-window platform and GPU part of a Window: SDL window, GPU and ImGui contexts, theme, fonts,
-    // background and icon. Subclasses implement one graphics API (GLBackend): its context, the ImGui renderer
+    // background and icon. Subclasses implement one graphics API (opengl::Backend, sdlgpu::Backend): its context, the ImGui renderer
     // backend, the background texture and presenting; the protected helpers do the rest.
     class GPUBackend {
     protected:

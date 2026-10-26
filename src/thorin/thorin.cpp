@@ -5,7 +5,7 @@
 #include "thorin/thorin.hpp"
 #include "thorin/version.hpp"
 #ifdef THORIN_GL
-#include "thorin/gl/glbackend.hpp"
+#include "thorin/opengl/backend.hpp"
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -31,7 +31,7 @@ namespace thorin {
         current_ = this;
         configure_logging({});
 #ifdef THORIN_GL
-        backendFactory_ = [](const WindowConfig& config) { return std::make_unique<GLBackend>(config); };
+        backendFactory_ = [](const WindowConfig& config) { return std::make_unique<opengl::Backend>(config); };
 #endif
 
         // SDL's own messages (errors, warnings) go to the thorin logger.
