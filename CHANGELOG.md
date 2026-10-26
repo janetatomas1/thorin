@@ -53,6 +53,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Thorin::get_window_at()` returns `nullptr` for an index out of range, as documented, instead of asserting.
 - `maximize()`, `minimize()`, `set_size()` and `set_title()` no longer touch a closed window: their
   queued actions go through `Window::post()` instead of capturing the backend.
+- `Window::set_root_widget()` no longer touches a closed window: the swap goes through `Window::post()`
+  instead of capturing the window.
 
 ### Changed
 

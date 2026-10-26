@@ -88,13 +88,14 @@ namespace thorin {
         THORIN_DEBUG_ASSERT(widget != nullptr, "set_root_widget called with null widget");
 
         widget->set_window(this);
-        app().add_action([this, widget = std::move(widget)]() mutable  {
-            if (rootWidget_ != nullptr) {
-                rootWidget_->destroy();
+        // Through post(): dropped if the window is closed before the swap runs.
+        post([widget = std::move(widget)](Window& window) mutable {
+            if (window.rootWidget_ != nullptr) {
+                window.rootWidget_->destroy();
             }
 
-            rootWidget_ = std::move(widget);
-            rootWidget_->init();
+            window.rootWidget_ = std::move(widget);
+            window.rootWidget_->init();
         });
     }
 
