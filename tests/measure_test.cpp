@@ -24,6 +24,10 @@
 #include <thorin/slider.hpp>
 #include <thorin/text.hpp>
 #include <thorin/textinput.hpp>
+#include <thorin/table.hpp>
+#include <thorin/menubar.hpp>
+#include <thorin/nullbackend.hpp>
+#include <thorin/window.hpp>
 #include <thorin/treenode.hpp>
 #include <thorin/treeview.hpp>
 #include <thorin/widget.hpp>
@@ -477,4 +481,99 @@ TEST_F(Measure, ReparentedContainerRemeasuresItsLeaves) {
     box.set_parent(&plain);
     frame([] {});
     EXPECT_NEAR(button.size().x, reference.size().x, tolerance);
+}
+
+// Entries drawn outside Yoga are measured with their own style
+
+TEST_F(Measure, TableMeasuresCellsWithTheirStyle) {
+    Table table(1, &root);
+    auto& button = table.add_cell<Button>("Click me");
+
+    float plain = 0.0f;
+    float padded = 0.0f;
+    frame([&] {
+        plain = table.measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).y;
+        const ImVec2 padding = ImGui::GetStyle().FramePadding;
+        button.set_frame_padding(ImVec2{padding.x, padding.y + 10.0f});
+        padded = table.measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).y;
+    });
+    EXPECT_NEAR(padded - plain, 20.0f, tolerance);
+}
+
+TEST_F(Measure, MenuBarMeasuresMenusWithTheirStyle) {
+    MenuBar bar(&root);
+    auto& menu = bar.add_menu("File");
+
+    float plain = 0.0f;
+    float spaced = 0.0f;
+    frame([&] {
+        plain = bar.measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).x;
+        const ImVec2 spacing = ImGui::GetStyle().ItemSpacing;
+        menu.set_item_spacing(ImVec2{spacing.x + 10.0f, spacing.y});
+        spaced = bar.measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).x;
+    });
+    EXPECT_NEAR(spaced - plain, 20.0f, tolerance);
+}
+
+// Scrolling tables
+
+namespace {
+    // A one-line cell that counts how often it is drawn.
+    struct CountingCell : Widget {
+        int* shown;
+
+        explicit CountingCell(int* shown) : shown(shown) {
+            layout().enable_measure();
+        }
+
+        ImVec2 measure(float, YGMeasureMode, float, YGMeasureMode) override {
+            return ImVec2{ImGui::CalcTextSize("cell").x, ImGui::GetTextLineHeight()};
+        }
+
+        bool show() override {
+            ++*shown;
+            ImGui::TextUnformatted("cell");
+            return false;
+        }
+    };
+}
+
+TEST_F(Measure, ScrollingTableMeasuresHeaderAndFirstRow) {
+    Table few({"A", "B"}, &root);
+    Table many({"A", "B"}, &root);
+    few.set_flags(few.flags() | ImGuiTableFlags_ScrollY);
+    many.set_flags(many.flags() | ImGuiTableFlags_ScrollY);
+    for (int i = 0; i < 2; ++i) {
+        few.add_cell(i);
+    }
+    for (int i = 0; i < 200; ++i) {
+        many.add_cell(i);
+    }
+
+    frame([] {});
+    const ImGuiStyle& style = ImGui::GetStyle();
+    const float row = ImGui::GetTextLineHeight() + style.CellPadding.y * 2.0f;
+    EXPECT_NEAR(few.size().y, row * 2.0f, tolerance);
+    EXPECT_NEAR(many.size().y, row * 2.0f, tolerance);
+}
+
+TEST_F(Measure, ScrollingTableDrawsOnlyVisibleRows) {
+    // Widget cells reach the window when drawn; this one is never created, so it opens nothing.
+    Window window(std::make_unique<NullBackend>());
+    root.set_window(&window);
+    Table table(1, &root);
+    table.set_flags(table.flags() | ImGuiTableFlags_ScrollY).height(100.0f);
+    int shown = 0;
+    for (int i = 0; i < 1000; ++i) {
+        table.add_cell<CountingCell>(&shown);
+    }
+
+    // The clipper measures a row on its first frame; count the second.
+    frame([&] { table.render(); });
+    shown = 0;
+    frame([&] { table.render(); });
+
+    const float row = ImGui::GetTextLineHeight() + ImGui::GetStyle().CellPadding.y * 2.0f;
+    EXPECT_GT(shown, 0);
+    EXPECT_LE(shown, static_cast<int>(100.0f / row) + 3);
 }

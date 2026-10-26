@@ -28,6 +28,11 @@ namespace thorin {
         std::vector<Cell> cells_;
         ImGuiTableFlags flags_ = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 
+        // Draws one cell at ImGui's current table cell.
+        bool draw_cell(Cell& cell);
+        // One cell's content height, cell padding not included.
+        float cell_height(Cell& cell);
+
     public:
         // One column per header.
         Table(std::vector<std::string> headers, Widget* parent = nullptr);
@@ -57,6 +62,10 @@ namespace thorin {
         Table& set_column_stretch(size_t index, float weight = 1.0f);
         // With ImGuiTableFlags_Resizable both are only the starting widths; the user drags from there.
 
+        // With ImGuiTableFlags_ScrollY the table scrolls inside its own box: give it a height (height() or
+        // flex), otherwise it shows only the header and the first row. Only the visible rows are drawn, so
+        // large tables stay cheap; widget cells scrolled out of view don't run draw(). The header row stays
+        // on top.
         Table& set_flags(ImGuiTableFlags flags);
         [[nodiscard]] ImGuiTableFlags flags() const;
 

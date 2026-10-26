@@ -47,6 +47,9 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.
 - `Widget::post()` and `Window::post()` take a `delay`, like `add_action()`.
+- Scrolling `Table` (`ImGuiTableFlags_ScrollY`): only the visible rows are drawn (`ImGuiListClipper`),
+  and the header row stays on top. It takes its height from `height()` or flex; without one it measures
+  as the header and the first row, so measuring no longer walks every cell.
 
 ### Fixed
 
@@ -59,6 +62,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window::set_title()` changes the OS window title (`SDL_SetWindowTitle`); it only changed the stored
   one. The root ImGui window has a fixed name, so renaming no longer resets tree nodes, scroll, tables
   and other ImGui state.
+- `Table` and `MenuBar` measure their cells and menus with the entry's own style, as they draw them;
+  a cell with its own padding or a menu with its own font was measured with the owner's style.
 - `set_parent()` marks the whole subtree dirty, as documented: moving a container left its leaves
   measured with the old parent's style.
 - `Window::set_root_widget()` no longer touches a closed window: the swap goes through `Window::post()`

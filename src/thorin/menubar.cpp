@@ -52,7 +52,10 @@ namespace thorin {
         float intrinsic = std::max(style.WindowPadding.x, style.ItemSpacing.x) * 2.0f;
 
         for (auto& menu : items()) {
+            // The header is drawn inside the menu's style, ItemSpacing included; style reads the pushed values.
+            menu.style().push();
             intrinsic += ImGui::CalcTextSize(menu.title_id().c_str(), nullptr, true).x + style.ItemSpacing.x * 2.0f;
+            menu.style().pop();
         }
 
         return ImVec2{

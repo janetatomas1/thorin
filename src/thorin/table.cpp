@@ -85,6 +85,11 @@ namespace thorin {
         }
 
         if (ImGui::BeginTable(title_id().c_str(), static_cast<int>(columns()), flags_, size())) {
+            const bool scrolling = flags_ & ImGuiTableFlags_ScrollY;
+            // The header row stays on top while the rows scroll under it.
+            if (scrolling && showHeaders_) {
+                ImGui::TableSetupScrollFreeze(0, 1);
+            }
             for (size_t i = 0; i < columns(); ++i) {
                 ImGui::TableSetupColumn(headers_[i].c_str(), sizing_[i].flags, sizing_[i].value);
             }
@@ -92,22 +97,29 @@ namespace thorin {
                 ImGui::TableHeadersRow();
             }
 
-            size_t index = 0;
-            for (auto& cell : cells_) {
-                if (index++ % columns() == 0) {
-                    ImGui::TableNextRow();
+            if (scrolling) {
+                // Only the visible rows are drawn. The clipper estimates the rows it skips from the height
+                // of one row, so uneven rows only make the scrollbar a little off.
+                ImGuiListClipper clipper;
+                clipper.Begin(static_cast<int>(rows()));
+                while (clipper.Step()) {
+                    for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
+                        ImGui::TableNextRow();
+                        const size_t first = static_cast<size_t>(row) * columns();
+                        for (size_t index = first; index < std::min(first + columns(), cells_.size()); ++index) {
+                            ImGui::TableNextColumn();
+                            changed |= draw_cell(cells_[index]);
+                        }
+                    }
                 }
-                ImGui::TableNextColumn();
-
-                if (auto value = std::get_if<int>(&cell)) {
-                    ImGui::Text("%d", *value);
-                } else if (auto value = std::get_if<float>(&cell)) {
-                    ImGui::Text("%.3f", *value);
-                } else {
-                    // Widgets are outside the Yoga tree, so they reach the app through the table's window.
-                    auto widget = std::get<Widget*>(cell);
-                    widget->set_window(window());
-                    changed |= widget->draw();
+            } else {
+                size_t index = 0;
+                for (auto& cell : cells_) {
+                    if (index++ % columns() == 0) {
+                        ImGui::TableNextRow();
+                    }
+                    ImGui::TableNextColumn();
+                    changed |= draw_cell(cell);
                 }
             }
 
@@ -117,24 +129,62 @@ namespace thorin {
         return changed;
     }
 
+    bool Table::draw_cell(Cell& cell) {
+        if (auto value = std::get_if<int>(&cell)) {
+            ImGui::Text("%d", *value);
+            return false;
+        }
+        if (auto value = std::get_if<float>(&cell)) {
+            ImGui::Text("%.3f", *value);
+            return false;
+        }
+
+        // Widgets are outside the Yoga tree, so they reach the app through the table's window.
+        auto widget = std::get<Widget*>(cell);
+        widget->set_window(window());
+        return widget->draw();
+    }
+
+    float Table::cell_height(Cell& cell) {
+        // Numbers are one text line; widgets report their own height, measured with the style
+        // their draw() pushes.
+        auto widget = std::get_if<Widget*>(&cell);
+        if (widget == nullptr) {
+            return ImGui::GetTextLineHeight();
+        }
+
+        (*widget)->style().push();
+        const float height = (*widget)->measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).y;
+        (*widget)->style().pop();
+        return height;
+    }
+
     ImVec2 Table::measure(float width, YGMeasureMode widthMode, float height, YGMeasureMode heightMode) {
         // Mirrors ImGui: each row is its tallest cell plus CellPadding.y above and below.
         // Borders are drawn over the row edges and take no space.
         const float padding = ImGui::GetStyle().CellPadding.y * 2.0f;
         float intrinsic = showHeaders_ ? ImGui::GetTextLineHeight() + padding : 0.0f;
-        float rowHeight = 0.0f;
 
-        size_t index = 0;
-        for (auto& cell : cells_) {
-            // Numbers are one text line; widgets report their own height.
-            const float cellHeight = std::holds_alternative<Widget*>(cell)
-                ? std::get<Widget*>(cell)->measure(0.0f, YGMeasureModeUndefined, 0.0f, YGMeasureModeUndefined).y
-                : ImGui::GetTextLineHeight();
-            rowHeight = std::max(rowHeight, cellHeight);
-
-            if (++index % columns() == 0 || index == count()) {
+        if (flags_ & ImGuiTableFlags_ScrollY) {
+            // Sized from its content, a scrolling table would show every row and never scroll; it takes
+            // its height from height() or flex. Without one, it shows the header and the first row.
+            float rowHeight = 0.0f;
+            for (size_t i = 0; i < std::min(columns(), cells_.size()); ++i) {
+                rowHeight = std::max(rowHeight, cell_height(cells_[i]));
+            }
+            if (!cells_.empty()) {
                 intrinsic += rowHeight + padding;
-                rowHeight = 0.0f;
+            }
+        } else {
+            float rowHeight = 0.0f;
+            size_t index = 0;
+            for (auto& cell : cells_) {
+                rowHeight = std::max(rowHeight, cell_height(cell));
+
+                if (++index % columns() == 0 || index == count()) {
+                    intrinsic += rowHeight + padding;
+                    rowHeight = 0.0f;
+                }
             }
         }
 
