@@ -32,7 +32,7 @@ requires measured nodes to be leaves (`add_child` asserts this).
 
 Yoga calls `measure` only from `YGNodeCalculateLayout`, i.e. from
 `Layout::calculate_layout`, which runs inside the frame (after `make_current()`,
-`NewFrame()` and `Begin()` in `GLBackend::update`). So `measure` may use ImGui
+`NewFrame()` and `Begin()` in `opengl::Backend::update`). So `measure` may use ImGui
 metrics such as `CalcTextSize` and `GetFrameHeight`. `calculate_layout` must not be
 called outside a frame.
 

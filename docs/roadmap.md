@@ -14,6 +14,25 @@ Before writing a real app with thorin, in this order:
 The real app is `examples/zion.cpp`, a system monitor (CPU, processes, system info, logs). Gaps it
 turns up go here.
 
+## Disk repair app
+
+A second real-app showcase, separate from Zion: inspect, check and repair disks and filesystems.
+
+- **A frontend over existing tools**, not filesystem code: `lsblk --json`, `sfdisk --json` and
+  `blkid` for discovery, `smartctl --json` for health, and each filesystem's checker
+  (`fsck.ext4 -n`, `xfs_repair -n`, `btrfs check --readonly`, `fsck.fat -n`, `ntfsfix -n`). Each
+  filesystem is a small adapter that runs its tool and maps the output to a common result.
+- **Read-only by default.** Repair is an explicit step behind a confirmation modal, and never on a
+  mounted filesystem.
+- **Image files first.** A script makes broken ext4 / FAT / btrfs images, so it runs without root
+  and doubles as a test setup. Real devices need root; use a pkexec helper rather than running the
+  GUI as root.
+- **What it exercises:** background jobs reporting progress to the UI thread, tool output streamed
+  into a log pane, a device → partition → filesystem tree, SMART tables, a partition-layout bar
+  and a hex view of the superblock.
+
+Start with read-only discovery and checks on images, then add repair.
+
 ## Finish the measure work (done)
 
 - **Explicit heights on frame widgets.** Slider, Drag, Input, TextInput (single line),
@@ -98,7 +117,7 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
   `draw()`, so they inherit its style. Owners that measure them (`Table`, `MenuBar`) push the
   entry's own style around it.
 - **App-wide theme.** `Thorin::set_theme(Theme)` (`ImGuiStyle`, `ImPlotStyle`, `ImPlot3DStyle`, unscaled)
-  is copied into each window's contexts in `GLBackend::init()`, then DPI-scaled. Setting it later
+  is copied into each window's contexts in `opengl::Backend::init()`, then DPI-scaled. Setting it later
   re-themes open windows through an action (between frames) and marks their trees dirty.
   `Theme::font` (`const Font*`, bytes loaded without an ImGui context) is borrowed by each window's atlas
   (`FontDataOwnedByAtlas = false`). Fonts loaded at runtime are owned by the app (`Thorin::add_font`, a
@@ -179,10 +198,10 @@ is a `TreeNode` with `ImGuiTreeNodeFlags_Framed`.
 
 ## OpenGL
 
-`RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment.
+`opengl::RenderWidget` draws a texture and owns a framebuffer with it as the colour attachment.
 
-- **Render callback (done).** `set_on_render([](RenderWidget& self) {...})`.
-  `RenderWidget::render_texture()` (called from `show()`, and from `ImageButton::show()`) binds the
+- **Render callback (done).** `set_on_render([](opengl::RenderWidget& self) {...})`.
+  `opengl::RenderWidget::render_texture()` (called from `show()`, and from `opengl::ImageButton::show()`) binds the
   framebuffer, sets `glViewport` to the texture size, calls it, restores the previous framebuffer
   and viewport, and calls `request_redraw()`.
 - **Auto-size (done).** `set_auto_size(true)` resizes the texture to the Yoga box times
@@ -208,11 +227,11 @@ through a wait-function table indexed by the enum (`windowmanager.cpp`). `FrameC
 redraw counter live in `WindowManager`; `Thorin::set_frame_config` and `Thorin::request_redraw`
 forward to it. There is no vsync and no `swapInterval`: every window swaps with interval 0, and
 `DisplayMatched` sleeps to the fastest refresh rate among the windows' displays, so waits don't
-stack per window. `add_action` pushes a registered wake event. `RenderWidget::render_texture()` requests a
+stack per window. `add_action` pushes a registered wake event. `opengl::RenderWidget::render_texture()` requests a
 redraw. Still open: the minimized/occluded skip at the end.
 
 The main loop sleeps a hard-coded `SDL_Delay(20)` per iteration (`WindowManager::update`) and
-every window swaps with vsync on (`SDL_GL_SetSwapInterval(1)` in `GLBackend::init`). The two
+every window swaps with vsync on (`SDL_GL_SetSwapInterval(1)` in `opengl::Backend::init`). The two
 waits stack: the swap waits for the refresh after the sleep, about 30 fps at 60 Hz, and each
 extra window can cost another refresh.
 
@@ -246,7 +265,7 @@ int swapInterval = 0;           // 1 = vsync, 0 = off, -1 = adaptive (fall back 
 
 `Thorin::request_redraw(int frames = 2)` keeps an OnDemand loop drawing for that many frames.
 Every SDL event requests a redraw (ImGui needs a frame or two to settle hover and layout), and
-an animating widget (e.g. `RenderWidget`) requests one from its `render_texture()` every frame it is
+an animating widget (e.g. `opengl::RenderWidget`) requests one from its `render_texture()` every frame it is
 drawn.
 
 Needed before OnDemand is usable:
