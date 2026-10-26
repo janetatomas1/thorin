@@ -43,8 +43,8 @@ namespace thorin {
         void close();
         // Runs fn on the next dispatch with this window if it is still open then; dropped if it was closed
         // meanwhile, or if it has not been created yet. Use the window passed to fn, never a captured this.
-        // Needs the window added to the app.
-        void post(fu2::unique_function<void(Window&)> fn);
+        // Needs the window added to the app. delay works as in Thorin::add_action().
+        void post(fu2::unique_function<void(Window&)> fn, uint64_t delay = 0);
         Thorin &app();
         [[nodiscard]] uint64_t id() const;
         void set_window_manager(WindowManager *manager);

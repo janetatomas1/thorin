@@ -46,6 +46,7 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   `sdlgpu::ImageButton` is a clickable `sdlgpu::RenderWidget`.
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.
+- `Widget::post()` and `Window::post()` take a `delay`, like `add_action()`.
 
 ### Fixed
 
@@ -65,6 +66,10 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)
   instead of creating a `opengl::Backend` itself; use `app.make_backend(config)`.
 - `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `opengl::Backend` adds it.
+- Each dispatch runs the delayed actions that are due before the queued ones, so a re-post with delay 1
+  runs once per dispatch even from a delayed action (it used to run every other dispatch). An action
+  queued from a running action with delay 0 still runs in the same dispatch; this is now documented, and
+  an action that re-posts itself needs delay 1.
 - Each backend is its own library linking `thorin::thorin`: apps link `thorin::opengl` or
   `thorin::sdlgpu` and call `set_backend_factory()`. The core library no longer defines `THORIN_GL` /
   `THORIN_SDLGPU`.

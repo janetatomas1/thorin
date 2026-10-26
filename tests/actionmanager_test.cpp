@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -115,4 +116,29 @@ TEST(ActionManager, RunsMoveOnlyActions) {
     manager.add_action([&seen, value = std::move(value)] { seen = *value; });
     manager.dispatch();
     EXPECT_EQ(seen, 42);
+}
+
+TEST(ActionManager, ActionQueuedDuringDispatchRunsInTheSameDispatch) {
+    ActionManager manager;
+    std::vector<int> order;
+    manager.add_action([&] {
+        order.push_back(0);
+        manager.add_action([&] { order.push_back(1); });
+    });
+    manager.dispatch();
+    EXPECT_EQ(order, (std::vector<int>{0, 1}));
+}
+
+TEST(ActionManager, RepostWithDelayOneRunsOncePerDispatch) {
+    ActionManager manager;
+    int runs = 0;
+    std::function<void()> tick = [&] {
+        ++runs;
+        manager.add_action([&] { tick(); }, 1);
+    };
+    manager.add_action([&] { tick(); });
+    for (int i = 1; i <= 5; ++i) {
+        manager.dispatch();
+        EXPECT_EQ(runs, i);
+    }
 }

@@ -62,12 +62,12 @@ namespace thorin {
         manager_->remove_window(id_);
     }
 
-    void Window::post(fu2::unique_function<void(Window&)> fn) {
+    void Window::post(fu2::unique_function<void(Window&)> fn, uint64_t delay) {
         app().add_action([id = id_, fn = std::move(fn)]() mutable {
             if (Window* window = Thorin::current().get_window(id)) {
                 fn(*window);
             }
-        });
+        }, delay);
     }
 
     Thorin& Window::app() {

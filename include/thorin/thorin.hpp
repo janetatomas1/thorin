@@ -109,7 +109,8 @@ namespace thorin {
         void request_redraw(int frames = 2);
         // Whether any action is queued or delayed.
         [[nodiscard]] bool actions_pending() const;
-        // Thread-safe; also wakes an OnDemand loop.
+        // Runs fn on a later dispatch; see ActionManager::add_action() for delay. Thread-safe; also wakes an
+        // OnDemand loop.
         void add_action(
             action &&fn,
             uint64_t delay = 0

@@ -95,13 +95,15 @@ namespace thorin {
         // the action is dropped if the widget was destroyed meanwhile. Actions run in call order.
         // A moved widget keeps its id, so fn gets the moved-to object. Use self in fn, never a
         // captured this: without this captured, any member access through it doesn't compile.
+        // delay works as in Thorin::add_action(): posted from a running action, delay 0 runs in the
+        // same dispatch, so re-posting itself every frame needs delay 1.
         template <class Self, std::invocable<Self&> F>
-        void post(this Self& self, F fn) {
+        void post(this Self& self, F fn, uint64_t delay = 0) {
             self.app().add_action([id = self.id(), fn = std::move(fn)]() mutable {
                 if (Widget* widget = find(id)) {
                     fn(static_cast<Self&>(*widget));
                 }
-            });
+            }, delay);
         }
         [[nodiscard]] const std::string& title() const;
         [[nodiscard]] const std::string& title_id() const;
