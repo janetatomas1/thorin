@@ -9,6 +9,7 @@ set(
     color_test
     series_test
     actionmanager_test
+    container_test
 )
 
 foreach(test ${THORIN_TESTS})

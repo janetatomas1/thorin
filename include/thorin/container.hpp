@@ -38,6 +38,8 @@ namespace thorin {
         // Destroys the widget at index; later widgets shift down by one.
         void remove(size_t index) {
             THORIN_DEBUG_ASSERT(index < items_.size(), "Container::remove index out of range", index, items_.size());
+            // destroy() first: it releases GPU resources in the widget's own context.
+            items_[index]->destroy();
             items_.erase(items_.begin() + static_cast<std::ptrdiff_t>(index));
         }
 
