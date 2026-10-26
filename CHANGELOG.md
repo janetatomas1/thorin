@@ -56,6 +56,9 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Container::remove()` (so `TabWidget::remove_tab()`, `DockArea::remove_pane()`) calls the widget's
   `destroy()` before freeing it: a removed `RenderWidget` released its GL objects in whatever context
   was current, possibly another window's.
+- `Window::set_title()` changes the OS window title (`SDL_SetWindowTitle`); it only changed the stored
+  one. The root ImGui window has a fixed name, so renaming no longer resets tree nodes, scroll, tables
+  and other ImGui state.
 - `Window::set_root_widget()` no longer touches a closed window: the swap goes through `Window::post()`
   instead of capturing the window.
 

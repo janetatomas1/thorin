@@ -97,8 +97,9 @@ namespace thorin {
         // Yoga padding is the only inset: the root box covers the whole window from (0, 0), so ImGui's padding
         // would only push the content past the edge and bring up a scrollbar.
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0.0f, 0.0f});
+        // A fixed name: every ImGui ID below derives from it, so renaming the window keeps their state.
         ImGui::Begin(
-            config_.title.c_str(),
+            "##thorin_root",
             nullptr,
             config_.windowFlags
         );
@@ -267,7 +268,9 @@ namespace thorin {
 
     void GPUBackend::set_title(const std::string& title) {
         window_->post([title](Window& window) {
-            window.backend()->config_.title = title;
+            GPUBackend* backend = window.backend();
+            backend->config_.title = title;
+            SDL_SetWindowTitle(backend->handle_, title.c_str());
         });
     }
 
