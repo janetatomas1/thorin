@@ -12,12 +12,12 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Thorin::window_count()`.
 - `thorin/assert.hpp` with `THORIN_ASSERT` / `THORIN_DEBUG_ASSERT`, used instead of libassert's macros.
   On Emscripten they are no-ops and libassert isn't linked.
-- `GPUBackend::fail()`: logs a critical message and aborts. `GLBackend` and `NullBackend` use it when
+- `GPUBackend::fail()`: logs a critical message and aborts. `opengl::Backend` and `NullBackend` use it when
   the window, GL context or ImGui backends can't be created, so these failures are reported in release
   and Emscripten builds too, with SDL's reason and the requested context.
-- `GLBackendConfig::es`: a GLES context instead of a core-profile one; the default on Emscripten, with
+- `opengl::BackendConfig::es`: a GLES context instead of a core-profile one; the default on Emscripten, with
   version 3.0.
-- Emscripten: `GLBackend` uses WebGL2 (GLES 3.0), `exec()` runs one `update()` per browser frame via
+- Emscripten: `opengl::Backend` uses WebGL2 (GLES 3.0), `exec()` runs one `update()` per browser frame via
   `emscripten_set_main_loop`, and the frame policies are ignored (the browser paces frames). Examples
   build as `.html`.
 - `NullBackend`: an SDL window and ImGui context without a graphics API. Frames are built (layout,
@@ -34,10 +34,15 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `THORIN_GL` CMake option (ON by default): builds the OpenGL backend and the GL widgets, and links
   glbinding / globjects only when on.
 - `Thorin::set_backend_factory()` / `make_backend()`: the app makes each window's backend. Defaults
-  to `GLBackend` with `THORIN_GL`.
+  to `opengl::Backend` with `THORIN_GL`.
 - `GPUBackend` helpers for custom backends: `create_window()`, `create_context()`,
   `destroy_context()`, `build_frame()` and the `upload_background()` hook; `process_event()` and
   `make_current()` (sets the ImGui context) now have defaults.
+- `sdlgpu::Backend` (`THORIN_SDLGPU`, ON except on Emscripten): SDL_GPU (Vulkan, Metal or D3D12) with
+  one device shared by all windows, background images, `device()` and `upload_texture(image)`.
+- `sdlgpu::RenderWidget` / `sdlgpu::ImageWidget`: draws an SDL_GPU texture and runs a render callback
+  in a render pass on it, with clear colour, auto-size, an optional depth texture and mouse capture.
+  `sdlgpu::ImageButton` is a clickable `sdlgpu::RenderWidget`.
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.
 
@@ -49,11 +54,16 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 
 ### Changed
 
+- Each graphics API has its own namespace and directory, with the same class names in each: the
+  OpenGL classes moved to `thorin::opengl` and `thorin/opengl/` (`GLBackend` -> `opengl::Backend`,
+  `GLBackendConfig` -> `opengl::BackendConfig`, `RenderWidget` / `ImageWidget` / `ImageButton` ->
+  `opengl::RenderWidget` / `ImageWidget` / `ImageButton`; headers `backend.hpp`, `renderwidget.hpp`,
+  `imagewidget.hpp`, `imagebutton.hpp`). `thorin::gl` is avoided because it would hide glbinding's `gl`.
 - `Theme` no longer has `plot` / `plot3d`, and windows no longer create ImPlot / ImPlot3D contexts;
   use `ChartTheme` from `thorin/extras/charttheme.hpp`.
 - `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)
-  instead of creating a `GLBackend` itself; use `app.make_backend(config)`.
-- `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `GLBackend` adds it.
+  instead of creating a `opengl::Backend` itself; use `app.make_backend(config)`.
+- `WindowConfig::sdlFlags` no longer includes `SDL_WINDOW_OPENGL`; `opengl::Backend` adds it.
 
 ## [0.2.0] - 2026-10-20
 
