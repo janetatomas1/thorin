@@ -89,7 +89,7 @@ if(NOT EMSCRIPTEN)
     target_link_libraries(thorin PUBLIC libassert::assert)
 endif()
 
-# OpenGL backend and the GL widgets (RenderWidget, ImageWidget, ImageButton).
+# OpenGL backend and widgets, in thorin::opengl.
 option(THORIN_GL "Build the OpenGL backend" ON)
 if(THORIN_GL)
     find_package(glbinding REQUIRED)
@@ -97,23 +97,29 @@ if(THORIN_GL)
     target_sources(
         thorin
         PRIVATE
-        ${THORIN_SOURCE_DIR}/gl/glbackend.cpp
-        ${THORIN_SOURCE_DIR}/gl/renderwidget.cpp
-        ${THORIN_SOURCE_DIR}/gl/imagebutton.cpp
+        ${THORIN_SOURCE_DIR}/opengl/backend.cpp
+        ${THORIN_SOURCE_DIR}/opengl/renderwidget.cpp
+        ${THORIN_SOURCE_DIR}/opengl/imagebutton.cpp
     )
     target_link_libraries(thorin PUBLIC glbinding::glbinding globjects::globjects)
     target_compile_definitions(thorin PUBLIC THORIN_GL)
-    # Emscripten links WebGL 1 only by default; GLBackend needs WebGL2 (GLES 3.0).
+    # Emscripten links WebGL 1 only by default; opengl::Backend needs WebGL2 (GLES 3.0).
     if(EMSCRIPTEN)
         target_link_options(thorin PUBLIC -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2)
     endif()
 endif()
 
-# SDL_GPU backend (Vulkan, Metal or D3D12). SDL_GPU has no web driver, so it is off on Emscripten.
+# SDL_GPU backend (Vulkan, Metal or D3D12) and widgets, in thorin::sdlgpu. SDL_GPU has no web driver, so it is off on Emscripten.
 include(CMakeDependentOption)
 cmake_dependent_option(THORIN_SDLGPU "Build the SDL_GPU backend" ON "NOT EMSCRIPTEN" OFF)
 if(THORIN_SDLGPU)
-    target_sources(thorin PRIVATE ${THORIN_SOURCE_DIR}/sdlgpu/sdlgpubackend.cpp)
+    target_sources(
+        thorin
+        PRIVATE
+        ${THORIN_SOURCE_DIR}/sdlgpu/backend.cpp
+        ${THORIN_SOURCE_DIR}/sdlgpu/renderwidget.cpp
+        ${THORIN_SOURCE_DIR}/sdlgpu/imagebutton.cpp
+    )
     target_compile_definitions(thorin PUBLIC THORIN_SDLGPU)
 endif()
 
@@ -190,7 +196,7 @@ if(THORIN_EXTRAS)
     install(TARGETS thorin_extras EXPORT thorinTargets)
 endif()
 if(NOT THORIN_GL)
-    list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "gl" EXCLUDE)
+    list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "opengl" EXCLUDE)
 endif()
 if(NOT THORIN_SDLGPU)
     list(APPEND THORIN_INSTALL_EXCLUDE PATTERN "sdlgpu" EXCLUDE)
