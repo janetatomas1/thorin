@@ -47,6 +47,11 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window::post()`: runs a function with the window on the next dispatch, dropped if the window was
   closed meanwhile, like `Widget::post()`.
 - `Widget::post()` and `Window::post()` take a `delay`, like `add_action()`.
+- `RadioGroup::remove_option(index)`: later options move down, so values stay equal to indices; the
+  same option stays selected, or the first one if the selected option was removed.
+- `Widget::in_window_tree()`: whether the widget's tree is its window's root tree.
+- `Widget::set_entry_owner()` / `entry_owner()`: the widget that measures an entry drawn outside the Yoga
+  tree. `MenuBar`, `Menu` and `Table` set it on what they add.
 - Scrolling `Table` (`ImGuiTableFlags_ScrollY`): only the visible rows are drawn (`ImGuiListClipper`),
   and the header row stays on top. It takes its height from `height()` or flex; without one it measures
   as the header and the first row, so measuring no longer walks every cell.
@@ -62,6 +67,12 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
 - `Window::set_title()` changes the OS window title (`SDL_SetWindowTitle`); it only changed the stored
   one. The root ImGui window has a fixed name, so renaming no longer resets tree nodes, scroll, tables
   and other ImGui state.
+- `TabWidget` follows tab switches that aren't a click on the tab (the tab list popup, keyboard
+  navigation); before, the next frame switched back.
+- Pages and panes added to a `TabWidget` / `DockArea` after the window started get `init()`, like those
+  added before (`remove()` already calls `destroy()`).
+- Renaming or restyling a menu, menu entry or table cell marks its `MenuBar` / `Table` dirty, so its
+  measured size no longer goes stale.
 - A delay longer than the action ring runs at its limit in debug builds too, as documented, instead of
   asserting.
 - `Table` and `MenuBar` measure their cells and menus with the entry's own style, as they draw them;
@@ -78,6 +89,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   `GLBackendConfig` -> `opengl::BackendConfig`, `RenderWidget` / `ImageWidget` / `ImageButton` ->
   `opengl::RenderWidget` / `ImageWidget` / `ImageButton`; headers `backend.hpp`, `renderwidget.hpp`,
   `imagewidget.hpp`, `imagebutton.hpp`). `thorin::gl` is avoided because it would hide glbinding's `gl`.
+- Removed the unused `enum class Backend` from `windowconfig.hpp`; backends are chosen with
+  `set_backend_factory()`.
 - `Theme` no longer has `plot` / `plot3d`, and windows no longer create ImPlot / ImPlot3D contexts;
   use `ChartTheme` from `thorin/extras/charttheme.hpp`.
 - `Window` takes its backend in the constructor (`Window(std::unique_ptr<GPUBackend>, widget)`)

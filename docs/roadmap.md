@@ -115,7 +115,9 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
   different style.
 - **Widgets drawn outside Yoga** (menu entries, table cells) are drawn inside their owner's
   `draw()`, so they inherit its style. Owners that measure them (`Table`, `MenuBar`) push the
-  entry's own style around it.
+  entry's own style around it. Each entry has an entry owner (`Widget::set_entry_owner()`, an id,
+  set when it is added): marking the entry dirty (title, style) marks its owner too, through a
+  submenu up to the bar.
 - **App-wide theme.** `Thorin::set_theme(Theme)` (`ImGuiStyle`, `ImPlotStyle`, `ImPlot3DStyle`, unscaled)
   is copied into each window's contexts in `opengl::Backend::init()`, then DPI-scaled. Setting it later
   re-themes open windows through an action (between frames) and marks their trees dirty.
@@ -131,11 +133,6 @@ Every widget owns a `Style` (`Widget::style()`), holding only the values that we
   above `WindowBg` and below every widget.
   `Thorin::set_background(image, opacity)` is the default: `Window::init()` takes it unless the window already
   has one.
-
-Still open:
-
-- Changing a table cell's or menu's style doesn't dirty the owner, so its measured size stays
-  stale until something else does.
 
 ## New widgets
 
