@@ -6,11 +6,6 @@
 #include <SDL3/SDL.h>
 
 namespace thorin {
-    // The GPU API a window draws with.
-    enum class Backend {
-        OpenGL = 0
-    };
-
     // How a window is first shown.
     enum class WindowState {
         MAXIMIZED = 0,

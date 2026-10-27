@@ -634,3 +634,21 @@ TEST_F(Measure, RemovingTheSelectedOptionSelectsTheFirst) {
     EXPECT_TRUE(group.at(0).selected());
     EXPECT_FALSE(group.at(1).selected());
 }
+
+// Lifecycle
+
+TEST_F(Measure, InWindowTreeOnlyForTheWindowsRootTree) {
+    Window window(std::make_unique<NullBackend>());
+    Widget* windowRoot = window.root_widget();
+    windowRoot->set_window(&window);
+    Widget child("child", windowRoot);
+    EXPECT_TRUE(child.in_window_tree());
+
+    // Given the window but not yet its root, as a root widget is until set_root_widget()'s swap runs.
+    root.set_window(&window);
+    Widget pending("pending", &root);
+    EXPECT_FALSE(pending.in_window_tree());
+
+    Widget loose("loose");
+    EXPECT_FALSE(loose.in_window_tree());
+}
