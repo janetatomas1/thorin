@@ -5,7 +5,7 @@ and versions follow [Semantic Versioning](https://semver.org); while the version
 versions may break the API. The version itself is set in `project()` in `CMakeLists.txt` and
 exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap.md](docs/roadmap.md).
 
-## [Unreleased]
+## [0.3.0] - 2026-10-27
 
 ### Added
 
