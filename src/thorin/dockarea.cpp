@@ -11,7 +11,12 @@ namespace thorin {
 
     void DockArea::attach_pane(std::unique_ptr<Pane> pane) {
         post([pane = std::move(pane)](auto& self) mutable {
-            self.adopt(std::move(pane)).set_parent(&self);
+            auto& ref = self.adopt(std::move(pane));
+            ref.set_parent(&self);
+            // Panes added before the window starts are initialized with it.
+            if (self.in_window_tree()) {
+                ref.init();
+            }
         });
     }
 
