@@ -69,6 +69,8 @@ exposed as `THORIN_VERSION` in `thorin/version.hpp`. Plans live in [docs/roadmap
   and other ImGui state.
 - `TabWidget` follows tab switches that aren't a click on the tab (the tab list popup, keyboard
   navigation); before, the next frame switched back.
+- `Window::init()` calls `init()` on its root widget tree; only a root set with `set_root_widget()` got it,
+  while `Window::destroy()` destroyed every root.
 - Pages and panes added to a `TabWidget` / `DockArea` after the window started get `init()`, like those
   added before (`remove()` already calls `destroy()`).
 - Renaming or restyling a menu, menu entry or table cell marks its `MenuBar` / `Table` dirty, so its

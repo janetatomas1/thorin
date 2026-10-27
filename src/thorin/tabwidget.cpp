@@ -30,9 +30,9 @@ namespace thorin {
             size_t shownNow = shown_;
             size_t index = 0;
             for (const auto& tab : tabs) {
-                // selected_ is the source of truth: ImGui is told every frame (a no-op once it
-                // matches), so set_selected() needs nothing else to switch the tab.
-                const ImGuiTabItemFlags itemFlags = index == selected_
+                // ImGui is told about selected_ until it shows it, so set_selected() needs nothing else
+                // to switch the tab. Not after: it would queue a switch back over ImGui's own switches.
+                const ImGuiTabItemFlags itemFlags = index == selected_ && shown_ != selected_
                     ? ImGuiTabItemFlags_SetSelected
                     : ImGuiTabItemFlags_None;
 
@@ -151,8 +151,9 @@ namespace thorin {
                 selected = 0;
             }
 
-            // Indices past the removed page shifted; wait for ImGui to show the selected page again.
-            self.tabBar.shown_ = selected;
+            // Indices past the removed page shifted. ImGui still shows the same page unless it was the removed one;
+            // then the successor has to be pushed, or ImGui falls back to its most recently selected tab.
+            self.tabBar.shown_ = wasSelected ? SIZE_MAX : selected;
             self.tabBar.layout().mark_dirty();
         });
     }

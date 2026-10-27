@@ -41,6 +41,9 @@ namespace thorin {
         if (!backend_->has_background_painter() && app().background_painter_factory()) {
             set_background_painter(app().background_painter_factory()());
         }
+
+        // Last, so widgets can create what they need in the backend. Pairs with destroy().
+        rootWidget_->init();
     }
 
     void Window::destroy() {
