@@ -133,6 +133,9 @@ namespace thorin {
         void set_entry_owner(Widget& owner);
         // The live entry owner, or nullptr.
         [[nodiscard]] Widget* entry_owner();
+        // Whether this widget's tree is its window's root tree, so the window's init() has reached (or is
+        // reaching) it. A widget added to such a tree later needs its own init().
+        [[nodiscard]] bool in_window_tree();
         Thorin& app();
         Layout& layout();
         // Pushed around show(), so it applies to the children too; measure sees it as well.

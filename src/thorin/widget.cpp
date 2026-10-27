@@ -7,6 +7,7 @@
 
 #include "thorin/widget.hpp"
 #include "thorin/thorin.hpp"
+#include "thorin/window.hpp"
 
 namespace thorin {
     Widget::Widget(const std::string& title, Widget* parent):
@@ -302,6 +303,14 @@ namespace thorin {
 
     Widget* Widget::entry_owner() {
         return entryOwner_ != 0 ? find(entryOwner_) : nullptr;
+    }
+
+    bool Widget::in_window_tree() {
+        Widget* root = this;
+        while (Widget* p = root->parent()) {
+            root = p;
+        }
+        return root->window_ != nullptr && root->window_->root_widget() == root;
     }
 
     Thorin& Widget::app() {
