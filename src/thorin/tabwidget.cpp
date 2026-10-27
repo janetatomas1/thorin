@@ -27,6 +27,7 @@ namespace thorin {
             const float tabWidth = std::max(available / count, 1.0f);
 
             auto tabs = tabWidget->items();
+            size_t shownNow = shown_;
             size_t index = 0;
             for (const auto& tab : tabs) {
                 // selected_ is the source of truth: ImGui is told every frame (a no-op once it
@@ -39,6 +40,7 @@ namespace thorin {
                     ImGui::SetNextItemWidth(tabWidth);
                 }
                 if (ImGui::BeginTabItem(tab.title_id().c_str(), nullptr, itemFlags)) {
+                    shownNow = index;
                     ImGui::EndTabItem();
                 }
 
@@ -52,6 +54,16 @@ namespace thorin {
                 }
                 index++;
             }
+
+            // ImGui switched without a click on the tab (tab list popup, keyboard navigation). Only trusted while
+            // ImGui and selected_ agreed last frame: after set_selected() ImGui shows the old tab for one more frame.
+            if (shownNow != selected_ && shown_ == selected_) {
+                tabWidget->post([shownNow](auto& self) {
+                    self.display_page(shownNow);
+                });
+                changed = true;
+            }
+            shown_ = shownNow;
 
             ImGui::EndTabBar();
         }
@@ -113,6 +125,10 @@ namespace thorin {
             }
             // A new tab widens the strip.
             self.tabBar.layout().mark_dirty();
+            // Pages added before the window starts are initialized with it.
+            if (self.in_window_tree()) {
+                ref.init();
+            }
         });
     }
 
@@ -135,6 +151,8 @@ namespace thorin {
                 selected = 0;
             }
 
+            // Indices past the removed page shifted; wait for ImGui to show the selected page again.
+            self.tabBar.shown_ = selected;
             self.tabBar.layout().mark_dirty();
         });
     }

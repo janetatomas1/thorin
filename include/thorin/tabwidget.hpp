@@ -18,6 +18,8 @@ namespace thorin {
             bool stretch_ = true;
             TabWidget *tabWidget;
             size_t selected_ = 0;
+            // The tab ImGui showed last frame, to tell its own switches from set_selected().
+            size_t shown_ = 0;
             std::string groupID;
 
             TabBar(TabWidget* parent);
