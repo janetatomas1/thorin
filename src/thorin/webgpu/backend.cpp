@@ -12,6 +12,7 @@
 
 #include "thorin/window.hpp"
 #include "thorin/log.hpp"
+#include "thorin/assert.hpp"
 
 namespace thorin::webgpu {
     struct SharedDevice {
@@ -195,5 +196,27 @@ namespace thorin::webgpu {
 #endif
 
         shared_->instance.ProcessEvents();
+    }
+
+    void Backend::destroy() {
+        THORIN_DEBUG_ASSERT(handle_ != nullptr, "webgpu::Backend::destroy called with no window handle");
+        THORIN_DEBUG_ASSERT(shared_ != nullptr, "webgpu::Backend::destroy called with no device");
+
+        logger().info("window {} '{}' closed", window_->id(), config_.title);
+
+        // No wait for idle: WebGPU keeps objects alive until the GPU work using them is done.
+        // The backends and the context are per window; shut them down while this window's context is current.
+        make_current();
+        ImGui_ImplWGPU_Shutdown();
+        destroy_context();
+
+        // Before the window: the surface refers to its native window.
+        surface_.Unconfigure();
+        surface_ = nullptr;
+        SDL_DestroyWindow(handle_);
+
+        // Last: the device goes with the last window that holds it. surfaceConfig_ holds a reference too.
+        surfaceConfig_.device = nullptr;
+        shared_.reset();
     }
 }
