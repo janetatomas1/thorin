@@ -139,6 +139,10 @@ if(THORIN_WEBGPU)
     find_package(Dawn REQUIRED)
     find_package(sdl3webgpu REQUIRED)
     target_link_libraries(thorin_webgpu PUBLIC thorin dawn::webgpu_dawn PRIVATE sdl3webgpu::sdl3webgpu)
+    # Backend::init() blocks in WaitAny() for the adapter and device; in the browser that needs JSPI.
+    if(EMSCRIPTEN)
+        target_link_options(thorin_webgpu PUBLIC -sJSPI)
+    endif()
 endif()
 
 if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU AND NOT THORIN_WEBGPU)

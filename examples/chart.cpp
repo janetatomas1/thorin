@@ -2,10 +2,8 @@
 #include <string>
 
 #include <thorin/thorin.hpp>
-#include <thorin/opengl/backend.hpp>
+#include <thorin/webgpu/backend.hpp>
 #include <thorin/extras/chartwidget.hpp>
-
-#include "thorin/webgpu/backend.hpp"
 
 using namespace thorin;
 
