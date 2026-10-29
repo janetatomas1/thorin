@@ -32,5 +32,8 @@ namespace thorin::webgpu {
     public:
         Backend(const WindowConfig &config = {}, const BackendConfig &gpuConfig = {});
         void init() override;
+        void update(Widget *rootWidget) override;
+        void destroy() override;
+        ImTextureID upload_background() override;
     };
 }

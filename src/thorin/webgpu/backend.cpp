@@ -33,7 +33,6 @@ namespace thorin::webgpu {
         shared_ = sharedDevice.lock();
         if (!shared_) {
             shared_ = std::make_shared<SharedDevice>();
-            // Lets WaitAny() block on the adapter and device requests below.
             const wgpu::InstanceFeatureName timedWaitAny = wgpu::InstanceFeatureName::TimedWaitAny;
             wgpu::InstanceDescriptor instanceDescriptor;
             instanceDescriptor.requiredFeatureCount = 1;
@@ -139,5 +138,62 @@ namespace thorin::webgpu {
            std::string_view(adapterInfo.description),
            scale_
        );
+    }
+
+    void Backend::update(Widget *rootWidget) {
+        make_current();
+        ImGui_ImplWGPU_NewFrame();
+        build_frame(rootWidget);
+        ImDrawData* drawData = ImGui::GetDrawData();
+
+        int width = 0, height = 0;
+        SDL_GetWindowSizeInPixels(handle_, &width, &height);
+        if (width <= 0 || height <= 0) {
+            return;                        // minimized: configuring a 0x0 surface is a validation error
+        }
+
+        if (static_cast<uint32_t>(width) != surfaceConfig_.width || static_cast<uint32_t>(height) != surfaceConfig_.height) {
+            surfaceConfig_.width = width;
+            surfaceConfig_.height = height;
+            surface_.Configure(&surfaceConfig_);
+        }
+
+        wgpu::SurfaceTexture surfaceTexture;
+        surface_.GetCurrentTexture(&surfaceTexture);
+        if (surfaceTexture.status == wgpu::SurfaceGetCurrentTextureStatus::Error) {
+            logger().error("window {}: GetCurrentTexture failed", window_->id());
+            return;
+        }
+
+        if (surfaceTexture.status != wgpu::SurfaceGetCurrentTextureStatus::SuccessOptimal &&
+            surfaceTexture.status != wgpu::SurfaceGetCurrentTextureStatus::SuccessSuboptimal) {
+            // Timeout, Outdated or Lost: reconfigure and skip this frame. Presenting without a texture is invalid.
+            surface_.Configure(&surfaceConfig_);
+            return;
+        }
+
+        wgpu::RenderPassColorAttachment color;
+        color.view = surfaceTexture.texture.CreateView();
+        color.loadOp = wgpu::LoadOp::Clear;
+        color.storeOp = wgpu::StoreOp::Store;
+        color.clearValue = {0.0, 0.0, 0.0, 0.0};
+
+        wgpu::RenderPassDescriptor passDescriptor;
+        passDescriptor.colorAttachmentCount = 1;
+        passDescriptor.colorAttachments = &color;
+
+        wgpu::CommandEncoder encoder = shared_->device.CreateCommandEncoder();
+        wgpu::RenderPassEncoder pass = encoder.BeginRenderPass(&passDescriptor);
+        ImGui_ImplWGPU_RenderDrawData(drawData, pass.Get());
+        pass.End();
+
+        wgpu::CommandBuffer commands = encoder.Finish();
+        shared_->device.GetQueue().Submit(1, &commands);
+
+#ifndef __EMSCRIPTEN__
+        surface_.Present();
+#endif
+
+        shared_->instance.ProcessEvents();
     }
 }
