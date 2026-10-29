@@ -28,6 +28,9 @@ namespace thorin::webgpu {
         std::shared_ptr<SharedDevice> shared_;
         wgpu::Surface surface_;
         wgpu::SurfaceConfiguration surfaceConfig_;
+        // This window's copy of background_, and the view ImGui draws it through.
+        wgpu::Texture backgroundImage_;
+        wgpu::TextureView backgroundView_;
 
     public:
         Backend(const WindowConfig &config = {}, const BackendConfig &gpuConfig = {});
@@ -35,5 +38,8 @@ namespace thorin::webgpu {
         void update(Widget *rootWidget) override;
         void destroy() override;
         ImTextureID upload_background() override;
+        // A new RGBA8Unorm texture with TextureBinding usage holding image's pixels. The upload is queued before
+        // this returns; failures go to the uncaptured-error log.
+        [[nodiscard]] wgpu::Texture upload_texture(const Image& image);
     };
 }

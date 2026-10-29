@@ -5,6 +5,8 @@
 #include <thorin/opengl/backend.hpp>
 #include <thorin/extras/chartwidget.hpp>
 
+#include "thorin/webgpu/backend.hpp"
+
 using namespace thorin;
 
 // Chart: sine and cosine sampled every frame, scrolling through the last 10 seconds
@@ -43,9 +45,11 @@ struct Chart: Widget {
 
 int main(const int argc, char** argv) {
     auto app = Thorin(argc, argv);
+
     app.set_backend_factory([](const WindowConfig& config) {
-        return std::make_unique<opengl::Backend>(config);
+        return std::make_unique<webgpu::Backend>(config);
     });
     app.add_window<Chart>(std::string("Chart"));
+
     return app.exec();
 }

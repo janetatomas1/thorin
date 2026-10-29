@@ -208,6 +208,8 @@ namespace thorin::webgpu {
         // The backends and the context are per window; shut them down while this window's context is current.
         make_current();
         ImGui_ImplWGPU_Shutdown();
+        backgroundView_ = nullptr;
+        backgroundImage_ = nullptr;
         destroy_context();
 
         // Before the window: the surface refers to its native window.
@@ -218,5 +220,43 @@ namespace thorin::webgpu {
         // Last: the device goes with the last window that holds it. surfaceConfig_ holds a reference too.
         surfaceConfig_.device = nullptr;
         shared_.reset();
+    }
+
+    ImTextureID Backend::upload_background() {
+        // Frames in flight keep the old texture alive until they are done with it.
+        backgroundView_ = nullptr;
+        backgroundImage_ = nullptr;
+
+        if (background_ == nullptr) {
+            return ImTextureID_Invalid;
+        }
+
+        backgroundImage_ = upload_texture(*background_);
+        backgroundView_ = backgroundImage_.CreateView();
+
+        // ImGui's WGPU backend takes a WGPUTextureView as ImTextureID.
+        return static_cast<ImTextureID>(reinterpret_cast<intptr_t>(backgroundView_.Get()));
+    }
+
+    wgpu::Texture Backend::upload_texture(const Image& image) {
+        THORIN_DEBUG_ASSERT(shared_ != nullptr, "webgpu::Backend::upload_texture called before init");
+
+        wgpu::TextureDescriptor textureDescriptor;
+        textureDescriptor.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
+        textureDescriptor.dimension = wgpu::TextureDimension::e2D;
+        textureDescriptor.size = {static_cast<uint32_t>(image.width()), static_cast<uint32_t>(image.height())};
+        textureDescriptor.format = wgpu::TextureFormat::RGBA8Unorm;
+        // Never null: on failure WebGPU returns an invalid texture and reports to the uncaptured-error callback.
+        wgpu::Texture texture = shared_->device.CreateTexture(&textureDescriptor);
+
+        // WriteTexture has no row alignment requirement, unlike a buffer-to-texture copy.
+        wgpu::TexelCopyTextureInfo destination;
+        destination.texture = texture;
+        wgpu::TexelCopyBufferLayout layout;
+        layout.bytesPerRow = textureDescriptor.size.width * 4;
+        layout.rowsPerImage = textureDescriptor.size.height;
+        const auto pixels = image.pixels();
+        shared_->device.GetQueue().WriteTexture(&destination, pixels.data(), pixels.size(), &layout, &textureDescriptor.size);
+        return texture;
     }
 }
