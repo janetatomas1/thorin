@@ -126,8 +126,23 @@ if(THORIN_SDLGPU)
     target_link_libraries(thorin_sdlgpu PUBLIC thorin)
 endif()
 
-if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU)
-    message(STATUS "thorin: no real backend built (THORIN_OPENGL and THORIN_SDLGPU are off); only NullBackend, which draws nothing")
+# WebGPU backend (Dawn natively, emdawnwebgpu on Emscripten), in thorin::webgpu.
+option(THORIN_WEBGPU "Build the WebGPU backend" ON)
+if(THORIN_WEBGPU)
+    add_library(
+        thorin_webgpu
+        STATIC
+        ${THORIN_SOURCE_DIR}/webgpu/backend.cpp
+    )
+    add_library(thorin::webgpu ALIAS thorin_webgpu)
+    set_target_properties(thorin_webgpu PROPERTIES EXPORT_NAME webgpu)
+    find_package(Dawn REQUIRED)
+    find_package(sdl3webgpu REQUIRED)
+    target_link_libraries(thorin_webgpu PUBLIC thorin dawn::webgpu_dawn PRIVATE sdl3webgpu::sdl3webgpu)
+endif()
+
+if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU AND NOT THORIN_WEBGPU)
+    message(STATUS "thorin: no real backend built (THORIN_OPENGL, THORIN_SDLGPU and THORIN_WEBGPU are off); only NullBackend, which draws nothing")
 endif()
 
 # Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).
