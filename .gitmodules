@@ -1,0 +1,3 @@
+[submodule "submodules/conanfiles"]
+	path = submodules/conanfiles
+	url = git@github.com:janetatomas1/conanfiles.git
