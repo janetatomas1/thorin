@@ -31,4 +31,12 @@ foreach(example_name ${THORIN_EXAMPLE_NAMES})
     target_link_libraries(${example_name} PRIVATE thorin::extras ${THORIN_EXAMPLE_BACKENDS})
     # Examples load their images from the source tree, wherever they are run from.
     target_compile_definitions(${example_name} PRIVATE THORIN_EXAMPLES_ASSETS="${THORIN_EXAMPLES_DIR}/assets")
+    # Windows has no rpath: copy DLLs (SDL3) next to the example.
+    if(WIN32)
+        add_custom_command(
+            TARGET ${example_name} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${example_name}> $<TARGET_FILE_DIR:${example_name}>
+            COMMAND_EXPAND_LISTS
+        )
+    endif()
 endforeach()
