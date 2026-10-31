@@ -145,8 +145,37 @@ if(THORIN_WEBGPU)
     endif()
 endif()
 
-if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU AND NOT THORIN_WEBGPU)
-    message(STATUS "thorin: no real backend built (THORIN_OPENGL, THORIN_SDLGPU and THORIN_WEBGPU are off); only NullBackend, which draws nothing")
+# Vulkan 1.3 backend, in thorin::vulkan; native only. Vulkan is loaded at runtime through SDL, so the Vulkan
+# loader isn't linked.
+cmake_dependent_option(THORIN_VULKAN "Build the Vulkan backend" ON "NOT EMSCRIPTEN" OFF)
+if(THORIN_VULKAN)
+    add_library(
+        thorin_vulkan
+        STATIC
+        ${THORIN_SOURCE_DIR}/vulkan/backend.cpp
+        ${THORIN_SOURCE_DIR}/vulkan/vma.cpp
+    )
+    add_library(thorin::vulkan ALIAS thorin_vulkan)
+    set_target_properties(thorin_vulkan PROPERTIES EXPORT_NAME vulkan)
+    find_package(VulkanHeaders REQUIRED)
+    find_package(VulkanMemoryAllocator REQUIRED)
+    find_package(vk-bootstrap REQUIRED)
+    target_link_libraries(
+        thorin_vulkan
+        PUBLIC thorin vulkan-headers::vulkan-headers GPUOpen::VulkanMemoryAllocator
+        PRIVATE vk-bootstrap::vk-bootstrap
+    )
+    # No prototypes: functions come through SDL's vkGetInstanceProcAddr (imgui is built the same way), so
+    # Vulkan-Hpp's own loader is off too. Vulkan-Hpp returns OutOfDate from acquire and present instead of
+    # throwing, as the frame loop expects it.
+    target_compile_definitions(
+        thorin_vulkan
+        PUBLIC VK_NO_PROTOTYPES VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL=0 VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
+    )
+endif()
+
+if(NOT THORIN_OPENGL AND NOT THORIN_SDLGPU AND NOT THORIN_WEBGPU AND NOT THORIN_VULKAN)
+    message(STATUS "thorin: no real backend built (THORIN_OPENGL, THORIN_SDLGPU, THORIN_WEBGPU and THORIN_VULKAN are off); only NullBackend, which draws nothing")
 endif()
 
 # Optional widgets on top of thorin: ChartWidget and Chart3DWidget (ImPlot / ImPlot3D).

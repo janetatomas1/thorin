@@ -2,7 +2,7 @@
 #include <string>
 
 #include <thorin/thorin.hpp>
-#include <thorin/webgpu/backend.hpp>
+#include <thorin/vulkan/backend.hpp>
 #include <thorin/extras/chartwidget.hpp>
 
 using namespace thorin;
@@ -45,7 +45,7 @@ int main(const int argc, char** argv) {
     auto app = Thorin(argc, argv);
 
     app.set_backend_factory([](const WindowConfig& config) {
-        return std::make_unique<webgpu::Backend>(config);
+        return std::make_unique<vulkan::Backend>(config);
     });
     app.add_window<Chart>(std::string("Chart"));
 

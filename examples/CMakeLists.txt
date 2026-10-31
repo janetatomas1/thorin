@@ -2,8 +2,11 @@
 # so switching an example's backend needs no change here, only the condition below.
 set(THORIN_EXAMPLE_NAMES)
 set(THORIN_EXAMPLE_BACKENDS)
-if(THORIN_WEBGPU)
+if(THORIN_VULKAN)
     list(APPEND THORIN_EXAMPLE_NAMES chart)
+    list(APPEND THORIN_EXAMPLE_BACKENDS thorin::vulkan)
+endif()
+if(THORIN_WEBGPU)
     list(APPEND THORIN_EXAMPLE_BACKENDS thorin::webgpu)
 endif()
 if(THORIN_OPENGL)
