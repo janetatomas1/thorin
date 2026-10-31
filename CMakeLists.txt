@@ -87,6 +87,8 @@ target_link_libraries(
 if(NOT EMSCRIPTEN)
     find_package(libassert REQUIRED)
     target_link_libraries(thorin PUBLIC libassert::assert)
+    # libassert's macros need MSVC's conforming preprocessor; public because apps expand them too.
+    target_compile_options(thorin PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>)
 endif()
 
 # OpenGL backend and widgets, in thorin::opengl. The only part that links glbinding / globjects.
